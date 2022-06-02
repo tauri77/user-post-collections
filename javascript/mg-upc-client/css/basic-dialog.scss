@@ -1,0 +1,117 @@
+
+/**
+ * 1. Make the dialog container, and its child overlay spread across
+ *    the entire window.
+ */
+.mg-upc-dg-container,
+.mg-upc-dg-overlay {
+  position: fixed; /* 1 */
+  top: 0; /* 1 */
+  right: 0; /* 1 */
+  bottom: 0; /* 1 */
+  left: 0; /* 1 */
+}
+
+/**
+ * 1. Make sure the dialog container and all its descendants sits on
+ *    top of the rest of the page.
+ * 2. Make the dialog container a flex container to easily center the
+ *    dialog.
+ */
+.mg-upc-dg-container {
+  z-index: 102; /* 1 */
+  display: flex; /* 2 */
+}
+
+/**
+ * 1. Make sure the dialog container and all its descendants are not
+ *    visible and not focusable when it is hidden.
+ */
+.mg-upc-dg-container[aria-hidden='true'] {
+  display: none; /* 1 */
+}
+
+/**
+ * 1. Make the overlay look like an overlay.
+ */
+.mg-upc-dg-overlay {
+  background-color: rgba(43, 46, 56, 0.9); /* 1 */
+  animation: fade-in 200ms both;
+}
+
+/**
+ * 1. Vertically and horizontally center the dialog in the page.
+ * 2. Make sure the dialog sits on top of the overlay.
+ * 3. Make sure the dialog has an opaque background.
+ */
+.mg-upc-dg-content {
+  margin: auto; /* 1 */
+  z-index: 2; /* 2 */
+  position: relative; /* 2 */
+  background-color: rgb(255, 255, 255); /* 3 */
+  color: #333;
+  overflow-y: auto;
+  animation: fade-in 400ms 200ms both, slide-up 400ms 200ms both;
+  padding: 1em;
+  max-width: 90%;
+  max-height: 80%;
+  width: 600px;
+  border-radius: 2px;
+  p {
+    color: #333;
+  }
+}
+
+.mg-upc-dg-content::after,
+.mg-list-edit::after {
+  content: '';
+  display: block;
+  clear: both;
+}
+
+@media screen and (min-width: 700px) {
+  .mg-upc-dg-content {
+    padding: 2em 1.5em;
+  }
+}
+
+.mg-upc-dg-close {
+  position: absolute;
+  top: 0.5em;
+  right: 0.5em;
+  border: 0;
+  padding: 0;
+  background-color: transparent;
+  color: #000;
+  font-weight: bold;
+  font-size: 1.25em;
+  line-height: 1.25em;
+  min-width: 1.2em;
+  min-height: 1.2em;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+@media screen and (min-width: 700px) {
+  .mg-upc-dg-close {
+    top: 1em;
+    right: 1em;
+  }
+}
+
+.mg-upc-dialog-content-wrapper {
+  position: relative;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(10%);
+  }
+}
