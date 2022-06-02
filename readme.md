@@ -12,6 +12,7 @@ It also includes a client for the api developed in preact.
 You can add a link, for example to the menu, with the hash "#my-lists", when clicked the client appears on the scene as a modal.
 
 ##Reinventing the wheel
+
 The plugin is being developed in an existing database, but the structure is such that it will be simple to pass the lists to a CPT.
 
 ![Screenshot 1](screenshot-1.png?raw=true)
