@@ -13,8 +13,6 @@ $icomoon-font-path: "icomoon/fonts" !default;
   vertical-align: middle;
 }
 
-
-
 .mg-upc-dg-error {
   display: block;
   background: rgba(255, 48, 48, 0.75);
@@ -24,8 +22,11 @@ $icomoon-font-path: "icomoon/fonts" !default;
   color: #4f0001;
   margin: 1em 0;
   position: sticky;
-  top: 0;
+  top: -1em;
   z-index: 5;
+  @media screen and (min-width: 700px) {
+      top: -2em;
+  }
 }
 
 .mg-upc-dg-alert-close {
@@ -478,4 +479,11 @@ EDIT
 .post-adding {
   padding: 1em;
   text-align: center;
+}
+
+.mg-upc-err-required_logged_in {
+  .mg-list-new,
+  .mg-upc-dg-alert-close {
+    display: none;
+  }
 }

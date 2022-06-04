@@ -145,7 +145,7 @@ class MG_List_Model {
 		$args     = array_merge( $defaults, $args );
 
 		$cache_key = md5( wp_json_encode( $args ) );
-		$return    = $this->cache->get( 'items', $cache_key );
+		$return    = $this->cache->get( 'find', $cache_key );
 		if ( null !== $return ) {
 			return $return;
 		}

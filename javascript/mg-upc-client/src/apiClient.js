@@ -6,6 +6,7 @@ class MgApiError extends Error {
 	constructor(message, response) {
 		super( message );
 		this.name     = "MgApiError";
+		this.code     = response?.data?.code;
 		this.response = response;
 	}
 }

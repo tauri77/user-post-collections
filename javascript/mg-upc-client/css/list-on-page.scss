@@ -271,13 +271,15 @@
 .mg-upc-alert-error {
   border-color: #d50000;
   background: rgba(255, 121, 121, 0.8);
+  color: #000;
 }
 
 .mg-upc-alert-close {
   position: absolute;
   top: 10px;
   right: 15px;
-  text-decoration: none;
+  text-decoration: none !important;
+  color: black;
 }
 
 

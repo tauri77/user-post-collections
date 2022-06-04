@@ -243,24 +243,24 @@ class MG_UPC_List_Type implements ArrayAccess {
 		return $caps;
 	}
 
-	public function user_has_cap( $allcaps, $primitive_caps, $args ) {
+	public function user_has_cap( $all_caps, $primitive_caps, $args ) {
 
 		$requested = $this->get_core_cap( $args[0] );
 		if ( $requested ) {
 			foreach ( $primitive_caps as $primitive_cap ) {
-				if ( 'edit_user_post_collections' === $primitive_cap && ! isset( $allcaps[ $primitive_cap ] ) ) {
-					$allcaps[ $primitive_cap ] = ! empty( $args[1] );
+				if ( 'edit_user_post_collections' === $primitive_cap && ! isset( $all_caps[ $primitive_cap ] ) ) {
+					$all_caps[ $primitive_cap ] = ! empty( $args[1] );
 					continue;
 				}
 				//copy from core equivalent
 				$core = $this->get_core_cap( $primitive_cap );
-				if ( isset( $allcaps[ $core ] ) ) {
-					$allcaps[ $primitive_cap ] = $allcaps[ $core ];
+				if ( isset( $all_caps[ $core ] ) ) {
+					$all_caps[ $primitive_cap ] = $all_caps[ $core ];
 				}
 			}
 		}
 
-		return $allcaps;
+		return $all_caps;
 	}
 
 	private function get_core_cap( $cap_name ) {

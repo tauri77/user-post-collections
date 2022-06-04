@@ -30,6 +30,7 @@ function mg_upc_strlen( $string, $encoding = null ) {
 
 
 
+
 function mg_upc_get_templates_path() {
 	return untrailingslashit( plugin_dir_path( MG_UPC_PLUGIN_FILE ) ) . '/templates/';
 }

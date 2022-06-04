@@ -77,7 +77,7 @@ class MG_UPC_REST_Lists_Controller {
 						'per_page' => array(
 							'description'       => __( 'Maximum number of items to be returned in result set.', 'user-post-collections' ),
 							'type'              => 'integer',
-							'default'           => 3,
+							'default'           => 10,
 							'minimum'           => 1,
 							'maximum'           => 100,
 							'sanitize_callback' => 'absint',
@@ -203,7 +203,7 @@ class MG_UPC_REST_Lists_Controller {
 	public function get_lists_my_permissions_check( $request ) {
 		if ( ! is_user_logged_in() ) {
 			return new WP_Error(
-				'rest_forbidden',
+				'required_logged_in',
 				esc_html__( 'Required logged in.', 'user-post-collections' ),
 				array( 'status' => $this->authorization_status_code() )
 			);
@@ -231,28 +231,35 @@ class MG_UPC_REST_Lists_Controller {
 	 * @return bool|WP_Error
 	 */
 	public function create_list_permissions_check( $request ) {
-		if ( ! MG_UPC_List_Controller::get_instance()->can_create() ) {
 
-			if (
-				! empty( $request['author'] ) &&
-				get_current_user_id() !== $request['author'] &&
-				! MG_UPC_List_Controller::get_instance()->can_edit_others()
-			) {
-				return new WP_Error(
-					'rest_cannot_edit_others',
-					__( 'Sorry, you are not allowed to create list as this user.', 'user-post-collections' ),
-					array( 'status' => rest_authorization_required_code() )
-				);
-			}
-
+		if ( ! is_user_logged_in() ) {
 			return new WP_Error(
-				'rest_forbidden',
-				esc_html__( 'You cannot create list.', 'user-post-collections' ),
-				array(
-					'status' => $this->authorization_status_code(),
-				)
+				'required_logged_in',
+				esc_html__( 'Required logged in.', 'user-post-collections' ),
+				array( 'status' => $this->authorization_status_code() )
 			);
 		}
+
+		if ( ! MG_UPC_List_Controller::get_instance()->can_create( $request['type'] ) ) {
+			return new WP_Error(
+				'rest_cannot_edit_others',
+				__( 'Sorry, you are not allowed to create this list.', 'user-post-collections' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		if (
+			! empty( $request['author'] ) &&
+			get_current_user_id() !== $request['author'] &&
+			! MG_UPC_List_Controller::get_instance()->can_edit_others( $request['type'] )
+		) {
+			return new WP_Error(
+				'rest_cannot_edit_others',
+				__( 'Sorry, you are not allowed to create list as this user.', 'user-post-collections' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
 		return true;
 	}
 
@@ -275,18 +282,6 @@ class MG_UPC_REST_Lists_Controller {
 			return new WP_Error(
 				'rest_cannot_edit',
 				__( 'Sorry, you are not allowed to edit this post.', 'user-post-collections' ),
-				array( 'status' => rest_authorization_required_code() )
-			);
-		}
-
-		if (
-			! empty( $request['author'] ) &&
-			get_current_user_id() !== $request['author'] &&
-			! MG_UPC_List_Controller::get_instance()->can_edit_others()
-		) {
-			return new WP_Error(
-				'rest_cannot_edit_others',
-				__( 'Sorry, you are not allowed to update posts as this user.', 'user-post-collections' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}

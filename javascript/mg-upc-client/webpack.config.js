@@ -18,10 +18,6 @@ module.exports = {
 				]
 			},
 			{
-				test: /\.html$/i,
-				loader: "html-loader",
-			},
-			{
 				test: /\.js$/,
 				exclude: /node_modules/,
 				use: {
@@ -38,5 +34,10 @@ module.exports = {
 			"react/jsx-runtime": "preact/jsx-runtime",
 			"react-a11y-dialog": "react-a11y-dialog"
 		},
-	}
+	},
+	output: {
+		filename: 'main.js',
+		path: path.resolve(__dirname, 'dist'),
+		clean: true
+	},
 };

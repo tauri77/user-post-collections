@@ -64,7 +64,7 @@ if ( mg_upc_requirements_met() ) {
 	require_once __DIR__ . '/includes/utils.php';
 	require_once __DIR__ . '/includes/template-hooks.php';
 	require_once __DIR__ . '/includes/mg-upc-cache.php';
-	require_once __DIR__ . '/includes/MG_UPC_List_Type.php';
+	require_once __DIR__ . '/includes/mg-upc-list-type.php';
 	require_once __DIR__ . '/includes/list-types.php';
 	require_once __DIR__ . '/includes/mg-upc-helper.php';
 

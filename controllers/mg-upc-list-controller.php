@@ -571,21 +571,33 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 	/**
 	 * Check if the user can edit lists of other users
 	 *
+	 * @param string $list_type The list type
+	 *
 	 * @return bool
 	 */
-	public function can_edit_others() {
-		return current_user_can( 'edit_others_user_post_collections' );
+	public function can_edit_others( $list_type ) {
+		$list_type_obj = MG_UPC_Helper::get_instance()->get_list_type( $list_type );
+		if ( false !== $list_type_obj ) {
+			return current_user_can( $list_type_obj->get_cap()->edit_others_posts );
+		}
+
+		return false;
 	}
 
 	/**
 	 * Check if the user can create a list
 	 *
+	 * @param string $list_type The list type
+	 *
 	 * @return bool
 	 */
-	public function can_create() {
-		// Currently there is only one instance of rest controller for all types, in the future maybe instantiate
-		// so that each type can have separate primitive permissions and check it out here
-		return current_user_can( 'edit_user_post_collections' );
+	public function can_create( $list_type ) {
+		$list_type_obj = MG_UPC_Helper::get_instance()->get_list_type( $list_type );
+		if ( false !== $list_type_obj ) {
+			return current_user_can( $list_type_obj->get_cap()->create_posts );
+		}
+
+		return false;
 	}
 
 	/**

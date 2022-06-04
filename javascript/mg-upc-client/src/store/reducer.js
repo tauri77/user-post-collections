@@ -28,8 +28,9 @@ export function reducer (state, action) {
 	const setFailed = (action) => {
 
 		newState = getCloned( { status: 'failed' } );
-		if ( action.error && action.error.message ) {
-			newState.error = action.error.message;
+		if ( action.error ) {
+			newState.error     =  action.error.message ? action.error.message : '';
+			newState.errorCode = action.error.code ? action.error.code : '';
 		}
 
 		return newState;
@@ -64,6 +65,9 @@ export function reducer (state, action) {
 			return {...initialState};
 
 		case SET_ERROR:
+			if ( false === payload ) {
+				return getCloned( {error: false, errorCode: false} );
+			}
 			return getCloned( {error: payload} );
 
 		case SET_EDITING:
@@ -98,6 +102,7 @@ export function reducer (state, action) {
 				}
 			}
 			if ( payload.message ) {
+				// If some message, something was wrong.. Ex: list no support description
 				newState.error  = payload.message;
 				newState.status = 'failed';
 			}
@@ -141,6 +146,7 @@ export function reducer (state, action) {
 			newState.addingPost = false;
 			newState.status     = 'succeeded'
 			newState.error      = false;
+			newState.errorCode  = false;
 			newState.title      = newState.list ? newState.list.title : initialState.title;
 			return newState;
 
@@ -148,7 +154,7 @@ export function reducer (state, action) {
 			if ( state.list === false ) {
 				break;
 			}
-			return getCloned( {status: 'succeeded', error: false} );
+			return getCloned( {status: 'succeeded', error: false, errorCode: false } );
 		case SET_LIST_OF_LIST + '/succeeded':
 		case SET_LIST_ITEMS + '/succeeded':
 		case UPDATE_LIST_ITEM + '/succeeded':
@@ -158,7 +164,7 @@ export function reducer (state, action) {
 		case MOVE_LIST_ITEM_PREV + '/succeeded':
 		case UPDATE_LIST + '/succeeded':
 		case CREATE_LIST + '/succeeded':
-			return getCloned( {status: 'succeeded', error: false} );
+			return getCloned( {status: 'succeeded', error: false, errorCode: false } );
 
 		case CREATE_LIST + '/failed':
 			newState = getCloned( {status: 'failed'} );

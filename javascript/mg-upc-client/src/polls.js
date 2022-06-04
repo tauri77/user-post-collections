@@ -108,7 +108,8 @@
 	function get_alert( message, type="error" ) {
 		const $container = $( '<div>' ).addClass( "mg-upc-alert mg-upc-alert-" + type );
 		$container.append( $( '<p>' ).html( message ) );
-		const $close = $( '<a href="#">X</a>' ).addClass( "mg-upc-alert-close" ).on(
+		const $close = $( '<a class="mg-upc-alert-close" href="#"><span class="mg-upc-icon upc-font-close"></span></a>' )
+			.on(
 			'click',
 			function () {
 				$container.remove();

@@ -78,7 +78,7 @@ function App() {
 	const classNames = {
 		container: 'mg-upc-dg-container',
 		overlay: 'mg-upc-dg-overlay',
-		dialog: 'mg-upc-dg-content',
+		dialog: 'mg-upc-dg-content' + ( state.errorCode ? ' mg-upc-err-' + state.errorCode : '' ),
 		title: 'mg-upc-dg-title',
 		closeButton: 'mg-upc-dg-close'
 	};

@@ -1,5 +1,4 @@
 <?php
-/** @noinspection PhpUnused */
 
 class MG_UPC_List_Page extends MG_UPC_Module {
 
@@ -45,7 +44,7 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 
 		/* Templates hook */
 		//TODO: Add an option to force to display on page template, then if active dont add this filter
-		add_filter( 'template_include', array( __CLASS__, 'template_loader' ) );
+		//add_filter( 'template_include', array( 'MG_UPC_List_Page', 'template_loader' ) );
 
 		/* Set global $mg_upc_list if query a collection*/
 		add_action( 'parse_request', array( $this, 'parse_request' ), 10, 1 );
@@ -152,6 +151,7 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 				}
 			}
 		}
+
 		return $default_file;
 	}
 
@@ -221,6 +221,7 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 	 */
 	private static function is_requesting_list_page() {
 		$post = get_queried_object();
+
 		if ( ! $post instanceof WP_Post || 'page' !== $post->post_type ) {
 			return false;
 		}
@@ -249,28 +250,38 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 		}
 
 		if ( ! empty( get_query_var( 'list', false ) ) ) {
-			try {
-				$list = $GLOBALS['mg_upc']->model->find_one( get_query_var( 'list', false ) );
-				if ( $list ) {
-					if ( 'publish' === $list->status ) {
-						$GLOBALS['mg_upc_list'] = MG_UPC_List_Controller::get_instance()->get_list_for_response(
-							array(
-								'id'             => (int) $list->ID,
-								'items_per_page' => 50,
-								'items_page'     => get_query_var( 'list-page', 1 ),
-							)
-						);
+			return self::set_global_list( get_query_var( 'list', false ) );
+		}
 
-						if ( is_wp_error( $GLOBALS['mg_upc_list'] ) ) {
-							$GLOBALS['mg_upc_list'] = false;
-						}
+		return false;
+	}
 
-						return $GLOBALS['mg_upc_list'];
-					}
-				}
-			} catch ( MG_UPC_Invalid_Field_Exception $e ) {
+	/**
+	 * Set global list
+	 *
+	 * @param $list
+	 *
+	 * @return array|bool|object|WP_Error
+	 */
+	private static function set_global_list( $list ) {
+		$GLOBALS['mg_upc_list'] = false;
+
+		$list = $GLOBALS['mg_upc']->model->find_one( $list );
+
+		if ( $list && 'publish' === $list->status ) {
+			$GLOBALS['mg_upc_list'] = MG_UPC_List_Controller::get_instance()->get_list_for_response(
+				array(
+					'id'             => (int) $list->ID,
+					'items_per_page' => 50,
+					'items_page'     => get_query_var( 'list-page', 1 ),
+				)
+			);
+
+			if ( is_wp_error( $GLOBALS['mg_upc_list'] ) ) {
 				$GLOBALS['mg_upc_list'] = false;
 			}
+
+			return $GLOBALS['mg_upc_list'];
 		}
 
 		return false;
@@ -363,11 +374,13 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 
 			$count = 0;
 			foreach ( $items as $item ) {
-				if ( ! empty( $item['image'] ) ) {
+				if ( ! empty( $item['featured_media'] ) ) {
+					$image_container->add_image_by_id( $item['featured_media'] );
+					$count++;
+				} elseif ( ! empty( $item['image'] ) ) {
 					$image_container->add_image_by_url( $item['image'] );
 					$count++;
 				}
-				//or $image_container->add_image_by_id( $image_id );
 				if ( $count >= 3 ) {
 					break;
 				}
@@ -381,14 +394,23 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 	 * Shortcode on the reserved page
 	 *
 	 * @param array $atts
-	 * @param null $content
 	 *
 	 * @return false|string
 	 */
-	public function list_shortcode( $atts = array(), $content = null ) {
+	public function list_shortcode( $atts = array() ) {
+		if ( isset( $atts['id'] ) ) {
+			self::set_global_list( (int) $atts['id'] );
+		}
+
+		// Using page template title:
 		remove_action( 'mg_upc_single_list_content', 'mg_upc_template_single_title', 5 );
+
 		ob_start();
-		mg_upc_get_template( 'content-single-mg-upc.php' );
+		if ( false === $GLOBALS['mg_upc_list'] ) {
+			mg_upc_get_template( 'shortcode-404.php' );
+		} else {
+			mg_upc_get_template( 'content-single-mg-upc.php' );
+		}
 		return ob_get_clean();
 	}
 

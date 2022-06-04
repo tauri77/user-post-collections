@@ -83,6 +83,7 @@ export const  initialState = {
 	addingPost: null,
 	status: 'idle', //'idle' | 'loading' | 'succeeded' | 'failed'
 	error: null,
+	errorCode: null,
 	editing: false,
 	title: 'My Lists',
 	actualAction: 'init', //MY, MY_ADD, LIST, EDIT, CREATE
