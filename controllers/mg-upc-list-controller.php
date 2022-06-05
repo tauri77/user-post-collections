@@ -366,6 +366,27 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 		$post = get_post( $item->post_id );
 
 		if ( null !== $post ) {
+			$data = $this->add_post_info_to_item( $data, $post );
+		} else {
+			//Or fake item?
+			return null;
+		}
+
+		return apply_filters( 'mg_prepare_item_for_response', $data, $config );
+	}
+
+	/**
+	 * Add post info to item
+	 *
+	 * @param array   $data    The item data. ( can be empty on get a virtual item to see )
+	 * @param WP_Post $post    The post associated to the item
+	 * @param null    $config  (Only used for filter)
+	 *
+	 * @return mixed|void
+	 */
+	public function add_post_info_to_item( $data, $post, $config = null ) {
+
+		if ( $post instanceof WP_Post ) {
 			$data['link']      = get_permalink( $post->ID );
 			$data['post_type'] = $post->post_type;
 
@@ -380,12 +401,11 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 
 			$data['featured_media'] = '' . get_post_thumbnail_id( $post->ID ); //to string for max int on other plataforms
 			$data['image']          = get_the_post_thumbnail_url( $post->ID ); // or add size , 'medium'
-		} else {
-			//Or fake item?
-			return null;
+
+			$data = apply_filters( "mg_post_item_{$post->post_type}_for_response", $data, $config );
 		}
 
-		return apply_filters( 'mg_prepare_item_for_response', $data, $config );
+		return apply_filters( 'mg_post_item_for_response', $data, $config );
 	}
 
 	/**

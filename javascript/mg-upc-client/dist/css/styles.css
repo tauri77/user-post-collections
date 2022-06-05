@@ -63,7 +63,7 @@
     text-align: center;
     align-items: stretch; }
   .mg-upc-item-actions button {
-    margin: auto; } }
+    width: 100%; } }
 
 .mg-upc-item-img {
   width: 15%;
@@ -89,7 +89,10 @@
   text-align: center; }
 
 .mg-upc-item-actions {
-  padding: 1em; }
+  display: flex;
+  flex-direction: column;
+  row-gap: 0.5em;
+  padding: 1em 0; }
   .mg-upc-item-actions button {
     white-space: nowrap; }
 
@@ -208,7 +211,8 @@
   position: absolute;
   top: 10px;
   right: 15px;
-  text-decoration: none !important; }
+  text-decoration: none !important;
+  color: black; }
 
 .mg-upc-hide {
   display: none; }

@@ -35,7 +35,7 @@
 	$(
 		function() {
 			$( '.mg-upc-vote' ).each(
-				function (){
+				function () {
 					const $content = $( this );
 					const $list    = $content.find( '.mg-upc-items-container' );
 					const list_id  = $content.data( "id" );

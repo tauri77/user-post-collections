@@ -654,9 +654,13 @@ class MG_UPC_REST_Lists_Controller {
 		if ( isset( $lists['addingPost'] ) ) {
 			if ( $lists['addingPost'] instanceof WP_Post ) {
 				// or add size 'medium'
-				$rest_response->header( 'X-WP-Post-Image', get_the_post_thumbnail_url( $lists['addingPost']->ID ) );
-				$rest_response->header( 'X-WP-Post-Title', $lists['addingPost']->post_title );
-				$rest_response->header( 'X-WP-Post-Type', $lists['addingPost']->post_type );
+				$item = MG_UPC_List_Controller::get_instance()->add_post_info_to_item(
+					array( 'post_id' => $lists['addingPost']->ID ),
+					$lists['addingPost']
+				);
+				$rest_response->header( 'X-WP-Post-Image', rawurlencode( $item['image'] ) );
+				$rest_response->header( 'X-WP-Post-Title', rawurlencode( $item['title'] ) );
+				$rest_response->header( 'X-WP-Post-Type', rawurlencode( $item['post_type'] ) );
 			}
 		}
 		$rest_response->header( 'X-WP-Total', $lists['total'] );

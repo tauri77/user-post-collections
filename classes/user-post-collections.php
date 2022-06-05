@@ -37,6 +37,7 @@ if ( ! class_exists( 'User_Post_Collections' ) ) {
 				'MG_UPC_Database'        => MG_UPC_Database::get_instance(),
 				'MG_UPC_Rest_API'        => MG_UPC_Rest_API::get_instance(),
 				'MG_UPC_Buttons'         => MG_UPC_Buttons::get_instance(),
+				'MG_UPC_Woocommerce'     => MG_UPC_Woocommerce::get_instance(),
 			);
 		}
 

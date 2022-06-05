@@ -38,6 +38,7 @@ import mgUpcApiClient from "./apiClient";
 import {getMgUpcConfig, listIsEditable, listSupport} from "./helpers/functions";
 
 import "./polls";
+import "./products";
 import Pagination from "./components/pagination";
 
 //Load dinamically on require..

@@ -85,6 +85,7 @@ if ( mg_upc_requirements_met() ) {
 	require_once __DIR__ . '/controllers/mg-upc-rest-list-controller.php';
 	require_once __DIR__ . '/controllers/mg-upc-rest-list-items-controller.php';
 	require_once __DIR__ . '/controllers/mg-upc-buttons.php';
+	require_once __DIR__ . '/controllers/mg-upc-woocommerce.php';
 	require_once __DIR__ . '/controllers/mg-upc-cron.php';
 
 	require_once __DIR__ . '/classes/user-post-collections.php';

@@ -57,15 +57,22 @@ export const setListOfList = createAsyncThunk(
 				thunkAPI.dispatch( setListTotalPages( parseInt( response.headers.get( "X-WP-TotalPages" ), 10 ) ) );
 			}
 			if ( addingPostID && response.headers.get( "X-WP-Post-Type" ) ) {
-				const newAddingPost = {post_id: addingPostID, type: response.headers.get( "X-WP-Post-Type" ) };
-				if ( response.headers.get( "X-WP-Post-Title" ) ) {
-					newAddingPost.title = response.headers.get( "X-WP-Post-Title" );
-				}
-				if ( response.headers.get( "X-WP-Post-Image" ) ) {
-					newAddingPost.image = response.headers.get( "X-WP-Post-Image" );
+				const newAddingPost = {
+					post_id: addingPostID,
+				};
+
+				const mapHeaders = {
+					"X-WP-Post-Type": "type",
+					"X-WP-Post-Title": "title",
+					"X-WP-Post-Image": "image"
+				};
+				for ( const header in mapHeaders ) {
+					const info = response.headers.get( header );
+					if ( info ) {
+						newAddingPost[ mapHeaders[ header ] ] = decodeURIComponent( info );
+					}
 				}
 				thunkAPI.dispatch( setAddingPost( newAddingPost ) );
-
 			}
 			return response.data;
 		} );
@@ -76,8 +83,8 @@ export const removeList = createAsyncThunk(
 	REMOVE_LIST,
 	async function (list_id, thunkAPI) {
 		return await apiClient.delete( list_id ).then( ( response ) => {
-			if ( thunkAPI.getState().listOfList.length == 1 ) {
-				const page = thunkAPI.getState().page;
+			if ( thunkAPI.getState().listOfList.length === 1 ) {
+				const page  = thunkAPI.getState().page;
 				const total = thunkAPI.getState().totalPages;
 				if ( page < total ) {
 					thunkAPI.dispatch( setListOfList( { page: page } ) );

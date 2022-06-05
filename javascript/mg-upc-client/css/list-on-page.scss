@@ -82,7 +82,7 @@
     align-items: stretch;
   }
   .mg-upc-item-actions button {
-    margin: auto;
+    width: 100%;
   }
 }
 
@@ -115,7 +115,10 @@
 }
 
 .mg-upc-item-actions {
-  padding: 1em;
+  display: flex;
+  flex-direction: column;
+  row-gap: 0.5em;
+  padding: 1em 0;
   button {
     white-space: nowrap;
   }
