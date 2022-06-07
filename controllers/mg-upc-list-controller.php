@@ -88,7 +88,7 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 		try {
 			$lists = $this->model->find( $args );
 		} catch ( MG_UPC_Invalid_Field_Exception $e ) {
-			return new WP_Error( 'upc_invalid_field', $e->getMessage(), array( 'status' => 500 ) );
+			return new WP_Error( 'upc_invalid_field', esc_html( $e->getMessage() ), array( 'status' => 500 ) );
 		}
 
 		if ( isset( $config['adding'] ) ) {
@@ -119,7 +119,7 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 			} catch ( MG_UPC_Invalid_Field_Exception $e ) {
 				return new WP_Error(
 					'rest_db_error',
-					$e->getMessage(),
+					esc_html( $e->getMessage() ),
 					array( 'status' => 500 )
 				);
 			}
@@ -167,13 +167,12 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 		} else {
 			$config = $config_or_request;
 		}
-
 		try {
 			$list = $this->model->find_one( (int) $config['id'] );
 		} catch ( MG_UPC_Invalid_Field_Exception $e ) {
 			return new WP_Error(
 				'rest_db_error',
-				$e->getMessage(),
+				esc_html( $e->getMessage() ),
 				array( 'status' => 500 )
 			);
 		}
@@ -181,7 +180,7 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 		if ( empty( $config['exclude_not_found_error'] ) && empty( $list ) ) {
 			return new WP_Error(
 				'rest_list_not_found',
-				__( 'List not found.', 'user-post-collections' ),
+				esc_html__( 'List not found.', 'user-post-collections' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -399,7 +398,7 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 	public function get_post_for_add( $id, $request ) {
 		$error = new WP_Error(
 			'rest_post_invalid_id',
-			__( 'Invalid post ID.', 'user-post-collections' ),
+			esc_html__( 'Invalid post ID.', 'user-post-collections' ),
 			array( 'status' => 404 )
 		);
 
@@ -422,14 +421,14 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 				if ( ! hash_equals( $post->post_password, $request['password'] ) ) {
 					return new WP_Error(
 						'rest_post_incorrect_password',
-						__( 'Incorrect post password.', 'user-post-collections' ),
+						esc_html__( 'Incorrect post password.', 'user-post-collections' ),
 						array( 'status' => 403 )
 					);
 				}
 			} else {
 				return new WP_Error(
 					'rest_post_incorrect_password',
-					__( 'Unset post password.', 'user-post-collections' ),
+					esc_html__( 'Unset post password.', 'user-post-collections' ),
 					array( 'status' => 403 )
 				);
 			}
@@ -480,7 +479,7 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 		} catch ( Exception $e ) {
 			$ret = new WP_Error(
 				'rest_db_error',
-				$e->getMessage(),
+				esc_html( $e->getMessage() ),
 				array( 'status' => 500 )
 			);
 		}
@@ -529,6 +528,24 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 
 		if ( false !== $list_type_obj ) {
 			return current_user_can( $list_type_obj->get_cap()->read_post, $list_id );
+		}
+
+		return false;
+	}
+
+	/**
+	 * Check if the user can read private an specified list type
+	 *
+	 * @param string $list_type
+	 *
+	 * @return bool
+	 */
+	public function can_read_private_type( $list_type ) {
+
+		$list_type_obj = MG_UPC_Helper::get_instance()->get_list_type( $list_type );
+
+		if ( false !== $list_type_obj ) {
+			return current_user_can( $list_type_obj->get_cap()->read_private_posts );
 		}
 
 		return false;

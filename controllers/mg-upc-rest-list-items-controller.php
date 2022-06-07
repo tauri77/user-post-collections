@@ -22,6 +22,11 @@ class MG_UPC_REST_List_Items_Controller {
 	private $model;
 
 	/**
+	 * @var array|mixed
+	 */
+	private $schema;
+
+	/**
 	 * MG_UPC_REST_List_Items_Controller constructor.
 	 *
 	 * @param string $namespace     (Optional) Namespace
@@ -68,6 +73,7 @@ class MG_UPC_REST_List_Items_Controller {
 						'permission_callback' => array( $this, 'write_item_permissions_check_always_exist' ),
 						'args'                => $this->get_create_params(),
 					),
+					'schema' => array( $this, 'get_item_schema' ),
 				)
 			);
 		}
@@ -90,18 +96,18 @@ class MG_UPC_REST_List_Items_Controller {
 						'post_id'     => array(
 							'type'        => 'integer',
 							'required'    => true,
-							'description' => __( 'The post id for add to the list.', 'user-post-collections' ),
+							'description' => esc_html__( 'The post id for add to the list.', 'user-post-collections' ),
 						),
 						'description' => array(
 							'type'              => 'string',
-							'maxlength'         => 400,
+							'maxLength'         => 400,
 							'required'          => false,
 							'sanitize_callback' => 'sanitize_text_field',
-							'validate_callback' => array( 'MG_UPC_REST_Lists_Controller', 'string_validate_callback' ),
-							'description'       => __( 'The item comment.', 'user-post-collections' ),
+							'validate_callback' => 'rest_validate_request_arg',
+							'description'       => esc_html__( 'The item comment.', 'user-post-collections' ),
 						),
 						'context'     => array(
-							'description'       => __( 'Scope under which the request is made; determines fields present in response.', 'user-post-collections' ),
+							'description'       => esc_html__( 'Scope under which the request is made; determines fields present in response.', 'user-post-collections' ),
 							'type'              => 'string',
 							'default'           => 'view',
 							'sanitize_callback' => 'sanitize_key',
@@ -109,6 +115,7 @@ class MG_UPC_REST_List_Items_Controller {
 						),
 					),
 				),
+				'schema' => array( $this, 'get_item_schema' ),
 			)
 		);
 
@@ -128,11 +135,11 @@ class MG_UPC_REST_List_Items_Controller {
 					'args'                => array(
 						'position'    => array(
 							'type'        => 'integer',
-							'description' => __( 'The position for the post on the list.', 'user-post-collections' ),
+							'description' => esc_html__( 'The position for the post on the list.', 'user-post-collections' ),
 						),
 						'description' => array(
 							'type'              => 'string',
-							'description'       => __( 'The description/comment for the post on the list.', 'user-post-collections' ),
+							'description'       => esc_html__( 'The description/comment for the post on the list.', 'user-post-collections' ),
 							'sanitize_callback' => 'sanitize_text_field',
 						),
 					),
@@ -150,14 +157,14 @@ class MG_UPC_REST_List_Items_Controller {
 					'permission_callback' => array( $this, 'vote_item_permissions_check' ),
 					'args'                => array(
 						'context' => array(
-							'description'       => __( 'Scope under which the request is made; determines fields present in response.', 'user-post-collections' ),
+							'description'       => esc_html__( 'Scope under which the request is made; determines fields present in response.', 'user-post-collections' ),
 							'type'              => 'string',
 							'default'           => 'view',
 							'sanitize_callback' => 'sanitize_key',
 							'validate_callback' => 'rest_validate_request_arg',
 						),
 						'posts'   => array(
-							'description'       => __( 'Posts present in response, comma separated.', 'user-post-collections' ),
+							'description'       => esc_html__( 'Posts present in response, comma separated.', 'user-post-collections' ),
 							'type'              => 'string',
 							'default'           => '',
 							'sanitize_callback' => 'sanitize_text_field',
@@ -280,7 +287,7 @@ class MG_UPC_REST_List_Items_Controller {
 			if ( ! $this->model->items->item_exists( (int) $request['id'], (int) $request['postid'] ) ) {
 				return new WP_Error(
 					'rest_item_not_found',
-					__( 'Item not found.', 'user-post-collections' ),
+					esc_html__( 'Item not found.', 'user-post-collections' ),
 					array( 'status' => 404 )
 				);
 			}
@@ -288,7 +295,7 @@ class MG_UPC_REST_List_Items_Controller {
 		} catch ( Exception $e ) {
 			return new WP_Error(
 				'rest_item_error',
-				__( 'Unknown error.', 'user-post-collections' ),
+				esc_html__( 'Unknown error.', 'user-post-collections' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -366,7 +373,7 @@ class MG_UPC_REST_List_Items_Controller {
 			if ( $list_type_obj->max_items <= $list_before->count ) {
 				return new WP_Error(
 					'rest_unable_post_add_max',
-					__( 'Unable to add more items to this list.', 'user-post-collections' ),
+					esc_html__( 'Unable to add more items to this list.', 'user-post-collections' ),
 					array( 'status' => 403 )
 				);
 			}
@@ -380,7 +387,7 @@ class MG_UPC_REST_List_Items_Controller {
 		if ( ! self::check_add_permission( $post, $list_before ) ) {
 			return new WP_Error(
 				'rest_unable_post_add',
-				__( 'Unable to add this post to list.', 'user-post-collections' ),
+				esc_html__( 'Unable to add this post to list.', 'user-post-collections' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -399,7 +406,7 @@ class MG_UPC_REST_List_Items_Controller {
 					$this->model->items->add_item( $request['id'], $request['post_id'] );
 
 					$data['code']    = 'rest_item_desc_error';
-					$data['message'] = __( 'This list dont support item description', 'user-post-collections' );
+					$data['message'] = esc_html__( 'This list dont support item description', 'user-post-collections' );
 					$data['status']  = 409;
 					$data['added']   = true;
 				} else {
@@ -414,12 +421,12 @@ class MG_UPC_REST_List_Items_Controller {
 			}
 		} catch ( MG_UPC_Item_Exist_Exception $e ) {
 			$data['code']    = 'rest_item_exist_error';
-			$data['message'] = $e->getMessage();
+			$data['message'] = esc_html( $e->getMessage() );
 			$data['status']  = 409;
 		} catch ( Exception $e ) {
 			return new WP_Error(
 				'rest_db_error',
-				$e->getMessage(),
+				esc_html( $e->getMessage() ),
 				array( 'status' => 500 )
 			);
 		}
@@ -462,7 +469,7 @@ class MG_UPC_REST_List_Items_Controller {
 			if ( ! $this->model->items->item_exists( (int) $request['id'], (int) $request['postid'] ) ) {
 				return new WP_Error(
 					'rest_item_not_found',
-					__( 'Item not found.', 'user-post-collections' ),
+					esc_html__( 'Item not found.', 'user-post-collections' ),
 					array( 'status' => 404 )
 				);
 			}
@@ -491,7 +498,7 @@ class MG_UPC_REST_List_Items_Controller {
 				if ( ! $list_type_obj->support( 'editable_item_description' ) ) {
 					return new WP_Error(
 						'rest_item_desc_error',
-						__( 'This list dont support item description', 'user-post-collections' ),
+						esc_html__( 'This list dont support item description', 'user-post-collections' ),
 						array( 'status' => 409 )
 					);
 				}
@@ -506,7 +513,7 @@ class MG_UPC_REST_List_Items_Controller {
 		} catch ( Exception $e ) {
 			return new WP_Error(
 				'rest_db_error',
-				$e->getMessage(),
+				esc_html( $e->getMessage() ),
 				array( 'status' => 500 )
 			);
 		}
@@ -537,7 +544,7 @@ class MG_UPC_REST_List_Items_Controller {
 				if ( ! $this->model->items->item_exists( $request['id'], $request['postid'] ) ) {
 					return new WP_Error(
 						'rest_item_not_found',
-						__( 'Item not found.', 'user-post-collections' ),
+						esc_html__( 'Item not found.', 'user-post-collections' ),
 						array( 'status' => 404 )
 					);
 				}
@@ -546,7 +553,7 @@ class MG_UPC_REST_List_Items_Controller {
 			if ( ! $this->model->support( $request['id'], 'vote' ) ) {
 				return new WP_Error(
 					'rest_invalid_list_operation',
-					__( 'This list dont support this operation.', 'user-post-collections' ),
+					esc_html__( 'This list dont support this operation.', 'user-post-collections' ),
 					array( 'status' => 500 )
 				);
 			}
@@ -597,7 +604,7 @@ class MG_UPC_REST_List_Items_Controller {
 		} catch ( Exception $e ) {
 			return new WP_Error(
 				'rest_db_error',
-				$e->getMessage(),
+				esc_html( $e->getMessage() ),
 				array( 'status' => 500 )
 			);
 		}
@@ -669,7 +676,7 @@ class MG_UPC_REST_List_Items_Controller {
 		} catch ( Exception $e ) {
 			return new WP_Error(
 				'rest_db_error',
-				$e->getMessage(),
+				esc_html( $e->getMessage() ),
 				array( 'status' => 500 )
 			);
 		}
@@ -773,15 +780,15 @@ class MG_UPC_REST_List_Items_Controller {
 			'post_id'     => array(
 				'type'        => 'integer',
 				'required'    => true,
-				'description' => __( 'The post id for add to the list.', 'user-post-collections' ),
+				'description' => esc_html__( 'The post id for add to the list.', 'user-post-collections' ),
 			),
 			'description' => array(
 				'type'              => 'string',
-				'maxlength'         => 400,
+				'maxLength'         => 400,
 				'required'          => false,
 				'sanitize_callback' => 'sanitize_text_field',
-				'validate_callback' => array( 'MG_UPC_REST_Lists_Controller', 'string_validate_callback' ),
-				'description'       => __( 'The item comment.', 'user-post-collections' ),
+				'validate_callback' => 'rest_validate_request_arg',
+				'description'       => esc_html__( 'The item comment.', 'user-post-collections' ),
 			),
 		);
 	}
@@ -794,33 +801,29 @@ class MG_UPC_REST_List_Items_Controller {
 	public static function get_collection_params() {
 		$query_params = array(
 			'page'     => array(
-				'description'       => __( 'Current page of the collection.', 'user-post-collections' ),
-				'type'              => 'integer',
-				'default'           => 1,
-				'sanitize_callback' => 'absint',
-				'validate_callback' => 'rest_validate_request_arg',
-				'minimum'           => 1,
+				'description' => esc_html__( 'Current page of the collection.', 'user-post-collections' ),
+				'type'        => 'integer',
+				'default'     => 1,
+				'minimum'     => 1,
 			),
 			'per_page' => array(
-				'description'       => __( 'Maximum number of items to be returned in result set.', 'user-post-collections' ),
-				'type'              => 'integer',
-				'default'           => 12,
-				'minimum'           => 1,
-				'maximum'           => 100,
-				'sanitize_callback' => 'absint',
-				'validate_callback' => 'rest_validate_request_arg',
+				'description' => esc_html__( 'Maximum number of items to be returned in result set.', 'user-post-collections' ),
+				'type'        => 'integer',
+				'default'     => 12,
+				'minimum'     => 1,
+				'maximum'     => 100,
 			),
 		);
 
 		$query_params['order'] = array(
-			'description' => __( 'Order sort attribute ascending or descending.', 'user-post-collections' ),
+			'description' => esc_html__( 'Order sort attribute ascending or descending.', 'user-post-collections' ),
 			'type'        => 'string',
 			'default'     => 'desc',
 			'enum'        => array( 'asc', 'desc' ),
 		);
 
 		$query_params['orderby'] = array(
-			'description' => __( 'Sort collection by attribute.', 'user-post-collections' ),
+			'description' => esc_html__( 'Sort collection by attribute.', 'user-post-collections' ),
 			'type'        => 'string',
 			'default'     => '',
 			'enum'        => array(
@@ -835,6 +838,29 @@ class MG_UPC_REST_List_Items_Controller {
 		return apply_filters( 'rest_mg_upc_list_items_collection_params', $query_params );
 	}
 
+	/**
+	 * Get schema for a list.
+	 *
+	 * @return array The schema for a list
+	 */
+	public function get_item_schema() {
+		if ( $this->schema ) {
+			return $this->schema;
+		}
+		$this->schema = array(
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			// The title property marks the identity of the resource.
+			'title'      => 'listItem',
+			'type'       => 'object',
+			'properties' => array(
+				'type'       => 'object',
+				'properties' => self::get_item_properties_schema(),
+			),
+		);
+
+		return $this->schema;
+	}
+
 	public function activate( $network_wide ) { }
 
 	public function deactivate() { }
@@ -844,5 +870,58 @@ class MG_UPC_REST_List_Items_Controller {
 	public function init() { }
 
 	public function upgrade( $db_version = 0 ) { }
+
+	public static function get_item_properties_schema() {
+		return array(
+			'list_id'        => array(
+				'description' => esc_html__( 'Unique identifier for the list.', 'user-post-collections' ),
+				'type'        => 'integer',
+				'readonly'    => true,
+			),
+			'post_id'        => array(
+				'description' => esc_html__( 'Unique identifier for the post.', 'user-post-collections' ),
+				'type'        => 'integer',
+				'readonly'    => true,
+			),
+			'description'    => array(
+				'description' => esc_html__( 'Item description.', 'user-post-collections' ),
+				'type'        => 'string',
+			),
+			'position'       => array(
+				'description' => esc_html__( 'Item position.', 'user-post-collections' ),
+				'type'        => 'integer',
+			),
+			'votes'          => array(
+				'description' => esc_html__( 'Item votes.', 'user-post-collections' ),
+				'type'        => 'integer',
+				'readonly'    => true,
+			),
+			'post_type'      => array(
+				'description' => esc_html__( 'Post type for post_id.', 'user-post-collections' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'excerpt'        => array(
+				'description' => esc_html__( 'Excerpt for post_id.', 'user-post-collections' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'featured_media' => array(
+				'description' => esc_html__( 'Featured Media for post_id.', 'user-post-collections' ),
+				'type'        => 'integer',
+				'readonly'    => true,
+			),
+			'image'          => array(
+				'description' => esc_html__( 'Image for post_id.', 'user-post-collections' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'link'           => array(
+				'description' => esc_html__( 'Link for post_id.', 'user-post-collections' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+		);
+	}
 
 }
