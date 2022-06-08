@@ -286,6 +286,18 @@ class MG_UPC_REST_Lists_Controller {
 			);
 		}
 
+		if (
+			! empty( $request['author'] ) &&
+			get_current_user_id() !== $request['author'] &&
+			! MG_UPC_List_Controller::get_instance()->can_edit_others( $request['type'] )
+		) {
+			return new WP_Error(
+				'rest_cannot_edit_others',
+				__( 'Sorry, you are not allowed to create list as this user.', 'user-post-collections' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
 		return true;
 	}
 
@@ -336,7 +348,7 @@ class MG_UPC_REST_Lists_Controller {
 		} catch ( Exception $e ) {
 			return new WP_Error(
 				'rest_db_error',
-				$e->getMessage(),
+				esc_html( $e->getMessage() ),
 				array( 'status' => 500 )
 			);
 		}
@@ -352,7 +364,7 @@ class MG_UPC_REST_Lists_Controller {
 			if ( ! MG_UPC_REST_List_Items_Controller::check_add_permission( $post, $list ) ) {
 				return new WP_Error(
 					'rest_unable_post_add',
-					__( 'Unable to add this post to list.', 'user-post-collections' ),
+					esc_html__( 'Unable to add this post to list.', 'user-post-collections' ),
 					array( 'status' => 403 )
 				);
 			}
@@ -361,13 +373,13 @@ class MG_UPC_REST_Lists_Controller {
 			} catch ( MG_UPC_Item_Exist_Exception $e ) {
 				return new WP_Error(
 					'rest_item_exist_error',
-					$e->getMessage(),
+					esc_html( $e->getMessage() ),
 					array( 'status' => 409 )
 				);
 			} catch ( Exception $e ) {
 				return new WP_Error(
 					'rest_db_error',
-					$e->getMessage(),
+					esc_html( $e->getMessage() ),
 					array( 'status' => 500 )
 				);
 			}
@@ -419,7 +431,7 @@ class MG_UPC_REST_Lists_Controller {
 		} catch ( Exception $e ) {
 			return new WP_Error(
 				'rest_db_error',
-				$e->getMessage(),
+				esc_html( $e->getMessage() ),
 				array( 'status' => 500 )
 			);
 		}
@@ -458,7 +470,7 @@ class MG_UPC_REST_Lists_Controller {
 		if ( ! $result ) {
 			return new WP_Error(
 				'rest_cannot_delete',
-				__( 'The list cannot be deleted.', 'user-post-collections' ),
+				esc_html__( 'The list cannot be deleted.', 'user-post-collections' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -503,14 +515,14 @@ class MG_UPC_REST_Lists_Controller {
 			if ( ! $list_type['editable_content'] && isset( $request['content'] ) ) {
 				return new WP_Error(
 					'rest_cannot_edit_content',
-					__( 'This list cant change content.', 'user-post-collections' ),
+					esc_html__( 'This list cant change content.', 'user-post-collections' ),
 					array( 'status' => 400 )
 				);
 			}
 			if ( ! $list_type['editable_title'] && isset( $request['title'] ) ) {
 				return new WP_Error(
 					'rest_cannot_edit_title',
-					__( 'This list cant change title.', 'user-post-collections' ),
+					esc_html__( 'This list cant change title.', 'user-post-collections' ),
 					array( 'status' => 400 )
 				);
 			}
@@ -549,21 +561,21 @@ class MG_UPC_REST_Lists_Controller {
 
 		//author
 		if ( ! empty( $request['author'] ) ) {
-			$post_author = (int) $request['author'];
+			$list_author = (int) $request['author'];
 
-			if ( get_current_user_id() !== $post_author ) {
-				$user_obj = get_userdata( $post_author );
-
+			if ( get_current_user_id() !== $list_author ) {
+				$user_obj = get_userdata( $list_author );
+				//Cross author is checked on sanitize callbacks for create and update
 				if ( ! $user_obj ) {
 					return new WP_Error(
 						'rest_invalid_author',
-						__( 'Invalid author ID.', 'user-post-collections' ),
+						esc_html__( 'Invalid author ID.', 'user-post-collections' ),
 						array( 'status' => 400 )
 					);
 				}
 			}
 
-			$prepared_list->author = $post_author;
+			$prepared_list->author = $list_author;
 		} else {
 			$prepared_list->author = get_current_user_id();
 		}
@@ -576,7 +588,7 @@ class MG_UPC_REST_Lists_Controller {
 			if ( ! in_array( $request['status'], $list_type['available_statuses'], true ) ) {
 				return new WP_Error(
 					'rest_invalid_status',
-					__( 'Invalid status.', 'user-post-collections' ),
+					esc_html__( 'Invalid status.', 'user-post-collections' ),
 					array( 'status' => 400 )
 				);
 			}
@@ -602,12 +614,55 @@ class MG_UPC_REST_Lists_Controller {
 			'status' => 'publish',
 		);
 
-		if ( ! empty( $request['author'] ) ) {
-			$args['author'] = $request['author'];
+		$no_empty_set = array(
+			'author'          => 'author',
+			'types'           => 'type',
+			'search'          => 'search',
+			'before'          => 'before',
+			'after'           => 'after',
+			'modified_after'  => 'modified_after',
+			'modified_before' => 'modified_before',
+			'offset'          => 'offset',
+			'slug'            => 'slug',
+			'include'         => 'ID',
+		);
+
+		foreach ( $no_empty_set as $arg => $func_arg ) {
+			if ( ! empty( $request[ $arg ] ) ) {
+				$args[ $func_arg ] = $request[ $arg ];
+			}
 		}
 
-		if ( ! empty( $request['author'] ) ) {
-			$args['author'] = $request['author'];
+		// Set list types or status to a list that the user can read
+		if ( ! empty( $request['status'] ) ) {
+			if (
+				in_array( 'private', $request['status'], true ) ||
+				in_array( 'any', $request['status'], true )
+			) {
+				if ( empty( $args['author'] ) || get_current_user_id() !== $args['author'] ) {
+					if (
+						! empty( $args['type'] ) &&
+						! in_array( 'any', $args['type'], true )
+					) {
+						$list_types_to_access = $args['type'];
+					} else {
+						$list_types_to_access = array_keys( MG_UPC_Helper::get_instance()->get_list_types() );
+					}
+					$ok_access_list_types = array(); //list type with permission ok
+					foreach ( $list_types_to_access as $list_type ) {
+						if ( MG_UPC_List_Controller::get_instance()->can_read_private_type( $list_type ) ) {
+							$ok_access_list_types[] = $list_type;
+						}
+					}
+					if ( ! empty( $ok_access_list_types ) ) {
+						$args['type'] = $ok_access_list_types;
+					} else {
+						//only publish access
+						$request['status'] = array( 'publish' );
+					}
+				}
+			}
+			$args['status'] = $request['status'];
 		}
 
 		return $this->process_lists( $args, $request );
@@ -633,7 +688,7 @@ class MG_UPC_REST_Lists_Controller {
 		$args = array(
 			'limit'  => $request['per_page'],
 			'page'   => $request['page'],
-			'status' => '*',
+			'status' => 'any',
 			'author' => get_current_user_id(),
 		);
 
@@ -663,9 +718,11 @@ class MG_UPC_REST_Lists_Controller {
 				$rest_response->header( 'X-WP-Post-Type', rawurlencode( $item['post_type'] ) );
 			}
 		}
+
 		$rest_response->header( 'X-WP-Total', $lists['total'] );
 		$rest_response->header( 'X-WP-Page', $lists['current'] );
 		$rest_response->header( 'X-WP-TotalPages', $lists['total_pages'] );
+
 		return $rest_response;
 	}
 
@@ -683,7 +740,7 @@ class MG_UPC_REST_Lists_Controller {
 		} catch ( MG_UPC_Invalid_Field_Exception $e ) {
 			return new WP_Error(
 				'rest_db_error',
-				$e->getMessage(),
+				esc_html( $e->getMessage() ),
 				array( 'status' => 500 )
 			);
 		}
@@ -735,7 +792,7 @@ class MG_UPC_REST_Lists_Controller {
 		} catch ( MG_UPC_Invalid_Field_Exception $e ) {
 			return new WP_Error(
 				'rest_db_error',
-				$e->getMessage(),
+				esc_html( $e->getMessage() ),
 				array( 'status' => 500 )
 			);
 		}
@@ -745,7 +802,7 @@ class MG_UPC_REST_Lists_Controller {
 			} catch ( Exception $e ) {
 				return new WP_Error(
 					'rest_db_error',
-					$e->getMessage(),
+					esc_html( $e->getMessage() ),
 					array( 'status' => 500 )
 				);
 			}
@@ -887,24 +944,125 @@ class MG_UPC_REST_Lists_Controller {
 		if ( $this->schema ) {
 			return $this->schema;
 		}
-		//TODO complete this
 		$this->schema = array(
-			// This tells the spec of JSON Schema we are using which is draft 4.
 			'$schema'    => 'http://json-schema.org/draft-04/schema#',
 			// The title property marks the identity of the resource.
 			'title'      => 'list',
 			'type'       => 'object',
-			// In JSON Schema you can specify object properties in the properties attribute.
 			'properties' => array(
-				'id'      => array(
-					'description' => esc_html__( 'Unique identifier for the object.', 'user-post-collections' ),
+				'id'           => array(
+					'description' => esc_html__( 'Unique identifier for the list.', 'user-post-collections' ),
 					'type'        => 'integer',
-					'context'     => array( 'view', 'edit', 'embed' ),
 					'readonly'    => true,
+					'context'     => array( 'view', 'edit' ),
 				),
-				'content' => array(
+				'title'        => array(
+					'description' => esc_html__( 'List title.', 'user-post-collections' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+				),
+				'content'      => array(
 					'description' => esc_html__( 'The content for the object.', 'user-post-collections' ),
 					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+				),
+				'author'       => array(
+					'description' => esc_html__( 'List author ID.', 'user-post-collections' ),
+					'type'        => 'integer',
+					'context'     => array( 'view', 'edit' ),
+				),
+				'type'         => array(
+					'description' => esc_html__( 'The list type.', 'user-post-collections' ),
+					'type'        => 'string',
+					'readonly'    => true,
+					'context'     => array( 'view', 'edit' ),
+				),
+				'status'       => array(
+					'description' => esc_html__( 'The list status.', 'user-post-collections' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+				),
+				'count'        => array(
+					'description' => esc_html__( 'Item counter on the list.', 'user-post-collections' ),
+					'type'        => 'integer',
+					'readonly'    => true,
+					'context'     => array( 'view', 'edit' ),
+				),
+				'created'      => array(
+					'description' => esc_html__( 'Create datetime.', 'user-post-collections' ),
+					'type'        => 'string',
+					'format'      => 'date-time',
+					'readonly'    => true,
+					'context'     => array( 'view', 'edit' ),
+				),
+				'modified'     => array(
+					'description' => esc_html__( 'Last modified datetime.', 'user-post-collections' ),
+					'type'        => 'string',
+					'format'      => 'date-time',
+					'readonly'    => true,
+					'context'     => array( 'view', 'edit' ),
+				),
+				'slug'         => array(
+					'description' => esc_html__( 'List unique slug.', 'user-post-collections' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+				),
+				'user_login'   => array(
+					'description' => esc_html__( 'List author login.', 'user-post-collections' ),
+					'type'        => 'string',
+					'readonly'    => true,
+					'context'     => array( 'view', 'edit' ),
+				),
+				'user_img'     => array(
+					'description' => esc_html__( 'List author image.', 'user-post-collections' ),
+					'type'        => 'string',
+					'readonly'    => true,
+					'context'     => array( 'view', 'edit' ),
+				),
+				'user_link'    => array(
+					'description' => esc_html__( 'List author link.', 'user-post-collections' ),
+					'type'        => 'string',
+					'readonly'    => true,
+					'context'     => array( 'view', 'edit' ),
+				),
+				'vote_counter' => array(
+					'description' => esc_html__( 'Votes counter on the list.', 'user-post-collections' ),
+					'type'        => 'integer',
+					'readonly'    => true,
+					'context'     => array( 'view', 'edit' ),
+				),
+				'items_page'   => array(
+					'description' => esc_html__( 'Pagination for items on the list.', 'user-post-collections' ),
+					'type'        => 'object',
+					'readonly'    => true,
+					'context'     => array( 'view' ),
+					'properties'  => array(
+						'X-WP-Total'      => array(
+							'description' => esc_html__( 'Total items on list.', 'user-post-collections' ),
+							'type'        => 'integer',
+							'readonly'    => true,
+						),
+						'X-WP-Page'       => array(
+							'description' => esc_html__( 'Current page on items pagination.', 'user-post-collections' ),
+							'type'        => 'integer',
+							'readonly'    => true,
+						),
+						'X-WP-TotalPages' => array(
+							'description' => esc_html__( 'Total page on items pagination.', 'user-post-collections' ),
+							'type'        => 'integer',
+							'readonly'    => true,
+						),
+					),
+				),
+				'items'        => array(
+					'description' => esc_html__( 'Items on the list.', 'user-post-collections' ),
+					'type'        => 'array',
+					'readonly'    => true,
+					'context'     => array( 'view' ),
+					'items'       => array(
+						'type'       => 'object',
+						'properties' => MG_UPC_REST_List_Items_Controller::get_item_properties_schema(),
+					),
 				),
 			),
 		);
@@ -936,60 +1094,56 @@ class MG_UPC_REST_Lists_Controller {
 
 		if ( WP_REST_Server::EDITABLE === $type ) {
 			$query_params['id'] = array(
-				'description'       => __( 'The list id', 'user-post-collections' ),
-				'type'              => 'integer',
-				'required'          => true,
-				'sanitize_callback' => function ( $val ) {
-					return intval( $val ); },
+				'description' => esc_html__( 'The list id', 'user-post-collections' ),
+				'type'        => 'integer',
+				'required'    => true,
+				'minimum'     => 1,
 			);
 		}
 
 		$query_params['author'] = array(
-			'description' => __( 'The user_id author. (only admin can set)', 'user-post-collections' ),
+			'description' => esc_html__( 'Author to set.', 'user-post-collections' ),
 			'type'        => 'integer',
+			'minimum'     => 0,
 		);
 
 		$query_params['title'] = array(
-			'description'       => __( 'List title.', 'user-post-collections' ),
+			'description'       => esc_html__( 'List title.', 'user-post-collections' ),
 			'type'              => 'string',
 			'required'          => WP_REST_Server::CREATABLE === $type,
-			'maxlength'         => 100,
-			'minlength'         => 3,
+			'maxLength'         => 100,
+			'minLength'         => 3,
 			'sanitize_callback' => 'sanitize_text_field',
-			'validate_callback' => array( 'MG_UPC_REST_Lists_Controller', 'string_validate_callback' ),
+			'validate_callback' => 'rest_validate_request_arg',
 		);
 
 		$query_params['content'] = array(
-			'description'       => __( 'List text description.', 'user-post-collections' ),
+			'description'       => esc_html__( 'List text description.', 'user-post-collections' ),
 			'type'              => 'string',
-			'required'          => false,
-			'maxlength'         => 500,
+			'maxLength'         => 500,
 			'sanitize_callback' => array( MG_UPC_List_Controller::get_instance(), 'sanitize_content' ),
-			'validate_callback' => array( 'MG_UPC_REST_Lists_Controller', 'string_validate_callback' ),
+			'validate_callback' => 'rest_validate_request_arg',
 		);
 
 		if ( WP_REST_Server::CREATABLE === $type ) {
 			$query_params['type']   = array(
-				'description'       => __( 'List type.', 'user-post-collections' ),
-				'type'              => 'string',
-				'required'          => true,
-				'enum'              => $this->model->valid_types( true ),
-				'validate_callback' => array( 'MG_UPC_REST_Lists_Controller', 'string_validate_callback' ),
+				'description' => esc_html__( 'List type.', 'user-post-collections' ),
+				'type'        => 'string',
+				'required'    => true,
+				'enum'        => $this->model->valid_types( true ),
 			);
 			$query_params['adding'] = array(
-				'description'       => __( 'Create list, and add a post (postID).', 'user-post-collections' ),
-				'type'              => 'integer',
-				'enum'              => $this->model->valid_types( true ),
-				'sanitize_callback' => 'absint',
+				'description' => esc_html__( 'Create list, and add a post (postID).', 'user-post-collections' ),
+				'type'        => 'integer',
+				'minimum'     => 0,
 			);
 		}
 
 		$query_params['status'] = array(
-			'description'       => __( 'List status.', 'user-post-collections' ),
-			'type'              => 'string',
-			'required'          => WP_REST_Server::CREATABLE === $type,
-			'enum'              => $this->model->valid_status( false ),
-			'validate_callback' => array( 'MG_UPC_REST_Lists_Controller', 'string_validate_callback' ),
+			'description' => esc_html__( 'List status.', 'user-post-collections' ),
+			'type'        => 'string',
+			'required'    => WP_REST_Server::CREATABLE === $type,
+			'enum'        => $this->model->valid_status( false ),
 		);
 
 		return $query_params;
@@ -1003,30 +1157,24 @@ class MG_UPC_REST_Lists_Controller {
 	public function get_collection_params() {
 		$query_params = array(
 			'context'  => array(
-				'description'       => __( 'Scope under which the request is made; determines fields present in response.', 'user-post-collections' ),
-				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_key',
-				'validate_callback' => 'rest_validate_request_arg',
+				'description' => esc_html__( 'Scope under which the request is made; determines fields present in response.', 'user-post-collections' ),
+				'type'        => 'string',
 			),
 			'page'     => array(
-				'description'       => __( 'Current page of the collection.', 'user-post-collections' ),
-				'type'              => 'integer',
-				'default'           => 1,
-				'sanitize_callback' => 'absint',
-				'validate_callback' => 'rest_validate_request_arg',
-				'minimum'           => 1,
+				'description' => esc_html__( 'Current page of the collection.', 'user-post-collections' ),
+				'type'        => 'integer',
+				'default'     => 1,
+				'minimum'     => 1,
 			),
 			'per_page' => array(
-				'description'       => __( 'Maximum number of items to be returned in result set.', 'user-post-collections' ),
-				'type'              => 'integer',
-				'default'           => 10,
-				'minimum'           => 1,
-				'maximum'           => 100,
-				'sanitize_callback' => 'absint',
-				'validate_callback' => 'rest_validate_request_arg',
+				'description' => esc_html__( 'Maximum number of items to be returned in result set.', 'user-post-collections' ),
+				'type'        => 'integer',
+				'default'     => 10,
+				'minimum'     => 1,
+				'maximum'     => 100,
 			),
 			'search'   => array(
-				'description'       => __( 'Limit results to those matching a string.', 'user-post-collections' ),
+				'description'       => esc_html__( 'Limit results to those matching a string.', 'user-post-collections' ),
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 				'validate_callback' => 'rest_validate_request_arg',
@@ -1036,52 +1184,59 @@ class MG_UPC_REST_Lists_Controller {
 		$query_params['context']['default'] = 'view';
 
 		$query_params['after'] = array(
-			'description' => __( 'Limit response to posts published after a given ISO8601 compliant date.', 'user-post-collections' ),
+			'description' => esc_html__( 'Limit response to lists created after a given ISO8601 compliant date.', 'user-post-collections' ),
 			'type'        => 'string',
 			'format'      => 'date-time',
 		);
 
 		$query_params['modified_after'] = array(
-			'description' => __( 'Limit response to posts modified after a given ISO8601 compliant date.', 'user-post-collections' ),
+			'description' => esc_html__( 'Limit response to lists modified after a given ISO8601 compliant date.', 'user-post-collections' ),
 			'type'        => 'string',
 			'format'      => 'date-time',
 		);
 
-		$query_params['author'] = array(
-			'description' => __( 'Limit result set to posts assigned to specific authors.', 'user-post-collections' ),
-			'type'        => 'array',
-			'items'       => array(
-				'type' => 'integer',
-			),
-			'default'     => array(),
-		);
-
 		$query_params['before'] = array(
-			'description' => __( 'Limit response to posts published before a given ISO8601 compliant date.', 'user-post-collections' ),
+			'description' => esc_html__( 'Limit response to lists created before a given ISO8601 compliant date.', 'user-post-collections' ),
 			'type'        => 'string',
 			'format'      => 'date-time',
 		);
 
 		$query_params['modified_before'] = array(
-			'description' => __( 'Limit response to posts modified before a given ISO8601 compliant date.', 'user-post-collections' ),
+			'description' => esc_html__( 'Limit response to lists modified before a given ISO8601 compliant date.', 'user-post-collections' ),
 			'type'        => 'string',
 			'format'      => 'date-time',
 		);
 
+		$query_params['author'] = array(
+			'description' => esc_html__( 'Limit result set to lists assigned to specific authors.', 'user-post-collections' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type' => 'integer',
+			),
+		);
+
+		$query_params['include'] = array(
+			'description' => esc_html__( 'Limit result set to lists with specific IDs.', 'user-post-collections' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type' => 'integer',
+			),
+		);
+
 		$query_params['offset'] = array(
-			'description' => __( 'Offset the result set by a specific number of items.', 'user-post-collections' ),
+			'description' => esc_html__( 'Offset the result set by a specific number of items.', 'user-post-collections' ),
 			'type'        => 'integer',
 		);
 
 		$query_params['order'] = array(
-			'description' => __( 'Order sort attribute ascending or descending.', 'user-post-collections' ),
+			'description' => esc_html__( 'Order sort attribute ascending or descending.', 'user-post-collections' ),
 			'type'        => 'string',
 			'default'     => 'desc',
 			'enum'        => array( 'asc', 'desc' ),
 		);
 
 		$query_params['orderby'] = array(
-			'description' => __( 'Sort collection by attribute.', 'user-post-collections' ),
+			'description' => esc_html__( 'Sort collection by attribute.', 'user-post-collections' ),
 			'type'        => 'string',
 			'default'     => 'date',
 			'enum'        => array(
@@ -1096,7 +1251,7 @@ class MG_UPC_REST_Lists_Controller {
 		);
 
 		$query_params['slug'] = array(
-			'description'       => __( 'Limit result set to posts with one or more specific slugs.', 'user-post-collections' ),
+			'description'       => esc_html__( 'Limit result set to lists with one or more specific slugs.', 'user-post-collections' ),
 			'type'              => 'array',
 			'items'             => array(
 				'type' => 'string',
@@ -1105,134 +1260,59 @@ class MG_UPC_REST_Lists_Controller {
 		);
 
 		$query_params['status'] = array(
-			'default'           => 'publish',
-			'description'       => __( 'Limit result set to posts assigned one or more statuses.', 'user-post-collections' ),
+			'default'     => 'publish',
+			'description' => esc_html__( 'Limit result set to lists assigned one or more statuses.', 'user-post-collections' ),
+			'type'        => 'array',
+			'items'       => array(
+				'enum' => array_merge( $this->model->valid_status(), array( 'any' ) ),
+				'type' => 'string',
+			),
+		);
+
+		$query_params['types'] = array(
+			'description'       => esc_html__( 'Limit result set to lists assigned one or more types.', 'user-post-collections' ),
 			'type'              => 'array',
 			'items'             => array(
 				'enum' => array_merge( $this->model->valid_types(), array( 'any' ) ),
 				'type' => 'string',
 			),
-			'sanitize_callback' => array( $this, 'sanitize_post_statuses' ),
+			'sanitize_callback' => array( $this, 'sanitize_list_types' ),
 		);
 
 		return apply_filters( 'rest_mg_upc_lists_collection_params', $query_params );
 	}
 
 	/**
-	 * Validate string using param config
+	 * Sanitize types
 	 *
-	 * @param string          $value   Value
+	 * @param string          $types Value
 	 * @param WP_REST_Request $request Current request.
-	 * @param string          $key     The param key
-	 *
-	 * @return bool|WP_Error
-	 */
-	public static function string_validate_callback( $value, $request, $key ) {
-
-		// If the 'filter' argument is not a string return an error.
-		if ( ! is_string( $value ) ) {
-			return new WP_Error(
-				'rest_invalid_param',
-				esc_html__(
-					'The filter argument must be a string.',
-					'my-text-domain'
-				),
-				array( 'status' => 400 )
-			);
-		}
-
-		// Get the registered attributes for this endpoint request.
-		$attributes = $request->get_attributes();
-
-		// Grab the filter param schema.
-		$args = $attributes['args'][ $key ];
-
-		if ( isset( $args['enum'] ) ) {
-			if ( ! in_array( $value, $args['enum'], true ) ) {
-				return new WP_Error(
-					'rest_invalid_param',
-					sprintf(
-						// translators: %1$s is param name, %2$s is a list of allowed options
-						__( '%1$s is not one of %2$s', 'user-post-collections' ),
-						$key,
-						implode( ', ', $args['enum'] )
-					),
-					array( 'status' => 400 )
-				);
-			}
-		}
-
-		if ( isset( $args['maxlength'] ) ) {
-			if ( mg_upc_strlen( $value ) > $args['maxlength'] ) {
-				return new WP_Error(
-					'rest_invalid_param',
-					sprintf(
-						// translators: %1$s is param name, %2$s is the max length ( a number )
-						__( '%1$s max length: %2$d', 'user-post-collections' ),
-						$key,
-						$args['maxlength'],
-						array( 'status' => 400 )
-					)
-				);
-			}
-		}
-
-		if ( isset( $args['minlength'] ) ) {
-			if ( mg_upc_strlen( $value ) < $args['minlength'] ) {
-				return new WP_Error(
-					'rest_invalid_param',
-					sprintf(
-					// translators: %1$s is param name, %2$s is the min length ( a number )
-						__( '%1$s min length: %2$d', 'user-post-collections' ),
-						$key,
-						$args['minlength'],
-						array( 'status' => 400 )
-					)
-				);
-			}
-		}
-
-		return true;
-	}
-
-	/**
-	 * Sanitize status using param config
-	 *
-	 * @param string $statuses Value
-	 * @param WP_REST_Request $request Current request.
-	 * @param string $parameter The param key
+	 * @param string          $parameter The param key
 	 *
 	 * @return string[]|WP_Error
 	 */
-	public function sanitize_post_statuses( $statuses, WP_REST_Request $request, $parameter ) {
+	public function sanitize_list_types( $types, $request, $parameter ) {
 
-		$statuses = wp_parse_slug_list( $statuses );
+		$types = wp_parse_slug_list( $types );
 
-		// The default status is different in WP_REST_Attachments_Controller.
-		$attributes     = $request->get_attributes();
-		$default_status = $attributes['args']['status']['default'];
+		$valid_types = $this->model->valid_types();
 
-		$valid_status = $this->model->valid_status();
+		foreach ( $types as $type ) {
 
-		foreach ( $statuses as $status ) {
-			if ( $status === $default_status ) {
-				continue;
-			}
-
-			if ( in_array( $status, $valid_status, true ) ) {
-				$result = rest_validate_request_arg( $status, $request, $parameter );
-				if ( is_wp_error( $result ) ) {
-					return $result;
-				}
-			} else {
+			if ( ! in_array( $type, $valid_types, true ) ) {
 				return new WP_Error(
-					'rest_forbidden_status',
-					__( 'Status is forbidden.', 'user-post-collections' ),
+					'rest_forbidden_types',
+					__( 'Type is forbidden.', 'user-post-collections' ),
 					array( 'status' => rest_authorization_required_code() )
 				);
 			}
+
+			$result = rest_validate_request_arg( $type, $request, $parameter );
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
 		}
 
-		return $statuses;
+		return $types;
 	}
 }

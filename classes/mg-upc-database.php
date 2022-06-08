@@ -40,6 +40,7 @@ class MG_UPC_Database extends MG_UPC_Module {
 	 * Remove list of user deleted
 	 *
 	 * @param $id
+	 * @param $reassign
 	 */
 	public function on_delete_user( $id, $reassign ) {
 		/** @global User_Post_Collections $mg_upc Global plugin object. */
@@ -130,7 +131,7 @@ class MG_UPC_Database extends MG_UPC_Module {
 				modified datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
             PRIMARY KEY  (ID),
             KEY slug (slug),
-			KEY status_type_author (status,type,author),
+			KEY type_status_created (type,status,created,ID),
 			KEY author_type (author,type)
         ) {$charset_collate} ENGINE=InnoDB;";
 
