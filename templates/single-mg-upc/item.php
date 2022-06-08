@@ -24,6 +24,7 @@ global $mg_upc_item, $mg_upc_list;
 				<a href="<?php echo esc_url( $mg_upc_item['link'] ); ?>"><?php echo esc_html( $mg_upc_item['title'] ); ?></a>
 			</h2>
 		</header>
+		<?php do_action( 'mg_upc_single_list_item_after_title' ); ?>
 		<p class="mg-upc-item-desc"><?php echo esc_html( $mg_upc_item['description'] ); ?></p>
 		<?php
 		if ( 'vote' === $mg_upc_list['type'] ) {
@@ -67,11 +68,7 @@ global $mg_upc_item, $mg_upc_list;
 				Vote
 			</button>
 		<?php endif; ?>
-		<?php if ( 'product' === $mg_upc_item['post_type'] || 'product_variation' === $mg_upc_item['post_type'] ) : ?>
-			<button class="mg-upc-item-product mg-upc-hide" data-product="<?php echo $mg_upc_item['post_id']; ?>">
-				<?php echo esc_html__( 'Add to cart', 'user-post-collections' ); ?>
-			</button>
-		<?php endif; ?>
+
+		<?php do_action( 'mg_upc_single_list_item_action' ); ?>
 	</div>
 </article>
-<?php

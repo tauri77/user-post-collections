@@ -61,6 +61,9 @@ function ListItem(props) {
 			</a>
 			<div className="mg-upc-dg-item-data">
 				<a href={props.item.link}>{props.item.title}</a>
+				{ props.item.price_html && (
+					<span className={"mg-upc-dg-price"} dangerouslySetInnerHTML={ { __html: props.item.price_html } }></span>
+				)}
 				{ props.editable && ! editingDesc && (
 					<p>{ props.item.description }</p>
 				) }

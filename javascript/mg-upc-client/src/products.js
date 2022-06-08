@@ -8,7 +8,7 @@
 
 			//Search for variation product
 			const variationId = $parent.find( "[name='variation_id']" );
-			if ( variationId.length > 0 ) {
+			if ( variationId.length > 0 && parseInt( variationId.val(), 10 ) > 0 ) {
 				productId = variationId.val();
 			}
 
@@ -24,7 +24,15 @@
 			'click',
 			function (e) {
 
+				const loadingClass = 'mg-upc-btn-loading';
+				const addedClass   = 'mg-upc-product-added';
+				const errorClass   = 'mg-upc-product-error';
+
 				let $btn = $( this );
+
+				if ( $btn.hasClass( loadingClass ) ) {
+					return;
+				}
 
 				let data = {
 					'product_id': $btn.data( 'product' )
@@ -34,8 +42,6 @@
 
 				const ajax_url = woocommerce_params.wc_ajax_url.toString().replace( '%%endpoint%%', 'add_to_cart' );
 
-				const loadingClass = 'mg-upc-btn-loading';
-
 				const stringAddingCartError = "Sorry, an error occurred.";
 
 				$.ajax(
@@ -44,14 +50,14 @@
 						url: ajax_url,
 						data: data,
 						beforeSend: function (response) {
-							$btn.removeClass( 'mg-upc-product-added' ).addClass( loadingClass );
+							$btn.removeClass( addedClass + ' ' + errorClass ).addClass( loadingClass );
 						},
 						success: function (response) {
+							$btn.addClass( addedClass ).removeClass( loadingClass );
+
 							if ( ! response ) {
 								return;
 							}
-
-							$btn.addClass( 'mg-upc-product-added' ).removeClass( loadingClass );
 
 							if (response.error && response.product_url) {
 								console.log( response.error );
@@ -62,7 +68,7 @@
 							$( document.body ).trigger( 'added_to_cart', [ response.fragments, response.cart_hash, $btn ] );
 						},
 						error: function () {
-							$btn.addClass( 'mg-upc-product-error' ).removeClass( loadingClass );
+							$btn.addClass( errorClass ).removeClass( loadingClass );
 							alert( stringAddingCartError );
 						}
 					}

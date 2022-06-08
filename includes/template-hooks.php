@@ -19,6 +19,9 @@ add_action( 'mg_upc_single_list_content', 'mg_upc_template_single_items', 30 );
 add_action( 'mg_upc_after_single_list_content', 'mg_upc_template_items_pagination', 10 );
 
 
+add_action( 'mg_upc_single_product_buttons', 'mg_upc_single_product_button', 10 );
+
+
 if ( ! function_exists( 'mg_upc_template_single_title' ) ) {
 
 	/**
@@ -78,5 +81,15 @@ if ( ! function_exists( 'mg_upc_template_items_pagination' ) ) {
 		);
 
 		mg_upc_get_template( 'single-mg-upc/pagination.php', $args );
+	}
+}
+
+if ( ! function_exists( 'mg_upc_single_product_button' ) ) {
+
+	/**
+	 * Output the button "Add to list..."
+	 */
+	function mg_upc_single_product_button() {
+		mg_upc_get_template( 'mg-upc-wc/single-product-button.php' );
 	}
 }

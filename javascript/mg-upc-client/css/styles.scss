@@ -300,6 +300,14 @@ EDIT
   float: left;
 }
 
+.mg-upc-dg-price {
+  float: right;
+  margin-left: 1em;
+  del {
+    opacity: 0.5;
+  }
+}
+
 /********************
 ***** PAGINATION
  ********************/
