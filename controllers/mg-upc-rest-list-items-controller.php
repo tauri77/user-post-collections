@@ -921,6 +921,46 @@ class MG_UPC_REST_List_Items_Controller {
 				'type'        => 'string',
 				'readonly'    => true,
 			),
+			'product_type'   => array(
+				'description' => esc_html__( 'Product type (simple, variable, variation...).', 'user-post-collections' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'price_html'     => array(
+				'description' => esc_html__( 'Product price in html format.', 'user-post-collections' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'price'          => array(
+				'description' => esc_html__( 'Product price.', 'user-post-collections' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'sale_price'     => array(
+				'description' => esc_html__( 'Product sale price.', 'user-post-collections' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'regular_price'  => array(
+				'description' => esc_html__( 'Product regular price.', 'user-post-collections' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'price_min'      => array(
+				'description' => esc_html__( 'Product min price (variable product).', 'user-post-collections' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'price_max'      => array(
+				'description' => esc_html__( 'Product max price (variable product).', 'user-post-collections' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'price_suffix'   => array(
+				'description' => esc_html__( 'Product price suffix.', 'user-post-collections' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
 		);
 	}
 
