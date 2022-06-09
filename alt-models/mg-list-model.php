@@ -808,7 +808,7 @@ class MG_List_Model {
 
 		$list_type = $this->helper->get_list_type( $type, true );
 
-		return $list_type['available_statuses'];
+		return $list_type ? $list_type['available_statuses'] : array();
 	}
 
 	/**
@@ -891,8 +891,7 @@ class MG_List_Model {
 		}
 
 		if ( $list && is_object( $list ) ) {
-			$list_type   = $this->helper->get_list_type( $list->type, true );
-			$has_feature = false !== $list_type && $list_type->support( $feature );
+			$has_feature = $this->helper->list_type_support( $list->type, $feature, true );
 		}
 
 		return apply_filters( 'mg_upc_list_support', $has_feature, $list, $feature );

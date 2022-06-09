@@ -512,6 +512,14 @@ class MG_UPC_REST_Lists_Controller {
 
 			$list_type = MG_UPC_Helper::get_instance()->get_list_type( $existing_list->type, true );
 
+			if ( false === $list_type ) {
+				return new WP_Error(
+					'rest_invalid_type',
+					esc_html__( 'Invalid list type.', 'user-post-collections' ),
+					array( 'status' => 500 )
+				);
+			}
+
 			if ( ! $list_type['editable_content'] && isset( $request['content'] ) ) {
 				return new WP_Error(
 					'rest_cannot_edit_content',
@@ -530,6 +538,13 @@ class MG_UPC_REST_Lists_Controller {
 			$prepared_list->type = $request['type'];
 
 			$list_type = MG_UPC_Helper::get_instance()->get_list_type( $request['type'], false );
+			if ( false === $list_type ) {
+				return new WP_Error(
+					'rest_invalid_type',
+					esc_html__( 'Invalid list type.', 'user-post-collections' ),
+					array( 'status' => 500 )
+				);
+			}
 
 			if ( false !== $list_type['default_title'] ) {
 				$prepared_list->title = $list_type['default_title'];
@@ -686,10 +701,12 @@ class MG_UPC_REST_Lists_Controller {
 		}
 
 		$args = array(
-			'limit'  => $request['per_page'],
-			'page'   => $request['page'],
-			'status' => 'any',
-			'author' => get_current_user_id(),
+			'limit'   => $request['per_page'],
+			'page'    => $request['page'],
+			'status'  => 'any',
+			'author'  => get_current_user_id(),
+			'orderby' => $request['orderby'] ? $request['orderby'] : 'modified',
+			'order'   => $request['order'] ? $request['order'] : 'desc',
 		);
 
 		$lists = MG_UPC_List_Controller::get_instance()->get_user_lists( $args, $request );

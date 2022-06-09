@@ -35,7 +35,7 @@ if ( ! empty( $mg_upc_list['items'] ) ) {
 			 */
 			do_action( 'mg_upc_items_loop' );
 
-			mg_upc_get_template_part( 'single-mg-upc/item', $mg_upc_list['type'] );
+			mg_upc_get_template_part( 'single-mg-upc/item/content', $mg_upc_list['type'] );
 		}
 		?>
 	</div>

@@ -1,8 +1,8 @@
 <?php
 /**
- * Single Collection title
+ * Single Collection author
  *
- * This template can be overridden by copying it to yourtheme/mg-upc/single-mg-upc/title.php.
+ * This template can be overridden by copying it to yourtheme/mg-upc/single-mg-upc/author.php.
  *
  */
 

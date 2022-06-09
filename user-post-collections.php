@@ -62,6 +62,7 @@ function mg_upc_requirements_error() {
 if ( mg_upc_requirements_met() ) {
 
 	require_once __DIR__ . '/includes/utils.php';
+	require_once __DIR__ . '/includes/template-functions.php';
 	require_once __DIR__ . '/includes/template-hooks.php';
 	require_once __DIR__ . '/includes/mg-upc-cache.php';
 	require_once __DIR__ . '/includes/mg-upc-list-type.php';

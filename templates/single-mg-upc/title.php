@@ -1,6 +1,6 @@
 <?php
 /**
- * Single Product title
+ * Single List title
  *
  * This template can be overridden by copying it to yourtheme/mg-upc/single-mg-upc/title.php.
  *

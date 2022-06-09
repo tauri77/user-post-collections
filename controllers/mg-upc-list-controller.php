@@ -42,7 +42,7 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 	 * @param $base_args
 	 * @param $config_or_request
 	 *
-	 * @return array|WP_Error|WP_Post|null
+	 * @return array|WP_Error|null
 	 */
 	public function get_user_lists( $base_args, $config_or_request ) {
 		$helper = MG_UPC_Helper::get_instance();
@@ -249,7 +249,16 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 			return $list;
 		}
 
-		$list_type = MG_UPC_Helper::get_instance()->get_list_type( $list->type );
+		$list_type = MG_UPC_Helper::get_instance()->get_list_type( $list->type, true );
+
+		if ( false === $list_type ) {
+			return new WP_Error(
+				'rest_invalid_type',
+				esc_html__( 'Invalid list type.', 'user-post-collections' ),
+				array( 'status' => 500 )
+			);
+		}
+
 		if ( is_string( $list_type['default_orderby'] ) ) {
 			$config['orderby'] = $list_type['default_orderby'];
 		}

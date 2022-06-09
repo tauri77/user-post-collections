@@ -368,6 +368,13 @@ class MG_UPC_REST_List_Items_Controller {
 		}
 
 		$list_type_obj = MG_UPC_Helper::get_instance()->get_list_type( $list_before->type );
+		if ( false === $list_type_obj ) {
+			return new WP_Error(
+				'rest_unable_post_add_max',
+				esc_html__( 'Unable to add items to this list.', 'user-post-collections' ),
+				array( 'status' => 403 )
+			);
+		}
 
 		if ( ! $list_type_obj->support( 'max_items_rotate' ) ) {
 			if ( $list_type_obj->max_items <= $list_before->count ) {
@@ -475,6 +482,13 @@ class MG_UPC_REST_List_Items_Controller {
 			}
 
 			$list_type_obj = MG_UPC_Helper::get_instance()->get_list_type( $list->type );
+			if ( false === $list_type_obj ) {
+				return new WP_Error(
+					'rest_unable_post_add_max',
+					esc_html__( 'Unable to edit items in this list.', 'user-post-collections' ),
+					array( 'status' => 403 )
+				);
+			}
 
 			if (
 				$list_type_obj->support( 'sortable' ) &&

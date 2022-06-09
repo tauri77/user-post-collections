@@ -100,41 +100,50 @@
     text-align: center;
     white-space: nowrap; }
 
+/***********************************************
+                    VOTES
+ ***********************************************/
 .mg-upc-votes {
   width: 100%;
   height: 45px;
   position: relative; }
-  .mg-upc-votes .item-bar {
-    width: 95%;
-    height: 10px;
-    position: absolute;
-    top: 24px; }
-  .mg-upc-votes .item-bar-progress,
-  .mg-upc-votes .item-bar-fill {
-    display: block;
-    width: 100%;
-    height: 100%;
-    background: #ededed;
-    border: solid 1px #ccc;
-    position: absolute;
-    top: 0; }
-  .mg-upc-votes .item-bar-fill {
-    box-shadow: 0 0 3px #aaa; }
-  .mg-upc-votes .item-bar-progress {
-    background: #380;
-    border-color: #286103; }
-  .mg-upc-votes .item-percent {
-    right: 5%;
-    position: absolute;
-    line-height: 24px;
-    font-size: 20px; }
-  .mg-upc-votes .item-votes {
-    display: block;
-    font-size: 12px;
-    left: 0;
-    position: absolute;
-    line-height: 25px;
-    top: 3px; }
+
+.mg-upc-item-bar {
+  width: 95%;
+  height: 10px;
+  position: absolute;
+  top: 24px; }
+
+.mg-upc-item-bar-progress,
+.mg-upc-item-bar-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #ededed;
+  border: solid 1px #ccc;
+  position: absolute;
+  top: 0; }
+
+.mg-upc-item-bar-fill {
+  box-shadow: 0 0 3px #aaa; }
+
+.mg-upc-item-bar-progress {
+  background: #380;
+  border-color: #286103; }
+
+.mg-upc-item-percent {
+  right: 5%;
+  position: absolute;
+  line-height: 24px;
+  font-size: 20px; }
+
+.mg-upc-item-votes {
+  display: block;
+  font-size: 12px;
+  left: 0;
+  position: absolute;
+  line-height: 25px;
+  top: 3px; }
 
 .mg-upc-items-pagination {
   padding: 1em 0;

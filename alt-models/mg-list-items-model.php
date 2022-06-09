@@ -478,8 +478,12 @@ class MG_List_Items_Model {
 			}
 
 			// remove last listed item
-			$type_object = $this->helper->get_list_type( $list->type );
-			$config      = array(
+			$type_object = $this->helper->get_list_type( $list->type, false );
+			if ( ! $type_object ) {
+				throw new MG_UPC_Item_Not_Found_Exception( 'List type not found.' );
+			}
+
+			$config = array(
 				'list_id'        => $list_id,
 				'orderby'        => $type_object->default_orderby ? $type_object->default_orderby : 'added',
 				'order'          => $type_object->default_order ? $type_object->default_order : 'asc',

@@ -40,6 +40,7 @@ class MG_UPC_Helper {
 				'label'           => 'Poll',
 				'default_orderby' => 'votes',
 				'default_order'   => 'desc',
+				'enabled'         => false,
 				'supports'        => array(
 					'editable_title',
 					'editable_content',
@@ -126,6 +127,24 @@ class MG_UPC_Helper {
 		return $mg_upc_list_types;
 	}
 
+	/**
+	 * Check if a list_type support a feature
+	 *
+	 * @param string $list_type
+	 * @param string $feature
+	 * @param bool $include_disabled
+	 *
+	 * @return bool
+	 */
+	public function list_type_support( $list_type, $feature, $include_disabled = false ) {
+		$list_type = $this->get_list_type( $list_type, $include_disabled );
+		if ( $list_type && $list_type->support( $feature ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
 	public function get_max_list_items( $type ) {
 		$type = $this->get_list_type( $type );
 		if ( empty( $type ) ) {
@@ -135,16 +154,28 @@ class MG_UPC_Helper {
 	}
 
 	public function get_initial_always_exist_list( $always_exist_type ) {
-		$list_type = $this->get_list_type( $always_exist_type );
-		$list      = array(
+
+		$list = array(
 			'ID'      => $always_exist_type,
-			'title'   => $list_type['default_title'] ? $list_type['default_title'] : $list_type['label'],
-			'content' => $list_type['default_content'] ? $list_type['default_content'] : '',
+			'title'   => '',
+			'content' => '',
 			'type'    => $always_exist_type,
 			'count'   => '',
-			'status'  => $list_type['default_status'],
+			'status'  => array(),
 			'author'  => get_current_user_id(),
 		);
+
+		$list_type = $this->get_list_type( $always_exist_type, true );
+		if ( false !== $list_type ) {
+			$list = array_merge(
+				$list,
+				array(
+					'title'   => $list_type['default_title'] ? $list_type['default_title'] : $list_type['label'],
+					'content' => $list_type['default_content'] ? $list_type['default_content'] : '',
+					'status'  => $list_type['default_status'],
+				)
+			);
+		}
 
 		return apply_filters( 'initial_always_exist_list', $list, $always_exist_type );
 	}

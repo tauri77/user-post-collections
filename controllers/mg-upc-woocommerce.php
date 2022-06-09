@@ -26,39 +26,6 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 
 		add_filter( 'mg_post_item_product_variation_for_response', array( $this, 'product_variant_item' ) );
 		add_filter( 'mg_post_item_product_for_response', array( $this, 'product_item' ) );
-
-		// Template hooks
-		add_action( 'mg_upc_single_list_item_action', array( $this, 'item_cart_button' ) );
-		add_action( 'mg_upc_single_list_item_after_title', array( $this, 'show_price' ) );
-	}
-
-	/**
-	 * Show price of items on list page
-	 */
-	public function show_price() {
-		global $mg_upc_item;
-		if ( ! function_exists( 'wc_get_product' ) ) {
-			return;
-		}
-		if ( 'product' === $mg_upc_item['post_type'] || 'product_variation' === $mg_upc_item['post_type'] ) {
-			$product = wc_get_product( $mg_upc_item['post_id'] );
-			if ( $product ) {
-				echo '<div class="mg-upc-list-item-price">' . $product->get_price_html() . '</div>'; // phpcs:ignore
-			}
-		}
-	}
-
-	/**
-	 * Add button on item actions section (on list page)
-	 */
-	public function item_cart_button() {
-		global $mg_upc_item;
-
-		if ( isset( $mg_upc_item['product_type'] ) && 'variable' === $mg_upc_item['product_type'] ) {
-			mg_upc_get_template( 'single-mg-upc/actions/add-to-cart-variable.php' );
-		} elseif ( 'product' === $mg_upc_item['post_type'] || 'product_variation' === $mg_upc_item['post_type'] ) {
-			mg_upc_get_template( 'single-mg-upc/actions/add-to-cart.php' );
-		}
 	}
 
 	/**
@@ -180,6 +147,10 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 		return $item;
 	}
 
+	/**************************************************
+	 *               Template methods
+	 ***************************************************/
+
 	/**
 	 * Print the button "Add to list..."
 	 */
@@ -190,6 +161,35 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 				remove_filter( 'the_content', array( MG_UPC_Buttons::get_instance(), 'the_content' ) );
 				mg_upc_get_template( 'mg-upc-wc/single-product-buttons.php' );
 			}
+		}
+	}
+
+	/**
+	 * Show price of items on list page
+	 */
+	public static function show_price() {
+		global $mg_upc_item;
+		if ( ! function_exists( 'wc_get_product' ) ) {
+			return;
+		}
+		if ( 'product' === $mg_upc_item['post_type'] || 'product_variation' === $mg_upc_item['post_type'] ) {
+			$product = wc_get_product( $mg_upc_item['post_id'] );
+			if ( $product ) {
+				echo '<div class="mg-upc-list-item-price">' . $product->get_price_html() . '</div>'; // phpcs:ignore
+			}
+		}
+	}
+
+	/**
+	 * Add button on item actions section (on list page)
+	 */
+	public static function item_cart_button() {
+		global $mg_upc_item;
+
+		if ( isset( $mg_upc_item['product_type'] ) && 'variable' === $mg_upc_item['product_type'] ) {
+			mg_upc_get_template( 'single-mg-upc/item/actions/add-to-cart-variable.php' );
+		} elseif ( 'product' === $mg_upc_item['post_type'] || 'product_variation' === $mg_upc_item['post_type'] ) {
+			mg_upc_get_template( 'single-mg-upc/item/actions/add-to-cart.php' );
 		}
 	}
 

@@ -1,0 +1,40 @@
+<?php
+/**
+ * Single Collection Item Vote Data
+ *
+ * This template can be overridden by copying it to yourtheme/mg-upc/single-mg-upc/item/vote-data.php.
+ *
+ */
+
+global $mg_upc_item, $mg_upc_list;
+
+$show_on_vote = true;
+
+$class = '';
+if ( true !== $show_on_vote ) {
+	$votes   = $mg_upc_item['votes'];
+	$total   = $mg_upc_list['vote_counter'];
+	$percent = $total > 0 ? $votes * 100 / $total : 0;
+} else {
+	$votes   = 0;
+	$total   = 0;
+	$percent = 0;
+	$class   = 'mg-upc-hide';
+}
+?>
+<div class="mg-upc-votes <?php echo esc_attr( $class ); ?>" data-votes="<?php echo esc_attr( $votes ); ?>">
+	<div>
+		<div class='mg-upc-item-bar'>
+			<div class='mg-upc-item-bar-fill'></div>
+			<div class='mg-upc-item-bar-progress' style='<?php echo esc_attr( 'width: ' . $percent . '%' ); ?>'></div>
+		</div>
+		<strong class='mg-upc-item-percent'>
+			<?php
+			echo round( $percent, 1 ) . '%'; // phpcs:ignore
+			?>
+		</strong>
+		<span class='mg-upc-item-votes'>
+			<span class='mg-upc-item-votes-number'><?php echo esc_html( $votes ); ?></span> votes
+		</span>
+	</div>
+</div>
