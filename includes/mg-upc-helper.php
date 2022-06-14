@@ -5,10 +5,7 @@ class MG_UPC_Helper {
 
 	private static $instance;
 
-	private function __construct() {
-
-		add_action( 'init', array( $this, 'init' ) );
-	}
+	private function __construct() { }
 
 	public static function get_instance() {
 		if ( ! isset( self::$instance ) ) {
@@ -17,79 +14,6 @@ class MG_UPC_Helper {
 
 		return self::$instance;
 
-	}
-
-	public function init() {
-		$base_types = array(
-			'simple'   => array(
-				'label' => 'Simple',
-			),
-			'numbered' => array(
-				'label'           => 'Numbered',
-				'default_orderby' => 'position',
-				'default_order'   => 'asc',
-				'supports'        => array(
-					'editable_title',
-					'editable_content',
-					'editable_item_description',
-					'show_in_my_lists',
-					'sortable',
-				),
-			),
-			'vote'     => array(
-				'label'           => 'Poll',
-				'default_orderby' => 'votes',
-				'default_order'   => 'desc',
-				'enabled'         => false,
-				'supports'        => array(
-					'editable_title',
-					'editable_content',
-					'editable_item_description',
-					'show_in_my_lists',
-					'vote',
-				),
-			),
-		);
-
-		foreach ( $base_types as $base_type => $args ) {
-			mg_upc_register_list_type( $base_type, $args );
-		}
-
-		/*
-		 * always_exists
-		 * this create an end point with favorites instead the ID
-		 * dont create this types, add first item create this
-		 */
-		$list_types = array(
-			'favorites' => array(
-				'label'              => 'Favorites',
-				'default_title'      => 'Favorites',
-				'default_status'     => 'private',
-				'sticky'             => 1,
-				'available_statuses' => array( 'private' ),
-				'supports'           => array(
-					'editable_item_description',
-					'show_in_my_lists',
-					'always_exists', //this create an end point with bookmarks instead the ID
-				),
-			),
-			'bookmarks' => array(
-				'label'          => 'Bookmarks',
-				'default_title'  => 'Bookmarks',
-				'default_status' => 'private',
-				'sticky'         => 2,
-				'supports'       => array(
-					'editable_title',
-					'editable_item_description',
-					'show_in_my_lists',
-					'always_exists', //this create an end point with bookmarks instead the ID
-				),
-			),
-		);
-
-		foreach ( $list_types as $base_type => $args ) {
-			mg_upc_register_list_type( $base_type, $args );
-		}
 	}
 
 	/**
@@ -119,12 +43,118 @@ class MG_UPC_Helper {
 			return array_filter(
 				$mg_upc_list_types,
 				function ( $type ) {
-					return $type['enabled'];
+					return $type->enabled;
 				}
 			);
 		}
 
 		return $mg_upc_list_types;
+	}
+
+	/**
+	 * Get list status object from name
+	 *
+	 * @param string $status_name
+	 * @param bool   $include_internal
+	 *
+	 * @return false|stdClass The list status object or false
+	 */
+	public function get_list_status( $status_name, $include_internal = false ) {
+		$statuses = $this->get_list_statuses( $include_internal );
+		return array_key_exists( $status_name, $statuses ) ? $statuses[ $status_name ] : false;
+	}
+
+	/**
+	 * Get list of list status
+	 *
+	 * @param bool $include_internal
+	 *
+	 * @return stdClass[]
+	 */
+	public function get_list_statuses( $include_internal = false ) {
+		global $mg_upc_list_statuses;
+
+		if ( ! $include_internal ) {
+			return array_filter(
+				$mg_upc_list_statuses,
+				function ( $type ) {
+					return ! $type->internal;
+				}
+			);
+		}
+
+		return $mg_upc_list_statuses;
+	}
+
+	/**
+	 * Get the list status that can search
+	 *
+	 * @param bool        $include_internal
+	 *
+	 * @return string[]
+	 */
+	public function get_searchable_list_statuses( $include_internal = false ) {
+		$statuses = $this->get_list_statuses( $include_internal );
+
+		$filtered = array_filter(
+			$statuses,
+			function ( $type ) {
+				return ! $type->exclude_from_search;
+			}
+		);
+
+		return array_keys( $filtered );
+	}
+
+	/**
+	 * Get the list status that are public
+	 *
+	 * @param bool        $include_internal
+	 *
+	 * @return string[]
+	 */
+	public function get_public_list_statuses( $include_internal = false ) {
+		$statuses = $this->get_list_statuses( $include_internal );
+
+		$filtered = array_filter(
+			$statuses,
+			function ( $type ) {
+				return $type->public;
+			}
+		);
+
+		return array_keys( $filtered );
+	}
+
+	/**
+	 * Get the list status that are private
+	 *
+	 * @param bool        $include_internal
+	 *
+	 * @return string[]
+	 */
+	public function get_private_list_statuses( $include_internal = false ) {
+		$statuses = $this->get_list_statuses( $include_internal );
+
+		$filtered = array_filter(
+			$statuses,
+			function ( $type ) {
+				return $type->private;
+			}
+		);
+
+		return array_keys( $filtered );
+	}
+
+	public function get_user_creatable_list_types( $include_disabled = false ) {
+		global $mg_upc_list_types;
+
+		return array_filter(
+			$mg_upc_list_types,
+			function ( $type ) use ( $include_disabled ) {
+				return ( $include_disabled || $type['enabled'] ) && current_user_can( $type->get_cap()->create_posts );
+			}
+		);
 	}
 
 	/**
@@ -186,7 +216,14 @@ class MG_UPC_Helper {
 		$filtered = array_filter(
 			$types,
 			function ( $type ) {
-				return $type['sticky'] > 0;
+				return $type->sticky > 0;
+			}
+		);
+
+		uasort(
+			$filtered,
+			function ( $a, $b ) {
+				return $a->sticky - $b->sticky;
 			}
 		);
 
@@ -212,7 +249,7 @@ class MG_UPC_Helper {
 	 * @param bool|string $post_type            (Optional) Only include lists that can contain this post type.
 	 * @param bool        $include_disabled
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	public function get_always_exist_list_types( $post_type = false, $include_disabled = false ) {
 		$types = $this->get_list_types( $include_disabled );
@@ -228,6 +265,34 @@ class MG_UPC_Helper {
 		return array_keys( $filtered );
 	}
 
+	/**
+	 * Get the list types that can search
+	 *
+	 * @param bool        $include_disabled
+	 *
+	 * @return string[]
+	 */
+	public function get_searchable_list_types( $include_disabled = false ) {
+		$types = $this->get_list_types( $include_disabled );
+
+		$filtered = array_filter(
+			$types,
+			function ( $type ) {
+				return ! $type->exclude_from_search;
+			}
+		);
+
+		return array_keys( $filtered );
+	}
+
+	/**
+	 * Get the list type that can add a specified post type
+	 *
+	 * @param string $post_type
+	 * @param bool   $include_disabled
+	 *
+	 * @return string[]
+	 */
 	public function get_available_list_types( $post_type, $include_disabled = false ) {
 		$list_types = $this->get_list_types( $include_disabled );
 		if ( empty( $list_types ) ) {
@@ -244,6 +309,13 @@ class MG_UPC_Helper {
 		return array_keys( $compat );
 	}
 
+	/**
+	 * Get available post type for a list type ( post types that can be added )
+	 *
+	 * @param string $list_type
+	 *
+	 * @return string[]
+	 */
 	public function get_available_post_types( $list_type ) {
 		$type = $this->get_list_type( $list_type );
 		if ( empty( $type ) ) {
@@ -252,12 +324,33 @@ class MG_UPC_Helper {
 		return $type['available_post_types'];
 	}
 
+	/**
+	 * Check if a post type can be added to a list type
+	 *
+	 * @param string $post_type
+	 * @param string $list_type
+	 *
+	 * @return bool
+	 */
 	public function is_available_post_type_for_list_type( $post_type, $list_type ) {
 
 		$valid_post_types = $this->get_available_post_types( $list_type );
 
 		if ( in_array( $post_type, $valid_post_types, true ) ) {
 			return true;
+		}
+
+		return false;
+	}
+
+	public function current_user_can_add_to_any( $post_type ) {
+		$available_list_types = $this->get_available_list_types( $post_type );
+		if ( ! empty( $available_list_types ) ) {
+			foreach ( $available_list_types as $list_type ) {
+				if ( MG_UPC_List_Controller::get_instance()->can_create( $list_type ) ) {
+					return true;
+				}
+			}
 		}
 
 		return false;

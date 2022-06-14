@@ -1,7 +1,7 @@
 import '../css/styles.scss';
 
 import { h, render, Fragment } from 'preact';
-import {useEffect, useState, useContext, useRef} from "preact/hooks";
+import {useEffect, useState, useContext, useRef, useMemo} from "preact/hooks";
 import ListOfList from "./components/list-of-lists";
 import List from "./components/list";
 import ListItemAdding from "./components/list-item-adding";
@@ -35,7 +35,7 @@ import { A11yDialog } from './components/react-ally-dialog';
 
 import mgUpcApiClient from "./apiClient";
 
-import {getMgUpcConfig, listIsEditable, listSupport} from "./helpers/functions";
+import {getMgUpcConfig, getNotAlwaysExists, listIsEditable, listSupport} from "./helpers/functions";
 
 import "./polls";
 import "./products";
@@ -54,6 +54,8 @@ function App() {
 	const { state, dispatch } = useContext( AppContext );
 
 	const [ sharing, setSharing ] = useState( false );
+
+	const typesForCreate = useMemo( () => getNotAlwaysExists() );
 
 	const dialog = useRef( false );
 
@@ -317,11 +319,11 @@ function App() {
 				{ (actualView === 'listOfList' || actualView === 'adding') && (
 					<>
 						<div className={"mg-upc-dg-top-action"}>
-							<button
+							{ ( typesForCreate.length > 0 ) && (<button
 								className="mg-list-new"
 								onClick={handleNewList}>
 								<span className={"mg-upc-icon upc-font-add"}></span><span>Create List</span>
-							</button>
+							</button>) }
 						</div>
 						<ListOfList
 							lists={state.listOfList}

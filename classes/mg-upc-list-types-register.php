@@ -1,0 +1,176 @@
+<?php
+
+
+class MG_UPC_List_Types_Register extends MG_UPC_Module {
+
+	public function __construct() { }
+
+	public function activate( $network_wide ) { }
+
+	public function deactivate() { }
+
+	public function register_hook_callbacks() { }
+
+	public function init() {
+
+		mg_upc_register_list_status(
+			'publish',
+			array(
+				'label'       => _x( 'Published', 'post status', 'user-post-collections' ),
+				'public'      => true,
+				/* translators: %s: Number of published posts. */
+				'label_count' => _n_noop(
+					'Published <span class="count">(%s)</span>',
+					'Published <span class="count">(%s)</span>'
+				),
+			)
+		);
+
+		mg_upc_register_list_status(
+			'private',
+			array(
+				'label'       => _x( 'Private', 'post status', 'user-post-collections' ),
+				'private'     => true,
+				/* translators: %s: Number of private posts. */
+				'label_count' => _n_noop(
+					'Private <span class="count">(%s)</span>',
+					'Private <span class="count">(%s)</span>'
+				),
+			)
+		);
+
+		$list_types = array(
+			'simple'   => array(
+				'label' => 'Simple List',
+			),
+			'numbered' => array(
+				'label'           => 'Numbered List',
+				'default_orderby' => 'position',
+				'default_order'   => 'asc',
+				'supports'        => array(
+					'editable_title',
+					'editable_content',
+					'editable_item_description',
+					'show_in_my_lists',
+					'sortable',
+					'show_in_settings',
+				),
+			),
+			'vote'     => array(
+				'label'           => 'Polling list',
+				'default_orderby' => 'votes',
+				'default_order'   => 'desc',
+				'supports'        => array(
+					'editable_title',
+					'editable_content',
+					'editable_item_description',
+					'show_in_my_lists',
+					'vote',
+					'show_in_settings',
+				),
+			),
+		);
+
+		/*
+		 * always_exists
+		 * this create an end point with favorites instead the ID
+		 * dont create this types, add first item create this
+		 */
+		$list_types['favorites'] = array(
+			'label'          => 'Favorites',
+			'plural_label'   => 'Favorites Lists',
+			'default_title'  => 'Favorites',
+			'default_status' => 'private',
+			'sticky'         => 1,
+			'supports'       => array(
+				'editable_item_description',
+				'show_in_my_lists',
+				'always_exists', //this create an end point with bookmarks instead the ID
+				'show_in_settings',
+			),
+		);
+
+		$list_types['bookmarks'] = array(
+			'label'          => 'Bookmarks',
+			'plural_label'   => 'Bookmarks Lists',
+			'default_title'  => 'Bookmarks',
+			'default_status' => 'private',
+			'sticky'         => 2,
+			'supports'       => array(
+				'editable_title',
+				'editable_item_description',
+				'show_in_my_lists',
+				'always_exists', //this create an end point with bookmarks instead the ID
+				'show_in_settings',
+			),
+		);
+
+		foreach ( $list_types as $list_type => $args ) {
+			mg_upc_register_list_type( $list_type, $args );
+		}
+	}
+
+	/**
+	 * Update the database on upgrade plugin
+	 *
+	 * @param int $db_version
+	 */
+	public function upgrade( $db_version = 0 ) {
+		if ( version_compare( $db_version, '0.6.22', '<' ) ) {
+			self::set_initial_roles_caps();
+		}
+	}
+
+	/**
+	 * Initial roles caps
+	 */
+	private static function set_initial_roles_caps() {
+		$all_roles = wp_roles()->roles;
+		foreach ( $all_roles as $role => $details ) {
+			$role_object = get_role( $role );
+			if ( $role_object ) {
+				self::set_initial_role_caps( $role_object );
+			}
+		}
+	}
+
+	/**
+	 * @param WP_Role $role
+	 */
+	private static function set_initial_role_caps( $role ) {
+		$list_types = MG_UPC_Helper::get_instance()->get_list_types( true );
+		foreach ( $list_types as $list_type ) {
+			$caps = $list_type->get_cap();
+			//Capabilities for create/publish/delete list
+			$grant_listing = array(
+				'edit_posts',
+				'create_posts',
+				'delete_posts',
+				'publish_posts',
+			);
+			$grant_listing = apply_filters( 'mg_upc_grant_initial_to_all', $grant_listing, $role, $list_type );
+
+			//Copy the rest capabilities from post
+			$post_capabilities = array(
+				'edit_posts',
+				'create_posts',
+				'delete_posts',
+				'publish_posts',
+				'edit_others_posts',
+				'read_private_posts',
+			);
+			$post_capabilities = array_diff( $post_capabilities, $grant_listing );
+
+			foreach ( $post_capabilities as $post_cap_name ) {
+				if ( $role->has_cap( $post_cap_name ) ) {
+					$role->add_cap( $caps->$post_cap_name );
+				} else {
+					$role->remove_cap( $caps->$post_cap_name );
+				}
+			}
+			foreach ( $grant_listing as $post_cap_name ) {
+				$role->add_cap( $caps->$post_cap_name );
+			}
+		}
+	}
+}

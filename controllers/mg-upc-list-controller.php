@@ -78,15 +78,37 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 		$no_sticky_types = array_diff( $enabled_types, $sticky_types );
 
 		//only use the list types that has my_list enabled
-		$my_list_types      = $helper->get_my_list_types();
+		$my_list_types = $helper->get_my_list_types();
+		if ( isset( $config['adding'] ) ) {
+			//check user can edit list types
+			$unable_to_edit = array();
+			foreach ( $my_list_types as $k => $name_type ) {
+				$_type = $helper->get_list_type( $name_type );
+				if ( ! current_user_can( $_type->get_cap()->edit_posts ) ) {
+					$unable_to_edit[] = $name_type;
+				}
+			}
+			$my_list_types = array_diff( $my_list_types, $unable_to_edit );
+		}
 		$no_sticky_types    = array_intersect( $no_sticky_types, $my_list_types );
 		$sticky_types       = array_intersect( $sticky_types, $my_list_types );
 		$always_exist_types = array_intersect( $always_exist_types, $my_list_types );
 
+		$empty_result = array(
+			'results'     => array(),
+			'total'       => 0,
+			'total_pages' => 1,
+			'current'     => 1,
+		);
+
 		//Get the no sticky lists
 		$args['type'] = $no_sticky_types;
 		try {
-			$lists = $this->model->find( $args );
+			if ( ! empty( $args['type'] ) ) {
+				$lists = $this->model->find( $args );
+			} else {
+				$lists = $empty_result;
+			}
 		} catch ( MG_UPC_Invalid_Field_Exception $e ) {
 			return new WP_Error( 'upc_invalid_field', esc_html( $e->getMessage() ), array( 'status' => 500 ) );
 		}
@@ -115,7 +137,11 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 			//get the sticky list
 			$args['type'] = $sticky_types;
 			try {
-				$stick_lists = $this->model->find( $args );
+				if ( ! empty( $args['type'] ) ) {
+					$stick_lists = $this->model->find( $args );
+				} else {
+					$stick_lists = $empty_result;
+				}
 			} catch ( MG_UPC_Invalid_Field_Exception $e ) {
 				return new WP_Error(
 					'rest_db_error',
@@ -282,7 +308,7 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 		}
 
 		foreach ( $items['items'] as $item ) {
-			//TODO check_is_post_type_allowed? (maybe change) and ignore this? -.- total fail..
+			//TODO check_is_post_type_allowed? (maybe change) and ignore this? -.- total count fail..
 			$response = $this->prepare_item_for_response( $item, $config );
 			if ( null !== $response ) {
 				$data[] = $response;

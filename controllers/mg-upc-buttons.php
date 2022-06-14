@@ -7,19 +7,24 @@ class MG_UPC_Buttons extends MG_UPC_Module {
 	}
 
 	public function init() {
-		add_filter(
-			'the_content',
-			array( $this, 'the_content' )
-		);
+		add_filter( 'the_content', array( 'MG_UPC_Buttons', 'the_content' ) );
 	}
 
-	public function the_content( $content ) {
+	public static function the_content( $content ) {
 		global $post;
 		if ( ! empty( $post ) && $post->ID > 0 ) {
-			if ( ! empty( MG_UPC_Helper::get_instance()->get_available_list_types( $post->post_type ) ) ) {
-				$content .= '<div class="post-adding">';
-				$content .= '<button onclick="window.addItemToList(' . (int) $post->ID . ')">Add to list...</button>';
-				$content .= '</div>';
+			if ( MG_UPC_Helper::get_instance()->current_user_can_add_to_any( $post->post_type ) ) {
+				$position = get_option( 'mg_upc_button_position', 'end' );
+
+				$btn  = '<div class="post-adding">';
+				$btn .= '<button onclick="window.addItemToList(' . (int) $post->ID . ')">Add to list...</button>';
+				$btn .= '</div>';
+
+				if ( 'end' === $position ) {
+					$content .= $btn;
+				} elseif ( 'begin' === $position ) {
+					$content = $btn . $content;
+				}
 			}
 		}
 		return $content;

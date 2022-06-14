@@ -86,7 +86,8 @@ $icomoon-font-path: "icomoon/fonts" !default;
   margin: 1em 0.3em;
 }
 
-.mg-upc-dg-item-list {
+.mg-upc-dg-item-list,
+.mg-upc-dg-item-list-type {
   display: flex;
   padding: 0.6em;
   margin: 0.2em;

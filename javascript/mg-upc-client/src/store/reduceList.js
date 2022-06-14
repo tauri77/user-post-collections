@@ -57,10 +57,10 @@ export default function reduceList (state, action) {
 				//create list
 				return {
 					ID: -1,
-					title: 'New List',
+					title: '',
 					content: '',
-					status: "publish",
-					type: "simple"
+					status: '',
+					type: ''
 				};
 			}
 			return payload;

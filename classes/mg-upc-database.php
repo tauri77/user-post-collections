@@ -157,7 +157,7 @@ class MG_UPC_Database extends MG_UPC_Module {
 	/**
 	 * Add votes table
 	 *
-	 * @since 0.5.1
+	 * @since 0.1.2
 	 */
 	private static function update_db_tables_2() {
 		global $wpdb;

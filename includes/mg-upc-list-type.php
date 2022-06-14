@@ -8,6 +8,8 @@ class MG_UPC_List_Type implements ArrayAccess {
 
 	public $label;
 
+	public $plural_label;
+
 	public $description = '';
 
 	public $enabled = true;
@@ -28,7 +30,23 @@ class MG_UPC_List_Type implements ArrayAccess {
 
 	public $available_post_types = array( 'post' );
 
-	public $available_statuses = array( 'publish', 'private' );
+	public $possible_statuses = array( 'publish', 'private' );
+
+	public $available_statuses = array();
+
+	public $disabled_statuses = array();
+
+	public $public = true;
+
+	/**
+	 * @var bool If a single/archive can generate
+	 */
+	public $publicly_queryable = true;
+
+	/**
+	 * @var bool
+	 */
+	public $exclude_from_search = true;
 
 
 	/**
@@ -95,6 +113,10 @@ class MG_UPC_List_Type implements ArrayAccess {
 	public function set_props( $args ) {
 		$args = wp_parse_args( $args );
 
+		if ( ! empty( $args['supports'] ) && in_array( 'show_in_settings', $args['supports'], true ) ) {
+			$args = $this->complete_from_settings( $args );
+		}
+
 		/**
 		 * Filters the arguments for registering a list type.
 		 *
@@ -122,17 +144,22 @@ class MG_UPC_List_Type implements ArrayAccess {
 
 		$defaults = array(
 			'label'                => '',
+			'plural_label'         => '',
 			'description'          => '',
 			'default_status'       => 'private',
 			'sticky'               => false,
 			'default_content'      => '',
 			'default_title'        => false,
-			'default_orderby'      => false,
-			'default_order'        => false,
+			'default_orderby'      => 'added',
+			'default_order'        => 'asc',
 			'enabled'              => true,
 			'max_items'            => 50,
-			'available_statuses'   => array( 'publish', 'private' ),
+			'possible_statuses'    => array( 'publish', 'private' ),
+			'available_statuses'   => null,
 			'available_post_types' => array( 'post' ),
+			'public'               => true, // for public, ex: can show on widget? (determine publicly_queryable, exclude_from_search)
+			'exclude_from_search'  => null,
+			'publicly_queryable'   => null, // can show on single?
 			'delete_with_user'     => true,
 			'supports'             => array(
 				'editable_title',
@@ -140,11 +167,12 @@ class MG_UPC_List_Type implements ArrayAccess {
 				'editable_item_description',
 				//'max_items_rotate',
 				'show_in_my_lists',
+				'show_in_settings',
 				//'sortable',
 				//'vote',
 				//'always_exists', //this create an end point with bookmarks instead the ID
 			),
-			'capability_type'      => 'user_post_collection',
+			'capability_type'      => "mg_{$list_type}_collection",
 			'capabilities'         => array(),
 			'map_meta_cap'         => true,
 		);
@@ -158,6 +186,21 @@ class MG_UPC_List_Type implements ArrayAccess {
 			$args['map_meta_cap'] = false;
 		}
 
+		// If not set, set from possible statuses
+		if ( null === $args['available_statuses'] ) {
+			$args['available_statuses'] = $args['possible_statuses'];
+		}
+
+		// If not set, default to public.
+		if ( null === $args['publicly_queryable'] ) {
+			$args['publicly_queryable'] = $args['public'];
+		}
+
+		// If not set, default to not public.
+		if ( null === $args['exclude_from_search'] ) {
+			$args['exclude_from_search'] = ! $args['public'];
+		}
+
 		$this->cap = $this->get_list_type_capabilities( (object) $args );
 		unset( $args['capabilities'] );
 
@@ -169,13 +212,60 @@ class MG_UPC_List_Type implements ArrayAccess {
 			$this->$property_name = $property_value;
 		}
 
-		$this->label = $args['label'];
+		if ( ! $args['plural_label'] ) {
+			$this->plural_label = $this->label . 's';
+		}
 
 		if ( $args['map_meta_cap'] ) {
 			add_filter( 'map_meta_cap', array( $this, 'map_meta_cap' ), 10, 4 );
 		}
 
-		add_filter( 'user_has_cap', array( $this, 'user_has_cap' ), 10, 3 );
+	}
+
+	private function complete_from_settings( $args ) {
+
+		$args = apply_filters( 'mg_upc_before_list_type_options_saved_set', $args, $this->name );
+
+		$prefix = 'mg_upc_type_';
+		$option = get_option( $prefix . $this->name, '' );
+		if ( ! is_array( $option ) ) {
+			return $args;
+		}
+		if ( isset( $option['enabled'] ) ) {
+			$args['enabled'] = 'off' !== $option['enabled'];
+		}
+		if ( isset( $option['sticky'] ) && is_numeric( $option['sticky'] ) ) {
+			$args['sticky'] = (int) $option['sticky'];
+		}
+		if ( ! empty( $option['label'] ) ) {
+			$args['label'] = $option['label'];
+		}
+		if ( ! empty( $option['description'] ) ) {
+			$args['description'] = $option['description'];
+		}
+		if ( ! empty( $option['max_items'] ) ) {
+			$args['max_items'] = (int) $option['max_items'];
+		}
+		if ( isset( $option['available_post_types'] ) && is_array( $option['available_post_types'] ) ) {
+			$args['available_post_types'] = $option['available_post_types'];
+		}
+		if ( ! empty( $option['default_orderby'] ) ) {
+			$args['default_orderby'] = $option['default_orderby'];
+		}
+		if ( ! empty( $option['default_order'] ) ) {
+			$args['default_order'] = $option['default_order'];
+		}
+		if ( ! empty( $option['default_status'] ) ) {
+			$args['default_status'] = $option['default_status'];
+		}
+		if ( ! empty( $option['default_title'] ) ) {
+			$args['default_title'] = $option['default_title'];
+		}
+		if ( ! empty( $option['available_statuses'] ) ) {
+			$args['available_statuses'] = $option['available_statuses'];
+		}
+
+		return $args;
 	}
 
 	public function map_meta_cap( $caps, $cap, $user_id, $args ) {
@@ -216,7 +306,7 @@ class MG_UPC_List_Type implements ArrayAccess {
 			if ( 'read_' . $type === $cap ) {
 				if ( 'private' !== $status ) {
 					$caps[] = 'read';
-				} elseif ( $user_id ===  $author ) {
+				} elseif ( $user_id === $author ) {
 					$caps[] = 'read';
 				} else {
 					$caps[] = $this->cap->read_private_posts;
@@ -243,34 +333,6 @@ class MG_UPC_List_Type implements ArrayAccess {
 		return $caps;
 	}
 
-	public function user_has_cap( $all_caps, $primitive_caps, $args ) {
-
-		$requested = $this->get_core_cap( $args[0] );
-		if ( $requested ) {
-			foreach ( $primitive_caps as $primitive_cap ) {
-				if ( 'edit_user_post_collections' === $primitive_cap && ! isset( $all_caps[ $primitive_cap ] ) ) {
-					$all_caps[ $primitive_cap ] = ! empty( $args[1] );
-					continue;
-				}
-				//copy from core equivalent
-				$core = $this->get_core_cap( $primitive_cap );
-				if ( isset( $all_caps[ $core ] ) ) {
-					$all_caps[ $primitive_cap ] = $all_caps[ $core ];
-				}
-			}
-		}
-
-		return $all_caps;
-	}
-
-	private function get_core_cap( $cap_name ) {
-		foreach ( $this->cap as $core => $custom ) {
-			if ( $custom === $cap_name ) {
-				return $core;
-			}
-		}
-		return false;
-	}
 
 	private function get_list_type_capabilities( $args ) {
 
@@ -356,6 +418,7 @@ class MG_UPC_List_Type implements ArrayAccess {
 			'max_items_rotate',
 			'show_in_my_lists',
 			'always_exists',
+			'show_in_settings',
 		);
 
 		if ( in_array( $offset, $supports, true ) ) {

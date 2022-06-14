@@ -3,25 +3,50 @@
 
 class MG_UPC_Woocommerce extends MG_UPC_Module {
 
-	public function __construct() { }
+	public function __construct() {
+		//before added list types on init with priority 10.. and WooCommerce already defined
+		add_action( 'init', array( $this, 'pre_init' ), 5 );
+	}
 
-	public function init() {
+	/**
+	 * Before added list types on init with priority 10.. and WooCommerce already defined
+	 */
+	public function pre_init() {
 
 		if ( class_exists( 'WooCommerce' ) ) {
-			//Add 'product' to allowed post types
+			//Add 'product' to allowed post types by default
 			add_filter(
-				'register_list_type_args',
+				'mg_upc_before_list_type_options_saved_set',
 				function ( $list_type_arg ) {
 					if ( ! isset( $list_type_arg['available_post_types'] ) ) {
 						$list_type_arg['available_post_types'] = array( 'post' );
 					}
 					$list_type_arg['available_post_types'][] = 'product';
-					$list_type_arg['available_post_types'][] = 'product_variation';
 
 					return $list_type_arg;
 				}
 			);
-			add_action( 'woocommerce_after_add_to_cart_form', array( $this, 'product_button' ) );
+			//If product in available post type, then add product_variation
+			add_filter(
+				'register_list_type_args',
+				function ( $list_type_arg ) {
+					if (
+						isset( $list_type_arg['available_post_types'] ) &&
+						in_array( 'product', $list_type_arg['available_post_types'], true )
+					) {
+						$list_type_arg['available_post_types'][] = 'product_variation';
+					}
+
+					return $list_type_arg;
+				}
+			);
+
+			$btn_position = get_option( 'mg_upc_button_position_product', 'after_cart' );
+			if ( 'after_cart' === $btn_position ) {
+				add_action( 'woocommerce_after_add_to_cart_form', array( $this, 'product_button' ) );
+			} elseif ( 'before_cart' === $btn_position ) {
+				add_action( 'woocommerce_before_add_to_cart_form', array( $this, 'product_button' ) );
+			}
 		}
 
 		add_filter( 'mg_post_item_product_variation_for_response', array( $this, 'product_variant_item' ) );
@@ -156,9 +181,9 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 	 */
 	public function product_button() {
 		global $post;
-		if ( ! empty( $post ) && $post->ID > 0 ) {
-			if ( ! empty( MG_UPC_Helper::get_instance()->get_available_list_types( $post->post_type ) ) ) {
-				remove_filter( 'the_content', array( MG_UPC_Buttons::get_instance(), 'the_content' ) );
+		if ( $post instanceof WP_Post && $post->ID > 0 ) {
+			if ( MG_UPC_Helper::get_instance()->current_user_can_add_to_any( $post->post_type ) ) {
+				remove_filter( 'the_content', array( 'MG_UPC_Buttons', 'the_content' ) );
 				mg_upc_get_template( 'mg-upc-wc/single-product-buttons.php' );
 			}
 		}
@@ -213,6 +238,8 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 			)
 		);
 	}*/
+
+	public function init() {}
 
 	public function activate( $network_wide ) { }
 

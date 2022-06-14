@@ -626,7 +626,7 @@ class MG_UPC_REST_Lists_Controller {
 		$args = array(
 			'limit'  => $request['per_page'],
 			'page'   => $request['page'],
-			'status' => 'publish',
+			'status' => array( 'publish' ),
 		);
 
 		$no_empty_set = array(
@@ -648,10 +648,27 @@ class MG_UPC_REST_Lists_Controller {
 			}
 		}
 
+		//limit to searcheable list types and statuses
+		if ( ! empty( $args['search'] ) ) {
+			$searchable_list_type   = MG_UPC_Helper::get_instance()->get_searchable_list_types();
+			$searchable_list_status = MG_UPC_Helper::get_instance()->get_searchable_list_statuses();
+			if ( isset( $request['status'] ) && ! in_array( 'any', $args['status'], true ) ) {
+				$request['status'] = array_intersect( $request['status'], $searchable_list_status );
+			} else {
+				$request['status'] = $searchable_list_status;
+			}
+			if ( isset( $request['type'] ) && ! in_array( 'any', $args['type'], true ) ) {
+				$request['type'] = array_intersect( $request['type'], $searchable_list_type );
+			} else {
+				$request['type'] = $searchable_list_type;
+			}
+		}
+
 		// Set list types or status to a list that the user can read
 		if ( ! empty( $request['status'] ) ) {
+			$private_statuses = MG_UPC_Helper::get_instance()->get_private_list_statuses( true );
 			if (
-				in_array( 'private', $request['status'], true ) ||
+				count( array_intersect( $request['status'], $private_statuses ) ) > 0 ||
 				in_array( 'any', $request['status'], true )
 			) {
 				if ( empty( $args['author'] ) || get_current_user_id() !== $args['author'] ) {
@@ -672,8 +689,12 @@ class MG_UPC_REST_Lists_Controller {
 					if ( ! empty( $ok_access_list_types ) ) {
 						$args['type'] = $ok_access_list_types;
 					} else {
-						//only publish access
-						$request['status'] = array( 'publish' );
+						//only public access
+						$request['status'] = MG_UPC_Helper::get_instance()->get_public_list_statuses();
+						if ( ! empty( $args['search'] ) ) {
+							$searchable_list_status = MG_UPC_Helper::get_instance()->get_searchable_list_statuses();
+							$request['status']      = array_intersect( $request['status'], $searchable_list_status );
+						}
 					}
 				}
 			}
@@ -705,8 +726,8 @@ class MG_UPC_REST_Lists_Controller {
 			'page'    => $request['page'],
 			'status'  => 'any',
 			'author'  => get_current_user_id(),
-			'orderby' => $request['orderby'] ? $request['orderby'] : 'modified',
-			'order'   => $request['order'] ? $request['order'] : 'desc',
+			'orderby' => $request['orderby'] ? $request['orderby'] : get_option( 'mg_upc_my_orderby', 'modified'),
+			'order'   => $request['order'] ? $request['order'] : get_option( 'mg_upc_my_order', 'desc'),
 		);
 
 		$lists = MG_UPC_List_Controller::get_instance()->get_user_lists( $args, $request );

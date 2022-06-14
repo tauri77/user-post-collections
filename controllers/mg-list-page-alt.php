@@ -19,7 +19,12 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 			add_filter( 'query_vars', array( $this, 'add_list_query_var' ) );
 			// Add the rewrite rule using slug from $page_id
 			$this->add_rewrite();
+			if ( get_option( 'mg_upc_flush_rewrite', '0' ) === '1' ) {
+				flush_rewrite_rules();
+			}
 		}
+
+		add_filter( 'mg_upc_settings_fields', array( $this, 'add_settings_fields' ) );
 
 		/* Title Hooks*/
 		add_filter( 'wpseo_title', array( $this, 'list_title' ), 16, 2 );
@@ -43,8 +48,9 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 		add_shortcode( 'user_post_collection', array( $this, 'list_shortcode' ) );
 
 		/* Templates hook */
-		//TODO: Add an option to force to display on page template, then if active dont add this filter
-		//add_filter( 'template_include', array( 'MG_UPC_List_Page', 'template_loader' ) );
+		if ( get_option( 'mg_upc_single_page_mode', 'template_upc' ) === 'template_upc' ) {
+			add_filter( 'template_include', array( 'MG_UPC_List_Page', 'template_loader' ) );
+		}
 
 		/* Set global $mg_upc_list if query a collection*/
 		add_action( 'parse_request', array( $this, 'parse_request' ), 10, 1 );
@@ -68,6 +74,7 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 			isset( $query->query_vars['list'] )
 		) {
 			$this->get_list_requested( false );
+			remove_filter( 'the_content', array( 'MG_UPC_Buttons', 'the_content' ) );
 		}
 
 		return $query;
@@ -207,7 +214,7 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 	 */
 	public function add_link_to_list_response( $list ) {
 
-		if ( 'publish' === $list['status'] ) {
+		if ( mg_upc_is_list_publicly_viewable( $list ) ) {
 			$list['link'] = $this->get_list_url( $list );
 		}
 
@@ -221,7 +228,6 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 	 */
 	private static function is_requesting_list_page() {
 		$post = get_queried_object();
-
 		if ( ! $post instanceof WP_Post || 'page' !== $post->post_type ) {
 			return false;
 		}
@@ -268,7 +274,7 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 
 		$list = $GLOBALS['mg_upc']->model->find_one( $list );
 
-		if ( $list && 'publish' === $list->status ) {
+		if ( $list && mg_upc_is_list_publicly_viewable( $list ) ) {
 			$GLOBALS['mg_upc_list'] = MG_UPC_List_Controller::get_instance()->get_list_for_response(
 				array(
 					'id'             => (int) $list->ID,
@@ -298,9 +304,13 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 	public function list_title( $old_title, $presentation = false ) {
 		$list = self::get_list_requested();
 		if ( ! empty( $list ) ) {
-			//TODO: Add an option for template title
-			$new_title = $list['title'] . MG_UPC_Helper::get_instance()->get_user_login( $list['author'], ' by ' ) .
-					' | User List | ' . get_bloginfo( 'name' );
+			$parts     = array(
+				'%title%'    => $list['title'],
+				'%author%'   => MG_UPC_Helper::get_instance()->get_user_login( $list['author'] ),
+				'%sitename%' => get_bloginfo( 'name' ),
+			);
+			$template  = get_option( 'mg_upc_single_title', '%title% by %author% | User List | %sitename%' );
+			$new_title = str_replace( array_keys( $parts ), array_values( $parts ), $template );
 			return apply_filters( 'mg_upc_list_doc_title_replace', $new_title, $old_title, $presentation );
 		}
 
@@ -466,9 +476,61 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 		$this->add_rewrite();
 	}
 
+	/**
+	 * Add settings filed for manage page
+	 *
+	 * @param $settings_fields
+	 *
+	 * @return mixed
+	 */
+	public function add_settings_fields( $settings_fields ) {
+		$new                               = array(
+			array(
+				'name'                     => 'mg_upc_single_page',
+				'label'                    => __( 'Single Page', 'user-post-collections' ),
+				'desc'                     => __( 'make sure the shortcode [user_post_collection] is present on the selected page', 'user-post-collections' ),
+				'default'                  => self::get_page_id(),
+				'type'                     => 'pages',
+				'sanitize_callback_params' => 3,
+				'sanitize_callback'        => function ( $value, $option, $original_value ) {
+					if ( ! is_numeric( $value ) ) {
+						return $original_value;
+					}
+
+					if ( $value !== $original_value ) {
+						update_option( 'mg_upc_flush_rewrite', '1' );
+					}
+
+					return $value;
+				},
+			),
+			array(
+				'name'    => 'mg_upc_single_page_mode',
+				'label'   => __( 'Single Page', 'user-post-collections' ),
+				'desc'    => __( 'Try change this if the single list page not show as you like.', 'user-post-collections' ),
+				'default' => 'template_upc',
+				'type'    => 'radio',
+				'options' => array(
+					'template_upc'  => __( 'Load UPC template', 'user-post-collections' ),
+					'template_page' => __( 'Load inside the default selected page template', 'user-post-collections' ),
+				),
+			),
+		);
+		$settings_fields['mg_upc_general'] = array_merge(
+			$new,
+			$settings_fields['mg_upc_general']
+		);
+
+		return $settings_fields;
+	}
+
 	public function deactivate() { }
 
 	public function register_hook_callbacks() { }
 
-	public function upgrade( $db_version = 0 ) { }
+	public function upgrade( $db_version = 0 ) {
+		if ( version_compare( $db_version, '0.7.1', '<' ) ) {
+			update_option( 'mg_upc_flush_rewrite', '0' );
+		}
+	}
 }

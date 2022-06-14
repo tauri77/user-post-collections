@@ -6,7 +6,6 @@ if ( ! class_exists( 'MG_UPC_Module' ) ) {
 	 * Abstract class to define/implement base methods for all module classes
 	 */
 	abstract class MG_UPC_Module {
-		use MG_UPC_Template_Loader;
 
 		private static $instances = array();
 

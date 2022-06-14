@@ -11,6 +11,10 @@ defined( 'ABSPATH' ) || exit;
 
 global $mg_upc_list;
 
+if ( ! $mg_upc_list ) {
+	return;
+}
+
 /**
  * Hook: mg_upc_before_single_list.
  */

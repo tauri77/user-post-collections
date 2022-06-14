@@ -1,6 +1,12 @@
 import { h, Fragment } from 'preact';
 import {useEffect, useMemo, useState} from "preact/hooks";
-import {getMgUpcConfig, getUpcTypeConfig, typeSupport} from "../helpers/functions";
+import {
+	getNotAlwaysExists,
+	getStatusLabel,
+	getUpcTypeConfig,
+	typeSupport,
+	statusShowInList
+} from "../helpers/functions";
 
 function ListEdit( props ) {
 	const [ title, setTitle ]     = useState( '' );
@@ -8,21 +14,11 @@ function ListEdit( props ) {
 	const [ type, setType ]       = useState( '' );
 	const [ status, setStatus ]   = useState( '' );
 
-	const optionsType = useMemo(
-		() => {
-			const arr   = [];
-			const types = getMgUpcConfig().types;
-			//New list
-			for ( const type in types ) {
-				if ( types.hasOwnProperty( type ) ) {
-					if ( ! typeSupport( type, 'always_exists' ) ) {
-						arr.push( types[type] );
-					}
-				}
-			}
-			return arr;
-		}
-	);
+	const optionsType = useMemo( getNotAlwaysExists );
+
+	if ( '' === type && 1 === optionsType.length ) {
+		handleType( optionsType[0] );
+	}
 
 	useEffect(
 		() => {
@@ -50,8 +46,14 @@ function ListEdit( props ) {
 		setTitle( event.target.value );
 	}
 
-	function handleType(event) {
-		setType( event.target.value );
+	function handleType(typeOpt) {
+		if ( typeOpt.default_title ) {
+			setTitle( typeOpt.default_title );
+		}
+		if ( typeOpt.default_status ) {
+			setStatus( typeOpt.default_status );
+		}
+		setType( typeOpt.name );
 	}
 
 	function handleContent(event) {
@@ -63,21 +65,31 @@ function ListEdit( props ) {
 	}
 
 	return (<div className="mg-list-edit">
-		{ props.list.ID === -1 && (<>
-			<label htmlFor={`type-${props.list.ID}`}>
-				List Type
+		{ props.list.ID === -1 && type === '' &&   (<>
+			<label>
+				Select a list type:
 			</label>
-			<select
+			<ul
 				id={`type-${props.list.ID}`}
-				value={ type }
-				onChange={ handleType }
 			>
 				{ optionsType.map( (option, optionIndex) => {
-					return (<option key={option.name} value={option.name}>{option.label}</option>);
+					return (<li
+						className="mg-upc-dg-item-list-type"
+						key={option.name}
+						onClick={ () => handleType( option ) }
+						onKeyPress={(e) => { e.keyCode === 13 && handleType( option ) } }
+						tabIndex="0">
+						<i className={"mg-upc-icon mg-upc-dg-item-type mg-upc-dg-item-type-" +option.name}></i>
+						<div className="mg-upc-dg-item-title">
+							<strong>{option.label}</strong>
+							<div className="mg-upc-dg-item-desc">{option.description}</div>
+						</div>
+					</li>
+					);
 				})}
-			</select>
+			</ul>
 		</>) }
-		{ typeSupport( type, 'editable_title') && (<>
+		{ type !== '' && typeSupport( type, 'editable_title') && (<>
 			<label htmlFor={`title-${props.list.ID}`}>
 				Title
 			</label>
@@ -89,7 +101,7 @@ function ListEdit( props ) {
 				maxLength={100}
 			/>
 		</>) }
-		{ typeSupport( type, 'editable_content' ) && (<>
+		{ type !== '' && typeSupport( type, 'editable_content' ) && (<>
 			<label htmlFor={`content-${props.list.ID}`}>
 				Description
 			</label>
@@ -99,12 +111,12 @@ function ListEdit( props ) {
 				onChange={ handleContent }
 				maxLength={500}
 			></textarea>
-			<span className={"mg-upc-dg-list-desc-edit-count"}><i>{content.length}</i>/500</span>
+			<span className={"mg-upc-dg-list-desc-edit-count"}><i>{content?.length}</i>/500</span>
 		</>) }
-		{ ! getUpcTypeConfig( type ) && (
+		{ type !== '' && ! getUpcTypeConfig( type ) && (
 			<span>Unknown Type...</span>
 		)}
-		{ getUpcTypeConfig( type )?.available_statuses &&
+		{ type !== '' && getUpcTypeConfig( type )?.available_statuses &&
 		  getUpcTypeConfig( type ).available_statuses.length > 1 && (<>
 			<label htmlFor={`status-${props.list.ID}`}>
 				Status
@@ -115,11 +127,13 @@ function ListEdit( props ) {
 				onChange={ handleStatus }
 			>
 				{ getUpcTypeConfig(type).available_statuses.map( (option, optionIndex) => {
-					return (<option value={option}>{option}</option>);
+					if ( statusShowInList( option ) ) {
+						return (<option value={option}>{getStatusLabel(option)}</option>);
+					}
 				})}
 			</select>
 		</>) }
-		{ getUpcTypeConfig( type ) && (<div className={"mg-upc-dg-edit-actions"}>
+		{ type !== '' && getUpcTypeConfig( type ) && (<div className={"mg-upc-dg-edit-actions"}>
 			<button onClick={ () => props.onCancel() }>
 				<span className={"mg-upc-icon upc-font-close"}></span><span>Cancel</span>
 			</button>

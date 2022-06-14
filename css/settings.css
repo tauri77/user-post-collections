@@ -1,0 +1,58 @@
+.mg-upc-hidden {
+	display: none;
+}
+
+.mg-upc-icon-preview {
+	height: 50px;
+	display: inline;
+}
+
+.mg-upc-icons-preview {
+	padding-left: 50px;
+	display: inline-block;
+	min-width: 225px;
+}
+
+.mg-upc-array-item label {
+	min-width: 150px;
+	display: inline-block;
+	margin-bottom: 5px;
+}
+
+.mg-upc-array-item .description {
+	margin-left: 150px;
+}
+
+.mg-upc-array-item input {
+	display: inline-block;
+	margin-bottom: 5px;
+}
+
+.button.mg-upc-array-item-remove {
+	vertical-align: middle;
+	margin-left: 1em;
+}
+
+.mg-upc-array-item-remove .dashicons-before,
+.mg-upc-array-item-remove .dashicons-before:before {
+	vertical-align: middle;
+	margin-right: 0.3em;
+}
+
+.mg-upc-sort-handle {
+	vertical-align: middle;
+	width: 1.2em;
+	background: #fff;
+	padding: 5px;
+	border: solid 1px #a9a6a6;
+	border-radius: 3px;
+	float: right;
+}
+
+[readonly] {
+	pointer-events: none;
+}
+
+.settings_page_mg_upc_settings .wrap .notice {
+	margin: 10px 0 3px !important;
+}

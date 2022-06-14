@@ -209,8 +209,9 @@ class MG_List_Model {
 		foreach ( $filters as $prop => $filter ) {
 
 			if ( ! empty( $args[ $prop ] ) ) {
-				$db_column = isset( $filter['db_column'] ) ? $filter['db_column'] : $prop;
-				$compare   = isset( $filter['compare'] ) ? $filter['compare'] : '=';
+				$db_column    = isset( $filter['db_column'] ) ? $filter['db_column'] : $prop;
+				$compare      = isset( $filter['compare'] ) ? $filter['compare'] : '=';
+				$single_value = null;
 
 				if ( $filter['array'] ) {
 
@@ -248,8 +249,8 @@ class MG_List_Model {
 										$prop
 									);
 								}
-								$where_values[] .= '%d';
-								$prepare[]       = (int) $value;
+								$where_values[] = '%d';
+								$prepare[]      = (int) $value;
 							} elseif ( 'string' === $filter['type'] ) {
 								if ( ! empty( $filter['valid'] ) && ! in_array( $value, $filter['valid'], true ) ) {
 									throw new MG_UPC_Invalid_Field_Exception(
@@ -259,8 +260,8 @@ class MG_List_Model {
 										$prop
 									);
 								}
-								$where_values[] .= '%s';
-								$prepare[]       = $value;
+								$where_values[] = '%s';
+								$prepare[]      = $value;
 							} elseif ( 'datetime' === $filter['type'] ) {
 								$datetime = strtotime( $value );
 								if ( false === $datetime ) {
@@ -271,8 +272,8 @@ class MG_List_Model {
 										$prop
 									);
 								}
-								$where_values[] .= '%s';
-								$prepare[]       = gmdate( 'Y-m-d H:i:s', $datetime );
+								$where_values[] = '%s';
+								$prepare[]      = gmdate( 'Y-m-d H:i:s', $datetime );
 							}
 						}
 
@@ -280,7 +281,8 @@ class MG_List_Model {
 
 						continue; //end count( $args[ $prop ] ) > 1
 					} elseif ( 1 === count( $args[ $prop ] ) ) {
-						$single_value = $args[ $prop ][0];
+						$args[ $prop ] = array_values( $args[ $prop ] );
+						$single_value  = $args[ $prop ][0];
 					}
 					//end array=true
 				} else {
@@ -290,10 +292,10 @@ class MG_List_Model {
 				//single value
 				if ( isset( $single_value ) ) {
 					if ( 'int' === $filter['type'] ) {
-						$where[]  .= '`' . $db_column . '` ' . $compare . ' %d';
+						$where[]   = '`' . $db_column . '` ' . $compare . ' %d';
 						$prepare[] = (int) $single_value;
 					} elseif ( 'string' === $filter['type'] ) {
-						$where[]  .= '`' . $db_column . '` ' . $compare . ' %s';
+						$where[]   = '`' . $db_column . '` ' . $compare . ' %s';
 						$prepare[] = $single_value;
 					} elseif ( 'datetime' === $filter['type'] ) {
 						$datetime = strtotime( $single_value );
@@ -305,7 +307,7 @@ class MG_List_Model {
 								$prop
 							);
 						}
-						$where[]  .= '`' . $db_column . '` ' . $compare . ' %s';
+						$where[]   = '`' . $db_column . '` ' . $compare . ' %s';
 						$prepare[] = gmdate( 'Y-m-d H:i:s', $datetime );
 					}
 				}

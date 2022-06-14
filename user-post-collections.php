@@ -3,7 +3,7 @@
 Plugin Name: User post collections
 Plugin URI:  https://galetto.info/user-post-collections
 Description: Allows users to create their own post collections
-Version:     0.1.8
+Version:     0.7.1
 Author:      Mauricio Galetto
 Author URI:  http://galetto.info/
 */
@@ -68,13 +68,13 @@ if ( mg_upc_requirements_met() ) {
 	require_once __DIR__ . '/includes/mg-upc-list-type.php';
 	require_once __DIR__ . '/includes/list-types.php';
 	require_once __DIR__ . '/includes/mg-upc-helper.php';
+	require_once __DIR__ . '/includes/mg-upc-settings-api.php';
 
 	require_once __DIR__ . '/classes/Exceptions/mg-upc-item-exist-exception.php';
 	require_once __DIR__ . '/classes/Exceptions/mg-upc-invalid-field-exception.php';
 	require_once __DIR__ . '/classes/Exceptions/mg-upc-item-not-found-exception.php';
 	require_once __DIR__ . '/classes/Exceptions/mg-upc-required-field-exception.php';
 
-	require_once __DIR__ . '/classes/trait-mg-upc-template-loader.php';
 	require_once __DIR__ . '/classes/mg-upc-module.php';
 
 	require_once __DIR__ . '/alt-models/mg-list-model.php';
@@ -90,6 +90,7 @@ if ( mg_upc_requirements_met() ) {
 	require_once __DIR__ . '/controllers/mg-upc-cron.php';
 
 	require_once __DIR__ . '/classes/user-post-collections.php';
+	require_once __DIR__ . '/classes/mg-upc-list-types-register.php';
 	require_once __DIR__ . '/includes/admin-notice-helper/admin-notice-helper.php';
 	require_once __DIR__ . '/classes/mg-upc-settings.php';
 	require_once __DIR__ . '/classes/mg-upc-rest-api.php';

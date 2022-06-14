@@ -15,7 +15,7 @@ if ( ! class_exists( 'User_Post_Collections' ) ) {
 		 */
 		public $model;
 
-		const VERSION    = '0.1.2';
+		const VERSION    = '0.7.1';
 		const PREFIX     = 'mg_upc_';
 		const DEBUG_MODE = false;
 
@@ -30,14 +30,15 @@ if ( ! class_exists( 'User_Post_Collections' ) ) {
 			$this->model = MG_List_Model::get_instance();
 
 			$this->modules = array(
-				'MG_UPC_Settings'        => MG_UPC_Settings::get_instance(),
-				'MG_UPC_Cron'            => MG_UPC_Cron::get_instance(),
-				'MG_UPC_List_Controller' => MG_UPC_List_Controller::get_instance(),
-				'MG_UPC_List_Page'       => MG_UPC_List_Page::get_instance(),
-				'MG_UPC_Database'        => MG_UPC_Database::get_instance(),
-				'MG_UPC_Rest_API'        => MG_UPC_Rest_API::get_instance(),
-				'MG_UPC_Buttons'         => MG_UPC_Buttons::get_instance(),
-				'MG_UPC_Woocommerce'     => MG_UPC_Woocommerce::get_instance(),
+				'MG_UPC_Settings'            => MG_UPC_Settings::get_instance(),
+				'MG_UPC_List_Types_Register' => MG_UPC_List_Types_Register::get_instance(),
+				'MG_UPC_Cron'                => MG_UPC_Cron::get_instance(),
+				'MG_UPC_List_Controller'     => MG_UPC_List_Controller::get_instance(),
+				'MG_UPC_List_Page'           => MG_UPC_List_Page::get_instance(),
+				'MG_UPC_Database'            => MG_UPC_Database::get_instance(),
+				'MG_UPC_Rest_API'            => MG_UPC_Rest_API::get_instance(),
+				'MG_UPC_Buttons'             => MG_UPC_Buttons::get_instance(),
+				'MG_UPC_Woocommerce'         => MG_UPC_Woocommerce::get_instance(),
 			);
 		}
 
@@ -72,10 +73,11 @@ if ( ! class_exists( 'User_Post_Collections' ) ) {
 				self::PREFIX . 'mg-user-post-collections-client',
 				'MgUserPostCollections',
 				array(
-					'root'    => esc_url_raw( rest_url() ),
-					'nonce'   => wp_create_nonce( 'wp_rest' ),
-					'user_id' => get_current_user_id(),
-					'types'   => MG_UPC_Helper::get_instance()->get_list_types(),
+					'root'     => esc_url_raw( rest_url() ),
+					'nonce'    => wp_create_nonce( 'wp_rest' ),
+					'user_id'  => get_current_user_id(),
+					'types'    => MG_UPC_Helper::get_instance()->get_user_creatable_list_types(),
+					'statuses' => MG_UPC_Helper::get_instance()->get_list_statuses( false ),
 				)
 			);
 
