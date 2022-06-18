@@ -487,7 +487,7 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 		$new                               = array(
 			array(
 				'name'                     => 'mg_upc_single_page',
-				'label'                    => __( 'Single Page', 'user-post-collections' ),
+				'label'                    => __( 'Collection Page', 'user-post-collections' ),
 				'desc'                     => __( 'make sure the shortcode [user_post_collection] is present on the selected page', 'user-post-collections' ),
 				'default'                  => self::get_page_id(),
 				'type'                     => 'pages',
@@ -506,7 +506,7 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 			),
 			array(
 				'name'    => 'mg_upc_single_page_mode',
-				'label'   => __( 'Single Page', 'user-post-collections' ),
+				'label'   => __( 'Collection Page Template', 'user-post-collections' ),
 				'desc'    => __( 'Try change this if the single list page not show as you like.', 'user-post-collections' ),
 				'default' => 'template_upc',
 				'type'    => 'radio',

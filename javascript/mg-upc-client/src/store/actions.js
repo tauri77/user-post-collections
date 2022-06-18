@@ -90,6 +90,8 @@ export const removeList = createAsyncThunk(
 					thunkAPI.dispatch( setListOfList( { page: page } ) );
 				} else if ( page > 1 && page === total ) {
 					thunkAPI.dispatch( setListOfList( { page: page - 1 } ) );
+				} else {
+					return list_id;
 				}
 				return false;
 			}

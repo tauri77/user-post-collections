@@ -17,7 +17,10 @@ class MG_UPC_Buttons extends MG_UPC_Module {
 				$position = get_option( 'mg_upc_button_position', 'end' );
 
 				$btn  = '<div class="post-adding">';
-				$btn .= '<button onclick="window.addItemToList(' . (int) $post->ID . ')">Add to list...</button>';
+				$btn .= '<a class="' . esc_attr( mg_upc_btn_classes( '' ) ) .
+						'" onclick="window.addItemToList(' . (int) $post->ID . ')">';
+				$btn .= esc_html( mg_upc_get_text( 'Add to list...', 'single' ) );
+				$btn .= '</a>';
 				$btn .= '</div>';
 
 				if ( 'end' === $position ) {

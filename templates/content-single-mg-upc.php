@@ -36,7 +36,7 @@ if ( post_password_required() ) {
 	do_action( 'mg_upc_before_single_list_content' );
 	?>
 
-	<div class="content entry-content">
+	<div class="mg-upc-list entry-mg-upc-list">
 		<?php
 		/**
 		 * Hook: mg_upc_single_list_summary.

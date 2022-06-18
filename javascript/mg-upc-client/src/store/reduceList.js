@@ -12,7 +12,7 @@ import {
 	MOVE_LIST_ITEM_NEXT,
 	MOVE_LIST_ITEM_PREV, ADD_LIST_ITEM
 } from "./actionTypes";
-import {typeSupport} from "../helpers/functions";
+import { typeSupport, cloneObj } from "../helpers/functions";
 
 export default function reduceList (state, action) {
 	const { type, payload } = action;
@@ -34,10 +34,6 @@ export default function reduceList (state, action) {
 
 	let newStateItems;
     let newState;
-
-    function cloneObj(obj){
-	    return JSON.parse( JSON.stringify( obj ) );
-    }
 
 	const getCloned = (override = false) => {
 		if ( ! newState ) {

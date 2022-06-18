@@ -3,7 +3,7 @@ import ListItem from "./list-item";
 import {useEffect, useRef} from "preact/hooks";
 import loadScript from "../helpers/load-script";
 import Skeleton from "./skeleton";
-import {listSupport} from "../helpers/functions";
+import {getSortableUrl, listSupport} from "../helpers/functions";
 
 function List(props) {
 	const ulRef = useRef(null);
@@ -33,7 +33,7 @@ function List(props) {
 			if ( typeof Sortable !== 'undefined' ) {
 				run();
 			} else {
-				loadScript('https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js').then(()=> {
+				loadScript( getSortableUrl() ).then(()=> {
 					run();
 				});
 			}

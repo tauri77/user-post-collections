@@ -19,6 +19,7 @@ import {
 import reduceList from './reduceList';
 import reduceListOfList from './reduceListOfLists';
 import { initialState } from '../contexts/app-context';
+import { cloneObj } from "../helpers/functions";
 
 export function reducer (state, action) {
 	const { type, payload } = action;
@@ -38,7 +39,7 @@ export function reducer (state, action) {
 
 	const getCloned = ( override = false) => {
 		if ( ! newState ) {
-			newState = JSON.parse( JSON.stringify( state ) );
+			newState = cloneObj( state );
 		}
 		if ( override ) {
 			for ( const i in override ) {

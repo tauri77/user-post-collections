@@ -14,7 +14,9 @@ function ListEdit( props ) {
 	const [ type, setType ]       = useState( '' );
 	const [ status, setStatus ]   = useState( '' );
 
-	const optionsType = useMemo( getNotAlwaysExists );
+	const optionsType = useMemo( () => {
+			return getNotAlwaysExists( props.addingPost );
+	}, [ props.addingPost ] );
 
 	if ( '' === type && 1 === optionsType.length ) {
 		handleType( optionsType[0] );
@@ -134,11 +136,11 @@ function ListEdit( props ) {
 			</select>
 		</>) }
 		{ type !== '' && getUpcTypeConfig( type ) && (<div className={"mg-upc-dg-edit-actions"}>
-			<button onClick={ () => props.onCancel() }>
-				<span className={"mg-upc-icon upc-font-close"}></span><span>Cancel</span>
-			</button>
 			<button onClick={ () => props.onSave( { title, content, type, status } ) }>
 				<span className={"mg-upc-icon upc-font-save"}></span><span>Save</span>
+			</button>
+			<button onClick={ () => props.onCancel() }>
+				<span className={"mg-upc-icon upc-font-close"}></span><span>Cancel</span>
 			</button>
 		</div>)}
 	</div>);

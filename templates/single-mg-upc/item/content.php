@@ -33,6 +33,7 @@ global $mg_upc_item, $mg_upc_list;
 		 * Hook: mg_upc_single_list_item_after_title.
 		 *
 		 * @hooked MG_UPC_Woocommerce::show_price - 10
+		 * @hooked MG_UPC_Woocommerce::show_stock - 15
 		 */
 		do_action( 'mg_upc_single_list_item_after_title' );
 		?>

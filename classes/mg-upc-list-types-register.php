@@ -41,13 +41,20 @@ class MG_UPC_List_Types_Register extends MG_UPC_Module {
 
 		$list_types = array(
 			'simple'   => array(
-				'label' => 'Simple List',
+				'label'              => 'Simple List',
+				'supported_features' => array(
+					'editable_title',
+					'editable_content',
+					'editable_item_description',
+					'show_in_my_lists',
+					'show_in_settings',
+				),
 			),
 			'numbered' => array(
-				'label'           => 'Numbered List',
-				'default_orderby' => 'position',
-				'default_order'   => 'asc',
-				'supports'        => array(
+				'label'              => 'Numbered List',
+				'default_orderby'    => 'position',
+				'default_order'      => 'asc',
+				'supported_features' => array(
 					'editable_title',
 					'editable_content',
 					'editable_item_description',
@@ -57,10 +64,10 @@ class MG_UPC_List_Types_Register extends MG_UPC_Module {
 				),
 			),
 			'vote'     => array(
-				'label'           => 'Polling list',
-				'default_orderby' => 'votes',
-				'default_order'   => 'desc',
-				'supports'        => array(
+				'label'              => 'Polling list',
+				'default_orderby'    => 'votes',
+				'default_order'      => 'desc',
+				'supported_features' => array(
 					'editable_title',
 					'editable_content',
 					'editable_item_description',
@@ -77,12 +84,20 @@ class MG_UPC_List_Types_Register extends MG_UPC_Module {
 		 * dont create this types, add first item create this
 		 */
 		$list_types['favorites'] = array(
-			'label'          => 'Favorites',
-			'plural_label'   => 'Favorites Lists',
-			'default_title'  => 'Favorites',
-			'default_status' => 'private',
-			'sticky'         => 1,
-			'supports'       => array(
+			'label'              => 'Favorites',
+			'plural_label'       => 'Favorites Lists',
+			'default_title'      => 'Favorites',
+			'default_status'     => 'private',
+			'sticky'             => 1,
+			'supported_features' => array(
+				'editable_title',
+				'editable_content',
+				'editable_item_description',
+				'show_in_my_lists',
+				'always_exists', //this create an end point with bookmarks instead the ID
+				'show_in_settings',
+			),
+			'default_supports'   => array(
 				'editable_item_description',
 				'show_in_my_lists',
 				'always_exists', //this create an end point with bookmarks instead the ID
@@ -91,12 +106,12 @@ class MG_UPC_List_Types_Register extends MG_UPC_Module {
 		);
 
 		$list_types['bookmarks'] = array(
-			'label'          => 'Bookmarks',
-			'plural_label'   => 'Bookmarks Lists',
-			'default_title'  => 'Bookmarks',
-			'default_status' => 'private',
-			'sticky'         => 2,
-			'supports'       => array(
+			'label'              => 'Bookmarks',
+			'plural_label'       => 'Bookmarks Lists',
+			'default_title'      => 'Bookmarks',
+			'default_status'     => 'private',
+			'sticky'             => 2,
+			'supported_features' => array(
 				'editable_title',
 				'editable_item_description',
 				'show_in_my_lists',

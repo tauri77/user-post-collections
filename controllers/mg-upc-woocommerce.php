@@ -46,11 +46,138 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 				add_action( 'woocommerce_after_add_to_cart_form', array( $this, 'product_button' ) );
 			} elseif ( 'before_cart' === $btn_position ) {
 				add_action( 'woocommerce_before_add_to_cart_form', array( $this, 'product_button' ) );
+			} elseif ( 'after_title' === $btn_position ) {
+				add_action( 'woocommerce_single_product_summary', array( $this, 'product_button' ), 7 );
+			} elseif ( 'after_meta' === $btn_position ) {
+				add_action( 'woocommerce_product_meta_end', array( $this, 'product_button' ), 10 );
 			}
+
+			$option_loop_button = get_option( 'mg_upc_loop_button_position_product', 'onsale' );
+			if ( 'after_cart' === $option_loop_button ) {
+				add_action( 'woocommerce_after_shop_loop_item', array( $this, 'product_button_shop_loop_item' ), 13 );
+			} elseif ( 'before_cart' === $option_loop_button ) {
+				add_action( 'woocommerce_after_shop_loop_item', array( $this, 'product_button_shop_loop_item' ), 8 );
+			} elseif ( 'before_item' === $option_loop_button ) {
+				add_action( 'woocommerce_before_shop_loop_item', array( $this, 'product_button_shop_loop_item' ), 10 );
+			} elseif ( 'before_title' === $option_loop_button ) {
+				add_action( 'woocommerce_shop_loop_item_title', array( $this, 'product_button_shop_loop_item' ), 8 );
+			}
+
+			add_filter( 'mg_upc_settings_sections', array( $this, 'mg_upc_settings_sections' ) );
+			add_filter( 'mg_upc_settings_fields', array( $this, 'mg_upc_settings_fields' ) );
 		}
 
 		add_filter( 'mg_post_item_product_variation_for_response', array( $this, 'product_variant_item' ) );
 		add_filter( 'mg_post_item_product_for_response', array( $this, 'product_item' ) );
+	}
+
+	public function mg_upc_settings_sections( $sections ) {
+		$section = array(
+			'id'       => 'mg_upc_product',
+			'title'    => __( 'Product Settings', 'user-post-collections' ),
+			'as_array' => false,
+		);
+		array_splice( $sections, 1, 0, array( $section ) );
+
+		return $sections;
+	}
+
+	public function mg_upc_settings_fields( $settings_fields ) {
+		$settings_fields['mg_upc_product'] = array();
+
+		$settings_fields['mg_upc_product'][] = array(
+			'name'    => 'mg_upc_button_position_product',
+			'label'   => __( 'Product button position', 'user-post-collections' ),
+			'desc'    => __( 'Where the "Add to list" button will be inserted on single product', 'user-post-collections' ),
+			'default' => 'after_cart',
+			'type'    => 'radio',
+			'options' => array(
+				'not'         => __( 'Not add button', 'user-post-collections' ),
+				'after_cart'  => __( 'After add to cart form', 'user-post-collections' ),
+				'before_cart' => __( 'Before add to cart form', 'user-post-collections' ),
+				'after_title' => __( 'After title', 'user-post-collections' ),
+				'after_meta'  => __( 'After product meta', 'user-post-collections' ),
+			),
+		);
+		$settings_fields['mg_upc_product'][] = array(
+			'name'    => 'mg_upc_loop_button_position_product',
+			'label'   => __( 'Product button loop', 'user-post-collections' ),
+			'desc'    => __( 'Where the "Add to list" button will be inserted on loop products', 'user-post-collections' ),
+			'default' => 'after_cart',
+			'type'    => 'radio',
+			'options' => array(
+				'not'          => __( 'Not add button', 'user-post-collections' ),
+				'after_cart'   => __( 'After add to cart button', 'user-post-collections' ),
+				'before_cart'  => __( 'Before add to cart button', 'user-post-collections' ),
+				'before_title' => __( 'Before product title', 'user-post-collections' ),
+				'before_item'  => __( 'Before product item', 'user-post-collections' ),
+			),
+		);
+		$settings_fields['mg_upc_product'][] = array(
+			'name'    => 'mg_upc_page_show_price',
+			'label'   => __( 'Price on collection page', 'user-post-collections' ),
+			'desc'    => __( 'Show prices on collection page', 'user-post-collections' ),
+			'default' => 'onsale',
+			'type'    => 'radio',
+			'options' => array(
+				'always' => __( 'Always show', 'user-post-collections' ),
+				'onsale' => __( 'Show when on sale', 'user-post-collections' ),
+				'never'  => __( 'Never show', 'user-post-collections' ),
+			),
+		);
+		$settings_fields['mg_upc_product'][] = array(
+			'name'    => 'mg_upc_page_show_stock',
+			'label'   => __( 'Stock on collection page', 'user-post-collections' ),
+			'desc'    => __( 'Show stock on collection page', 'user-post-collections' ),
+			'default' => '0',
+			'type'    => 'radio',
+			'options' => array(
+				'100' => __( 'Stock of 100 or less', 'user-post-collections' ),
+				'10'  => __( 'Stock of 10 or less', 'user-post-collections' ),
+				'0'   => __( 'Out of Stock', 'user-post-collections' ),
+				'-1'  => __( 'Never', 'user-post-collections' ),
+			),
+		);
+		$settings_fields['mg_upc_product'][] = array(
+			'name'    => 'mg_upc_page_add_to_cart',
+			'label'   => __( 'Cart button on collection page', 'user-post-collections' ),
+			'desc'    => __( 'Show "Add to cart" button on collection page. (A product variation is different from a variable product)', 'user-post-collections' ),
+			'default' => 'on',
+			'type'    => 'radio',
+			'options' => array(
+				'on'         => __( 'Always (that is not out of stock)', 'user-post-collections' ),
+				'novariable' => __( 'Always less in variable product (otherwise the button is used as a link to the variable product)', 'user-post-collections' ),
+				'off'        => __( 'Never', 'user-post-collections' ),
+			),
+		);
+
+		$settings_fields['mg_upc_product'][] = array(
+			'name'    => 'mg_upc_modal_show_price',
+			'label'   => __( 'Price on collection modal', 'user-post-collections' ),
+			'desc'    => __( 'Show prices on collection modal', 'user-post-collections' ),
+			'default' => 'onsale',
+			'type'    => 'radio',
+			'options' => array(
+				'always' => __( 'Always show', 'user-post-collections' ),
+				'onsale' => __( 'Show when on sale', 'user-post-collections' ),
+				'never'  => __( 'Never show', 'user-post-collections' ),
+			),
+		);
+		$settings_fields['mg_upc_product'][] = array(
+			'name'    => 'mg_upc_modal_show_stock',
+			'label'   => __( 'Stock on collection modal', 'user-post-collections' ),
+			'desc'    => __( 'Show stock on collection modal', 'user-post-collections' ),
+			'default' => '0',
+			'type'    => 'radio',
+			'options' => array(
+				'100' => __( 'Stock of 100 or less', 'user-post-collections' ),
+				'10'  => __( 'Stock of 10 or less', 'user-post-collections' ),
+				'0'   => __( 'Out of Stock', 'user-post-collections' ),
+				'-1'  => __( 'Never', 'user-post-collections' ),
+			),
+		);
+
+		return $settings_fields;
 	}
 
 	/**
@@ -113,6 +240,9 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 	private function add_product_properties( $item, $product ) {
 		if ( $product ) {
 			$item['product_type'] = $product->get_type();
+			$item['is_in_stock']  = $product->is_in_stock();
+			$item['is_on_sale']   = $product->is_on_sale();
+
 			if ( '' === $product->get_price() ) {
 				$item['price'] = apply_filters( 'woocommerce_empty_price_html', '', $this );
 			} elseif ( $product->is_on_sale() ) {
@@ -122,7 +252,25 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 				$item['price'] = $product->get_price();
 			}
 			$item['price_suffix'] = wp_strip_all_tags( $product->get_price_suffix() );
-			$item['price_html']   = $product->get_price_html();
+
+			$option = get_option( 'mg_upc_modal_show_price', 'onsale' );
+			if ( 'never' === $option || ( 'onsale' === $option && ! $item['is_on_sale'] ) ) {
+				$item['price_html'] = '';
+			} else {
+				$item['price_html'] = $product->get_price_html();
+			}
+
+			$option = (int) get_option( 'mg_upc_modal_show_stock', '0' );
+			if (
+				-1 === $option ||
+				( 0 === $option && $item['is_in_stock'] ) ||
+				$product->get_stock_quantity() > $option
+			) {
+				$item['stock_html'] = '';
+			} else {
+				$item['stock_html'] = wc_get_stock_html( $product );
+			}
+
 			if ( $product->is_type( 'variable' ) ) {
 				$item = $this->set_item_price_range( $item, $product );
 			}
@@ -190,6 +338,18 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 	}
 
 	/**
+	 * Print the button "Add to list..." on woocommerce loop items
+	 */
+	public function product_button_shop_loop_item() {
+		global $post;
+		if ( $post instanceof WP_Post && $post->ID > 0 ) {
+			if ( MG_UPC_Helper::get_instance()->current_user_can_add_to_any( $post->post_type ) ) {
+				mg_upc_get_template( 'mg-upc-wc/loop-product-buttons.php' );
+			}
+		}
+	}
+
+	/**
 	 * Show price of items on list page
 	 */
 	public static function show_price() {
@@ -198,9 +358,37 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 			return;
 		}
 		if ( 'product' === $mg_upc_item['post_type'] || 'product_variation' === $mg_upc_item['post_type'] ) {
+			$option = get_option( 'mg_upc_page_show_price', 'onsale' );
+			if ( 'never' === $option || ( 'onsale' === $option && ! $mg_upc_item['is_on_sale'] ) ) {
+				return;
+			}
 			$product = wc_get_product( $mg_upc_item['post_id'] );
 			if ( $product ) {
 				echo '<div class="mg-upc-list-item-price">' . $product->get_price_html() . '</div>'; // phpcs:ignore
+			}
+		}
+	}
+
+	/**
+	 * Show stock of items on list page
+	 */
+	public static function show_stock() {
+		global $mg_upc_item;
+		if ( ! function_exists( 'wc_get_product' ) ) {
+			return;
+		}
+		if ( 'product' === $mg_upc_item['post_type'] || 'product_variation' === $mg_upc_item['post_type'] ) {
+			$product = wc_get_product( $mg_upc_item['post_id'] );
+			if ( $product ) {
+				$option = (int) get_option( 'mg_upc_page_show_stock', '0' );
+				if (
+					-1 === $option ||
+					( 0 === $option && $mg_upc_item['is_in_stock'] ) ||
+					$product->get_stock_quantity() > $option
+				) {
+					return;
+				}
+				echo wc_get_stock_html( $product ); // phpcs:ignore
 			}
 		}
 	}
@@ -210,11 +398,24 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 	 */
 	public static function item_cart_button() {
 		global $mg_upc_item;
+		if ( false === $mg_upc_item['is_in_stock'] ) {
+			return;
+		}
+		$option = get_option( 'mg_upc_page_add_to_cart', 'on' );
+		if (
+			'off' === $option ||
+			( 'novariable' === $option && 'variable' === $mg_upc_item['product_type'] )
+		) {
+			return;
+		}
 
-		if ( isset( $mg_upc_item['product_type'] ) && 'variable' === $mg_upc_item['product_type'] ) {
-			mg_upc_get_template( 'single-mg-upc/item/actions/add-to-cart-variable.php' );
-		} elseif ( 'product' === $mg_upc_item['post_type'] || 'product_variation' === $mg_upc_item['post_type'] ) {
-			mg_upc_get_template( 'single-mg-upc/item/actions/add-to-cart.php' );
+		$product = wc_get_product( $mg_upc_item['post_id'] );
+		if ( $product ) {
+			if ( ! $product->supports( 'ajax_add_to_cart' ) || ! $product->is_purchasable() ) {
+				mg_upc_get_template( 'single-mg-upc/item/actions/add-to-cart-variable.php' );
+			} elseif ( 'product' === $mg_upc_item['post_type'] || 'product_variation' === $mg_upc_item['post_type'] ) {
+				mg_upc_get_template( 'single-mg-upc/item/actions/add-to-cart.php' );
+			}
 		}
 	}
 

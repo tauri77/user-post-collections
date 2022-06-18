@@ -34,8 +34,6 @@ class MG_UPC_List_Type implements ArrayAccess {
 
 	public $available_statuses = array();
 
-	public $disabled_statuses = array();
-
 	public $public = true;
 
 	/**
@@ -76,11 +74,30 @@ class MG_UPC_List_Type implements ArrayAccess {
 	private $capability_type = 'user_post_collection';
 
 	/**
+	 * The features that can be use
+	 *
+	 * @var array|bool $supports
+	 */
+	private $supported_features;
+
+	/**
+	 * The features that can be enable/disable by user.
+	 *
+	 * @var array|bool $supports
+	 */
+	private $configurable_features;
+
+	/**
 	 * The features supported by the list type.
 	 *
 	 * @var array|bool $supports
 	 */
 	public $supports;
+
+	/**
+	 * @var bool
+	 */
+	private $map_meta_cap;
 
 	/**
 	 * Constructor.
@@ -113,7 +130,10 @@ class MG_UPC_List_Type implements ArrayAccess {
 	public function set_props( $args ) {
 		$args = wp_parse_args( $args );
 
-		if ( ! empty( $args['supports'] ) && in_array( 'show_in_settings', $args['supports'], true ) ) {
+		if (
+			! empty( $args['supported_features'] ) &&
+			in_array( 'show_in_settings', $args['supported_features'], true )
+		) {
 			$args = $this->complete_from_settings( $args );
 		}
 
@@ -143,38 +163,40 @@ class MG_UPC_List_Type implements ArrayAccess {
 		$args = apply_filters( "register_{$list_type}_list_type_args", $args, $this->name );
 
 		$defaults = array(
-			'label'                => '',
-			'plural_label'         => '',
-			'description'          => '',
-			'default_status'       => 'private',
-			'sticky'               => false,
-			'default_content'      => '',
-			'default_title'        => false,
-			'default_orderby'      => 'added',
-			'default_order'        => 'asc',
-			'enabled'              => true,
-			'max_items'            => 50,
-			'possible_statuses'    => array( 'publish', 'private' ),
-			'available_statuses'   => null,
-			'available_post_types' => array( 'post' ),
-			'public'               => true, // for public, ex: can show on widget? (determine publicly_queryable, exclude_from_search)
-			'exclude_from_search'  => null,
-			'publicly_queryable'   => null, // can show on single?
-			'delete_with_user'     => true,
-			'supports'             => array(
+			'label'                 => '',
+			'plural_label'          => '',
+			'description'           => '',
+			'default_status'        => 'private',
+			'sticky'                => false,
+			'default_content'       => '',
+			'default_title'         => false,
+			'default_orderby'       => 'added',
+			'default_order'         => 'asc',
+			'enabled'               => true,
+			'max_items'             => 50,
+			'possible_statuses'     => array( 'publish', 'private' ),
+			'available_statuses'    => null,
+			'available_post_types'  => array( 'post' ),
+			'public'                => true, // for public, ex: can show on widget? (determine publicly_queryable, exclude_from_search)
+			'exclude_from_search'   => null,
+			'publicly_queryable'    => null, // can show on single?
+			'delete_with_user'      => true,
+			'configurable_features' => array(
 				'editable_title',
 				'editable_content',
 				'editable_item_description',
-				//'max_items_rotate',
+			),
+			'supported_features'    => array(
+				'editable_title',
+				'editable_content',
+				'editable_item_description',
 				'show_in_my_lists',
 				'show_in_settings',
-				//'sortable',
-				//'vote',
-				//'always_exists', //this create an end point with bookmarks instead the ID
 			),
-			'capability_type'      => "mg_{$list_type}_collection",
-			'capabilities'         => array(),
-			'map_meta_cap'         => true,
+			'supports'              => null,
+			'capability_type'       => "mg_{$list_type}_collection",
+			'capabilities'          => array(),
+			'map_meta_cap'          => true,
 		);
 
 		$args = array_merge( $defaults, $args );
@@ -191,6 +213,15 @@ class MG_UPC_List_Type implements ArrayAccess {
 			$args['available_statuses'] = $args['possible_statuses'];
 		}
 
+		// If not set, set from supported_features
+		if ( null === $args['supports'] ) {
+			$args['supports'] = $args['supported_features'];
+		}
+		// Set supports
+		$enabled          = array_intersect( $args['supports'], $args['configurable_features'] );
+		$required         = array_diff( $args['supported_features'], $args['configurable_features'] );
+		$args['supports'] = array_values( array_merge( $enabled, $required ) );
+
 		// If not set, default to public.
 		if ( null === $args['publicly_queryable'] ) {
 			$args['publicly_queryable'] = $args['public'];
@@ -199,6 +230,11 @@ class MG_UPC_List_Type implements ArrayAccess {
 		// If not set, default to not public.
 		if ( null === $args['exclude_from_search'] ) {
 			$args['exclude_from_search'] = ! $args['public'];
+		}
+
+		// default title
+		if ( false === $args['default_title'] ) {
+			$args['default_title'] = $args['label'];
 		}
 
 		$this->cap = $this->get_list_type_capabilities( (object) $args );
@@ -228,6 +264,7 @@ class MG_UPC_List_Type implements ArrayAccess {
 
 		$prefix = 'mg_upc_type_';
 		$option = get_option( $prefix . $this->name, '' );
+
 		if ( ! is_array( $option ) ) {
 			return $args;
 		}
@@ -263,6 +300,9 @@ class MG_UPC_List_Type implements ArrayAccess {
 		}
 		if ( ! empty( $option['available_statuses'] ) ) {
 			$args['available_statuses'] = $option['available_statuses'];
+		}
+		if ( isset( $option['supports'] ) && is_array( $option['supports'] ) ) {
+			$args['supports'] = $option['supports'];
 		}
 
 		return $args;
@@ -383,6 +423,14 @@ class MG_UPC_List_Type implements ArrayAccess {
 		return in_array( $feature, $this->supports, true );
 	}
 
+	public function get_configurable_features() {
+		return array_intersect( $this->configurable_features, $this->supported_features );
+	}
+
+	public function get_default_config_features() {
+		return array_intersect( $this->configurable_features, $this->supports );
+	}
+
 	public function delete_with_user() {
 		return $this->delete_with_user;
 	}
@@ -419,6 +467,8 @@ class MG_UPC_List_Type implements ArrayAccess {
 			'show_in_my_lists',
 			'always_exists',
 			'show_in_settings',
+			'sortable',
+			'vote',
 		);
 
 		if ( in_array( $offset, $supports, true ) ) {

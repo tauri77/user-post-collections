@@ -13,6 +13,8 @@
 			}
 
 			window.addItemToList( productId );
+
+			return false;
 		}
 	);
 
@@ -53,18 +55,19 @@
 							$btn.removeClass( addedClass + ' ' + errorClass ).addClass( loadingClass );
 						},
 						success: function (response) {
-							$btn.addClass( addedClass ).removeClass( loadingClass );
+							$btn.removeClass( loadingClass );
 
 							if ( ! response ) {
 								return;
 							}
 
 							if (response.error && response.product_url) {
-								console.log( response.error );
+								//Out of stock
 								alert( stringAddingCartError );
 								return;
 							}
 
+							$btn.addClass( addedClass )
 							$( document.body ).trigger( 'added_to_cart', [ response.fragments, response.cart_hash, $btn ] );
 						},
 						error: function () {

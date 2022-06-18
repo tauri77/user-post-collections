@@ -111,3 +111,71 @@ if ( ! function_exists( 'mg_upc_single_list_item_numbered_position' ) ) {
 		}
 	}
 }
+
+if ( ! function_exists( 'mg_upc_loop_product_button' ) ) {
+
+	/**
+	 * Output the button "Add to list..." on loop product
+	 */
+	function mg_upc_loop_product_button() {
+		mg_upc_get_template( 'mg-upc-wc/loop-product-button.php' );
+	}
+}
+
+if ( ! function_exists( 'mg_upc_btn_classes' ) ) {
+	/**
+	 * Get the classes for buttons
+	 *
+	 * @return string
+	 */
+	function mg_upc_btn_classes( $class ) {
+		//TODO: option to add or not this classes
+		return $class . ' button wp-block-button__link';
+	}
+}
+
+if ( ! function_exists( 'mg_upc_get_theme_slug_for_templates' ) ) {
+	/**
+	 * Get a slug identifying the current theme.
+	 *
+	 * @return string
+	 */
+	function mg_upc_get_theme_slug_for_templates() {
+		return apply_filters( 'mg_upc_theme_slug_for_templates', get_option( 'template' ) );
+	}
+}
+
+if ( ! function_exists( 'mg_upc_output_content_wrapper' ) ) {
+
+	/**
+	 * Output the start of the page wrapper.
+	 */
+	function mg_upc_output_content_wrapper() {
+		mg_upc_get_template( 'global/wrapper-start.php' );
+	}
+}
+
+if ( ! function_exists( 'mg_upc_output_content_wrapper_end' ) ) {
+
+	/**
+	 * Output the end of the page wrapper.
+	 */
+	function mg_upc_output_content_wrapper_end() {
+		mg_upc_get_template( 'global/wrapper-end.php' );
+	}
+}
+
+if ( ! function_exists( 'mg_upc_get_text' ) ) {
+
+	/**
+	 * Get a text mutated by translate or by settings.
+	 *
+	 * @param string $text
+	 * @param string $context
+	 *
+	 * @return string
+	 */
+	function mg_upc_get_text( $text, $context = 'mg_upc_list' ) {
+		return MG_UPC_Texts::get( $text, $context );
+	}
+}

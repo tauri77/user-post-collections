@@ -35,7 +35,7 @@ import { A11yDialog } from './components/react-ally-dialog';
 
 import mgUpcApiClient from "./apiClient";
 
-import {getMgUpcConfig, getNotAlwaysExists, listIsEditable, listSupport} from "./helpers/functions";
+import {getMgUpcConfig, getNotAlwaysExists, getSortableUrl, listIsEditable, listSupport} from "./helpers/functions";
 
 import "./polls";
 import "./products";
@@ -55,7 +55,9 @@ function App() {
 
 	const [ sharing, setSharing ] = useState( false );
 
-	const typesForCreate = useMemo( () => getNotAlwaysExists() );
+	const typesForCreate = useMemo( () => {
+		return getNotAlwaysExists( state.addingPost );
+	}, [ state.addingPost ] );
 
 	const dialog = useRef( false );
 
@@ -119,7 +121,7 @@ function App() {
 				if ( typeof Sortable !== 'undefined' ) {
 					run();
 				} else {
-					loadScript( 'https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js' ).then(
+					loadScript( getSortableUrl() ).then(
 					() => {
 						run();
 						}
@@ -335,6 +337,7 @@ function App() {
 				{ state.list && (<>
 					{ state.editing && (<ListEdit
 						list={state.list}
+						addingPost={state.addingPost}
 						onSave={onSave}
 						onCancel={ handleEditCancel }
 					></ListEdit>) }

@@ -64,6 +64,9 @@ function ListItem(props) {
 				{ props.item.price_html && (
 					<span className={"mg-upc-dg-price"} dangerouslySetInnerHTML={ { __html: props.item.price_html } }></span>
 				)}
+				{ props.item.stock_html && (
+					<span className={"mg-upc-dg-stock"} dangerouslySetInnerHTML={ { __html: props.item.stock_html } }></span>
+				)}
 				{ props.editable && ! editingDesc && (
 					<p>{ props.item.description }</p>
 				) }

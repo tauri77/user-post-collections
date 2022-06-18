@@ -68,6 +68,7 @@ if ( mg_upc_requirements_met() ) {
 	require_once __DIR__ . '/includes/mg-upc-list-type.php';
 	require_once __DIR__ . '/includes/list-types.php';
 	require_once __DIR__ . '/includes/mg-upc-helper.php';
+	require_once __DIR__ . '/includes/mg-upc-texts.php';
 	require_once __DIR__ . '/includes/mg-upc-settings-api.php';
 
 	require_once __DIR__ . '/classes/Exceptions/mg-upc-item-exist-exception.php';

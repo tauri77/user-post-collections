@@ -9,6 +9,8 @@
 global $mg_upc_item;
 
 ?>
-<a class="mg-upc-item-product-variable button" href="<?php echo esc_url( $mg_upc_item['link'] ); ?>" data-product="<?php echo esc_attr( $mg_upc_item['post_id'] ); ?>">
-	<?php echo esc_html__( 'Add to cart...', 'user-post-collections' ); ?>
+<a class="<?php echo esc_attr( mg_upc_btn_classes( 'mg-upc-item-product-variable' ) ); ?>"
+	href="<?php echo esc_url( $mg_upc_item['link'] ); ?>"
+	data-product="<?php echo esc_attr( $mg_upc_item['post_id'] ); ?>">
+	<?php echo esc_html( mg_upc_get_text( 'Add to cart...' ) ); ?>
 </a>

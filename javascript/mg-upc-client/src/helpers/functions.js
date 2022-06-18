@@ -3,6 +3,10 @@ function getMgUpcConfig() {
 	return MgUserPostCollections;
 }
 
+function getSortableUrl() {
+	return getMgUpcConfig()?.sortable;
+}
+
 function getUpcTypeConfig( type ) {
 	const typesConfig = getMgUpcConfig()?.types;
 	if ( typesConfig && typesConfig[type] ) {
@@ -39,13 +43,19 @@ function listSupport( list, feature ) {
 	return false;
 }
 
-function getNotAlwaysExists() {
+function getNotAlwaysExists(addingPost) {
 	const arr   = [];
 	const types = getMgUpcConfig()?.types;
 	for ( const type in types ) {
 		if ( types.hasOwnProperty( type ) ) {
 			if ( ! typeSupport( type, 'always_exists' ) ) {
-				arr.push( types[type] );
+				if ( addingPost?.type ) {
+					if ( types[type].available_post_types.includes( addingPost.type ) ) {
+						arr.push( types[type] );
+					}
+				} else {
+					arr.push( types[type] );
+				}
 			}
 		}
 	}
@@ -69,8 +79,13 @@ function typeSupport( type, feature ) {
 
 const noItemImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=';
 
+function cloneObj(obj){
+	return JSON.parse( JSON.stringify( obj ) );
+}
+
 export {
 	getMgUpcConfig,
+	getSortableUrl,
 	getUpcTypeConfig,
 	getNotAlwaysExists,
 	listSupport,
@@ -78,5 +93,6 @@ export {
 	listIsEditable,
 	getStatusLabel,
 	statusShowInList,
-	noItemImage
+	noItemImage,
+	cloneObj
 };

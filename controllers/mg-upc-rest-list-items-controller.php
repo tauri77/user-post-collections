@@ -191,6 +191,12 @@ class MG_UPC_REST_List_Items_Controller {
 				array( 'status' => $this->authorization_status_code() )
 			);
 		}
+
+		$list_type_obj = MG_UPC_Helper::get_instance()->get_list_type( $request['upctype'] );
+		if ( false !== $list_type_obj ) {
+			return current_user_can( $list_type_obj->get_cap()->create_posts );
+		}
+
 		return true;
 	}
 
@@ -211,6 +217,12 @@ class MG_UPC_REST_List_Items_Controller {
 				)
 			);
 		}
+
+		$list_type_obj = MG_UPC_Helper::get_instance()->get_list_type( $request['upctype'] );
+		if ( false !== $list_type_obj ) {
+			return current_user_can( $list_type_obj->get_cap()->create_posts );
+		}
+
 		return true;
 	}
 

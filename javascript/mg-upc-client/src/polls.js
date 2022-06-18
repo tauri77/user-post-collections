@@ -37,6 +37,7 @@
 			if ( 2 === voteData.length ) {
 				voteItem( voteData[0], voteData[1], false, $( this ).closest( ".mg-upc-item" ) );
 			}
+			return false;
 		}
 	);
 	$(

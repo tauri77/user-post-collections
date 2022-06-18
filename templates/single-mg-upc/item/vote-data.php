@@ -34,7 +34,12 @@ if ( true !== $show_on_vote ) {
 			?>
 		</strong>
 		<span class='mg-upc-item-votes'>
-			<span class='mg-upc-item-votes-number'><?php echo esc_html( $votes ); ?></span> votes
+			<?php
+			echo sprintf(
+				esc_html( mg_upc_get_text( '%s votes' ) ),
+				'<span class="mg-upc-item-votes-number">' . esc_html( $votes ) . '</span>'
+			);
+			?>
 		</span>
 	</div>
 </div>

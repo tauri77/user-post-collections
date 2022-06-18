@@ -54,7 +54,7 @@ if ( ! class_exists( 'User_Post_Collections' ) ) {
 		public static function load_resources() {
 
 			wp_register_script(
-				self::PREFIX . 'mg-user-post-collections-client',
+				'mg-user-post-collections',
 				plugins_url( 'javascript/mg-upc-client/dist/main.js', dirname( __FILE__ ) ),
 				array( 'jquery' ),
 				self::VERSION,
@@ -62,15 +62,18 @@ if ( ! class_exists( 'User_Post_Collections' ) ) {
 			);
 
 			wp_register_style(
-				self::PREFIX . 'mg-user-post-collections-client',
+				'mg-user-post-collections',
 				plugins_url( 'javascript/mg-upc-client/dist/css/styles.css', dirname( __FILE__ ) ),
 				array(),
 				self::VERSION,
 				'all'
 			);
 
+			$sortable_url = plugins_url( 'javascript/Sortable.min.js', dirname( __FILE__ ) );
+			//TODO: option to use cdn
+			//$sortable_url = 'https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js';
 			wp_localize_script(
-				self::PREFIX . 'mg-user-post-collections-client',
+				'mg-user-post-collections',
 				'MgUserPostCollections',
 				array(
 					'root'     => esc_url_raw( rest_url() ),
@@ -78,11 +81,12 @@ if ( ! class_exists( 'User_Post_Collections' ) ) {
 					'user_id'  => get_current_user_id(),
 					'types'    => MG_UPC_Helper::get_instance()->get_user_creatable_list_types(),
 					'statuses' => MG_UPC_Helper::get_instance()->get_list_statuses( false ),
+					'sortable' => $sortable_url,
 				)
 			);
 
 			wp_register_style(
-				self::PREFIX . 'admin',
+				'mg-user-post-collections-admin',
 				plugins_url( 'css/admin.css', dirname( __FILE__ ) ),
 				array(),
 				self::VERSION,
@@ -90,10 +94,10 @@ if ( ! class_exists( 'User_Post_Collections' ) ) {
 			);
 
 			if ( is_admin() ) {
-				wp_enqueue_style( self::PREFIX . 'admin' );
+				wp_enqueue_style( 'mg-user-post-collections-admin' );
 			} else {
-				wp_enqueue_script( self::PREFIX . 'mg-user-post-collections-client' );
-				wp_enqueue_style( self::PREFIX . 'mg-user-post-collections-client' );
+				wp_enqueue_script( 'mg-user-post-collections' );
+				wp_enqueue_style( 'mg-user-post-collections' );
 			}
 		}
 

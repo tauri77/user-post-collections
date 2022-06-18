@@ -1,6 +1,3 @@
-<?php
-global $post;
-?>
 <div class="post-adding">
 	<?php
 	/**

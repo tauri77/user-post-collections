@@ -1,4 +1,5 @@
 import {SET_LIST, REMOVE_LIST, SET_LIST_OF_LIST, ADD_LIST_ITEM} from "./actionTypes";
+import { cloneObj } from "../helpers/functions";
 
 export default function reduceListOfList (state, action) {
 	const { type, payload } = action;
@@ -15,7 +16,7 @@ export default function reduceListOfList (state, action) {
 			if ( false === payload ) {
 				return state;
 			}
-			return state.filter( ( it ) => it.ID !== payload );
+			return cloneObj( state.filter( ( it ) => it.ID != payload ) );
 
 		default:
 			return state;

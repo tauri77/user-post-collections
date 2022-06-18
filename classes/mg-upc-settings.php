@@ -116,13 +116,22 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 					'title'    => __( 'General Settings', 'user-post-collections' ),
 					'as_array' => false,
 				),
-				array(
-					'id'       => 'mg_upc_advanced',
-					'title'    => __( 'Advanced Settings', 'user-post-collections' ),
-					'as_array' => false,
-				),
 			);
 
+			$sections[] = array(
+				'id'       => 'mg_upc_advanced',
+				'title'    => __( 'Advanced Settings', 'user-post-collections' ),
+				'as_array' => false,
+			);
+
+			$sections[] = array(
+				'id'       => 'mg_upc_texts',
+				'title'    => __( 'Texts', 'user-post-collections' ),
+				'as_array' => true,
+				'desc'     => 'Overwrite texts used for the plugin.',
+			);
+
+			$desc       = __( 'The settings will commonly be applied to new lists or actions. For example, if you disable comments on items, this will not delete existing comments but will prevent new comments from being made.', 'user-post-collections' );
 			$prefix     = 'mg_upc_type_';
 			$list_types = MG_UPC_Helper::get_instance()->get_list_types( true );
 			foreach ( $list_types as $list_type ) {
@@ -133,6 +142,7 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 					'id'       => $prefix . $list_type->name,
 					'title'    => $list_type->plural_label,
 					'as_array' => true,
+					'desc'     => $desc,
 				);
 			}
 
@@ -147,6 +157,9 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 		private function get_settings_fields() {
 			$settings_fields = array();
 
+			//***************************************
+			//           General
+			//***************************************
 			$settings_fields['mg_upc_general'] = array();
 
 			$settings_fields['mg_upc_general'][] = array(
@@ -161,19 +174,6 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 					'not'   => __( 'Not add button', 'user-post-collections' ),
 				),
 			);
-			$settings_fields['mg_upc_general'][] = array(
-				'name'    => 'mg_upc_button_position_product',
-				'label'   => __( 'Product button position', 'user-post-collections' ),
-				'desc'    => __( 'Where the "Add to list" button will be inserted on single product', 'user-post-collections' ),
-				'default' => 'after_cart',
-				'type'    => 'radio',
-				'options' => array(
-					'before_cart' => __( 'Before add to cart form', 'user-post-collections' ),
-					'after_cart'  => __( 'After add to cart form', 'user-post-collections' ),
-					'not'         => __( 'Not add button', 'user-post-collections' ),
-				),
-			);
-
 			$settings_fields['mg_upc_general'][] = array(
 				'name'    => 'mg_upc_my_orderby',
 				'label'   => __( 'Order "My Lists" by', 'user-post-collections' ),
@@ -197,6 +197,9 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 				),
 			);
 
+			//***************************************
+			//           ADVANCED
+			//***************************************
 			$settings_fields['mg_upc_advanced'] = array();
 
 			$settings_fields['mg_upc_advanced'][] = array(
@@ -215,8 +218,74 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 				'type'    => 'text',
 			);
 
-			//************ Types **********
+			//***************************************
+			//           TEXTS
+			//***************************************
 
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'add_to_list',
+				'label'   => __( 'Add to list...', 'user-post-collections' ),
+				'desc'    => __( 'Add to list button text on single content.', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'add_to_list_product',
+				'label'   => __( 'Add to list... (Single Product)', 'user-post-collections' ),
+				'desc'    => __( 'Add to list button text on product page.', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'add_to_list_product_loop',
+				'label'   => __( 'Add to list... (Product loop)', 'user-post-collections' ),
+				'desc'    => __( 'Add to list button text on shop/loop page.', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+
+
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'add_to_cart',
+				'label'   => __( 'Add to cart', 'user-post-collections' ),
+				'desc'    => __( 'Add to cart button text.', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'add_to_cart_link',
+				'label'   => __( 'Add to cart...', 'user-post-collections' ),
+				'desc'    => __( 'Add to cart text when action requires selecting from options.', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'vote_action',
+				'label'   => __( 'Vote', 'user-post-collections' ),
+				'desc'    => __( 'Vote button text.', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'total_votes',
+				'label'   => __( 'Total Votes', 'user-post-collections' ),
+				// translators: %s are literal
+				'desc'    => __( 'Use "%s" for number of votes. Ex: "Total votes: %s"', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'created_by',
+				'label'   => __( 'Created by', 'user-post-collections' ),
+				// translators: %s are literal
+				'desc'    => __( 'Use "%s" for author name. Ex: "Created by %s"', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+
+			//***************************************
+			//           Each List Type
+			//***************************************
 			$post_types_options = array();
 			$args               = array(
 				'public' => true,
@@ -243,22 +312,26 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 					'desc'    => __( 'Enable this list type', 'user-post-collections' ),
 					'type'    => 'checkbox',
 				);
-				$settings_fields[ $prefix . $list_type->name ][] = array(
-					'name'        => 'label',
-					'label'       => __( 'Label', 'user-post-collections' ),
-					'desc'        => __( 'Name to display', 'user-post-collections' ),
-					'placeholder' => '',
-					'type'        => 'text',
-					'default'     => '',
-				);
-				$settings_fields[ $prefix . $list_type->name ][] = array(
-					'name'        => 'description',
-					'label'       => __( 'Description', 'user-post-collections' ),
-					'desc'        => __( 'Description to display', 'user-post-collections' ),
-					'placeholder' => '',
-					'type'        => 'text',
-					'default'     => '',
-				);
+
+				if ( ! $list_type->support( 'always_exists' ) ) {
+					$settings_fields[ $prefix . $list_type->name ][] = array(
+						'name'        => 'label',
+						'label'       => __( 'Label', 'user-post-collections' ),
+						'desc'        => __( 'Name to display', 'user-post-collections' ),
+						'placeholder' => '',
+						'type'        => 'text',
+						'default'     => '',
+					);
+					$settings_fields[ $prefix . $list_type->name ][] = array(
+						'name'        => 'description',
+						'label'       => __( 'Description', 'user-post-collections' ),
+						'desc'        => __( 'Description to display', 'user-post-collections' ),
+						'placeholder' => '',
+						'type'        => 'text',
+						'default'     => '',
+					);
+				}
+
 				$settings_fields[ $prefix . $list_type->name ][] = array(
 					'name'    => 'sticky',
 					'default' => $list_type->sticky,
@@ -423,12 +496,36 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 					'default' => $list_type->default_title,
 					'type'    => 'text',
 				);
+
+				$configurable_features = $list_type->get_configurable_features();
+				if ( count( $configurable_features ) > 0 ) {
+					$supports_options = array();
+
+					$labels = array(
+						'editable_title'            => __( 'Editable title', 'user-post-collections' ),
+						'editable_content'          => __( 'Editable list description', 'user-post-collections' ),
+						'editable_item_description' => __( 'Editable item comment', 'user-post-collections' ),
+					);
+					foreach ( $configurable_features as $feature ) {
+						$supports_options[ $feature ] = isset( $labels[ $feature ] ) ? $labels[ $feature ] : $feature;
+					}
+					$settings_fields[ $prefix . $list_type->name ][] = array(
+						'name'    => 'supports',
+						'label'   => __( 'Supported features', 'user-post-collections' ),
+						'desc'    => __( 'Supported features enabled', 'user-post-collections' ),
+						'default' => $list_type->get_default_config_features(),
+						'type'    => 'multicheck',
+						'options' => $supports_options,
+					);
+				}
 			}
 			//TODO: implement more settings:
 			/*array(
 				'default_content'    => '',
 				'available_statuses' => $list_type->available_statuses, // for this implement "disable status" and then diff
 			);*/
+
+			$settings_fields = apply_filters( 'mg_upc_settings_fields', $settings_fields );
 
 			$sanitize_options  = array( __CLASS__, 'sanitize_options' );
 			$sanitize_multi    = array( __CLASS__, 'sanitize_multicheck' );
@@ -474,7 +571,7 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 				}
 			}
 
-			return apply_filters( 'mg_upc_settings_fields', $settings_fields );
+			return $settings_fields;
 		}
 
 		/**

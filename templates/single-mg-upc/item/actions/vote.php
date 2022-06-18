@@ -10,6 +10,6 @@ global $mg_upc_list;
 global $mg_upc_item;
 
 ?>
-<button class="mg-upc-item-vote mg-upc-hide" data-vote="<?php echo esc_attr( $mg_upc_list['ID'] . ',' . $mg_upc_item['post_id'] ); ?>">
-	<?php esc_html_e( 'Vote', 'user-post-collections' ); ?>
-</button>
+<a href="#" class="<?php echo esc_attr( mg_upc_btn_classes( 'mg-upc-item-vote mg-upc-hide' ) ); ?>" data-vote="<?php echo esc_attr( $mg_upc_list['ID'] . ',' . $mg_upc_item['post_id'] ); ?>">
+	<?php echo esc_html( mg_upc_get_text( 'Vote' ) ); ?>
+</a>
