@@ -8,11 +8,6 @@ Author:      Mauricio Galetto
 Author URI:  http://galetto.info/
 */
 
-/*
- * This plugin was built on top of WordPress-Plugin-Skeleton by Ian Dunn.
- * See https://github.com/iandunn/WordPress-Plugin-Skeleton for details.
- */
-
 if ( ! defined( 'ABSPATH' ) ) {
 	die( 'Access denied.' );
 }

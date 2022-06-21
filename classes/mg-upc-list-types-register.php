@@ -41,7 +41,9 @@ class MG_UPC_List_Types_Register extends MG_UPC_Module {
 
 		$list_types = array(
 			'simple'   => array(
-				'label'              => 'Simple List',
+				'label'              => __( 'Simple List', 'user-post-collections' ),
+				'plural_label'       => __( 'Simple Lists', 'user-post-collections' ),
+				'description'        => __( 'Simple list sorted according to their items added', 'user-post-collections' ),
 				'supported_features' => array(
 					'editable_title',
 					'editable_content',
@@ -51,7 +53,9 @@ class MG_UPC_List_Types_Register extends MG_UPC_Module {
 				),
 			),
 			'numbered' => array(
-				'label'              => 'Numbered List',
+				'label'              => __( 'Numbered List', 'user-post-collections' ),
+				'plural_label'       => __( 'Numbered Lists', 'user-post-collections' ),
+				'description'        => __( 'List with your numbered items. You can edit the order in which the items will be displayed.', 'user-post-collections' ),
 				'default_orderby'    => 'position',
 				'default_order'      => 'asc',
 				'supported_features' => array(
@@ -64,7 +68,9 @@ class MG_UPC_List_Types_Register extends MG_UPC_Module {
 				),
 			),
 			'vote'     => array(
-				'label'              => 'Polling list',
+				'label'              => __( 'Polling list', 'user-post-collections' ),
+				'plural_label'       => __( 'Polling Lists', 'user-post-collections' ),
+				'description'        => __( 'You can ask others for their opinion', 'user-post-collections' ),
 				'default_orderby'    => 'votes',
 				'default_order'      => 'desc',
 				'supported_features' => array(
@@ -84,9 +90,10 @@ class MG_UPC_List_Types_Register extends MG_UPC_Module {
 		 * dont create this types, add first item create this
 		 */
 		$list_types['favorites'] = array(
-			'label'              => 'Favorites',
-			'plural_label'       => 'Favorites Lists',
-			'default_title'      => 'Favorites',
+			'label'              => __( 'Favorites', 'user-post-collections' ),
+			'plural_label'       => __( 'Favorites Lists', 'user-post-collections' ),
+			'description'        => __( 'List to add your favorites', 'user-post-collections' ),
+			'default_title'      => __( 'Favorites', 'user-post-collections' ),
 			'default_status'     => 'private',
 			'sticky'             => 1,
 			'supported_features' => array(
@@ -106,9 +113,10 @@ class MG_UPC_List_Types_Register extends MG_UPC_Module {
 		);
 
 		$list_types['bookmarks'] = array(
-			'label'              => 'Bookmarks',
-			'plural_label'       => 'Bookmarks Lists',
-			'default_title'      => 'Bookmarks',
+			'label'              => __( 'Bookmarks', 'user-post-collections' ),
+			'plural_label'       => __( 'Bookmarks Lists', 'user-post-collections' ),
+			'description'        => __( 'List to add items that you will use in the future', 'user-post-collections' ),
+			'default_title'      => __( 'Bookmarks', 'user-post-collections' ),
 			'default_status'     => 'private',
 			'sticky'             => 2,
 			'supported_features' => array(

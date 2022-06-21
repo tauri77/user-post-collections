@@ -90,7 +90,8 @@ export default function reduceList (state, action) {
 			if ( 1 === state.items.length || false === payload ) {
 				return state;
 			}
-			newStateItems = getCloned().items.filter( (it) => it.post_id !== payload );
+			newState      = getCloned();
+			newStateItems = newState.items.filter( (it) => it.post_id !== payload );
 			if ( typeSupport( state.type, 'sortable' ) ) {
 				const position0 = parseInt( state.items[0].position, 10 );
 
@@ -100,7 +101,13 @@ export default function reduceList (state, action) {
 					}
 				);
 			}
-			return getCloned( { items: newStateItems } );
+			if ( typeSupport( state.type, 'vote' ) ) {
+				const removedItem = state.items.find( x => x.post_id == payload );
+				if (removedItem) {
+					newState.vote_counter = newState.vote_counter - removedItem.votes;
+				}
+			}
+			return { ...newState , ...{ items: newStateItems } };
 
 		/*case MOVE_LIST_ITEM_PREV:
 			return moveOutOfPage( payload );

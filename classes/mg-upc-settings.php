@@ -219,7 +219,7 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 			);
 
 			$settings_fields['mg_upc_advanced'][] = array(
-				'name'    => 'store_vote_ip',
+				'name'    => 'mg_upc_store_vote_ip',
 				'default' => 'on',
 				'label'   => 'Store voting IP',
 				'desc'    => '',

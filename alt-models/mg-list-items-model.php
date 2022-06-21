@@ -228,6 +228,19 @@ class MG_List_Items_Model {
 		$post_id = (int) $post_id;
 		$list_id = (int) $list_id;
 
+		$deleted_items = $wpdb->get_results(
+			$wpdb->prepare(
+				// phpcs:ignore
+				"SELECT * FROM `{$this->get_table_list_items()}` WHERE `list_id` = %d AND `post_id` = %d",
+				array(
+					$list_id,
+					$post_id,
+				)
+			)
+		);
+
+		do_action( 'mg_upc_pre_remove_item', $list_id, $post_id, $deleted_items );
+
 		$deleted_count = $wpdb->delete(
 			$this->get_table_list_items(),
 			array(

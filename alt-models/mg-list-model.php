@@ -938,6 +938,8 @@ class MG_List_Model {
 	 * @param int $list_id
 	 * @param int $post_id
 	 * @param int $deleted_count
+	 *
+	 * @throws MG_UPC_Invalid_Field_Exception
 	 */
 	public function hook_remove_item( $list_id, $post_id, $deleted_count ) {
 		global $wpdb;
@@ -951,6 +953,26 @@ class MG_List_Model {
 				)
 			);
 		}
+		if ( $this->support( $list_id, 'vote' ) ) {
+			$votes_count = $wpdb->get_var(
+				$wpdb->prepare(
+					// phpcs:ignore
+					"SELECT SUM(votes) FROM `{$this->items->get_table_list_items()}` WHERE `list_id` = %d",
+					$list_id
+				)
+			);
+			if ( $votes_count > 0 ) {
+				$wpdb->query(
+					$wpdb->prepare(
+						// phpcs:ignore
+						"UPDATE `{$this->get_table_list()}` SET `vote_counter` = %d WHERE `ID` = %d",
+						$votes_count,
+						$list_id
+					)
+				);
+			}
+		}
+
 		$this->set_modified( $list_id );
 	}
 

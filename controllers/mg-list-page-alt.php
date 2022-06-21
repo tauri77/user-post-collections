@@ -20,11 +20,15 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 			// Add the rewrite rule using slug from $page_id
 			$this->add_rewrite();
 			if ( get_option( 'mg_upc_flush_rewrite', '0' ) === '1' ) {
+				update_option( 'mg_upc_flush_rewrite', '0' );
 				flush_rewrite_rules();
 			}
 		}
 
-		add_filter( 'mg_upc_settings_fields', array( $this, 'add_settings_fields' ) );
+		if ( is_admin() ) {
+			add_filter( 'mg_upc_settings_fields', array( $this, 'add_settings_fields' ) );
+			add_action( 'save_post_page', array( $this, 'save_post_page' ), 10, 3 );
+		}
 
 		/* Title Hooks*/
 		add_filter( 'wpseo_title', array( $this, 'list_title' ), 16, 2 );
@@ -61,6 +65,13 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 		// Add a post display state for special page.
 		add_filter( 'display_post_states', array( $this, 'add_display_post_states' ), 10, 2 );
 
+	}
+
+	public function save_post_page( $post_id, $post, $update ) {
+		if ( $post_id === self::$page_id ) {
+			$this->add_rewrite();
+			flush_rewrite_rules();
+		}
 	}
 
 	/**
@@ -435,7 +446,7 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 		remove_action( 'mg_upc_single_list_content', 'mg_upc_template_single_title', 5 );
 
 		ob_start();
-		if ( false === $GLOBALS['mg_upc_list'] ) {
+		if ( ! isset( $GLOBALS['mg_upc_list'] ) || false === $GLOBALS['mg_upc_list'] ) {
 			mg_upc_get_template( 'shortcode-404.php' );
 		} else {
 			mg_upc_get_template( 'content-single-mg-upc.php' );
@@ -474,10 +485,21 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 	 * @param bool $network_wide
 	 */
 	public function activate( $network_wide ) {
-		if ( self::$page_id > 0 && is_string( get_post_status( self::$page_id ) ) ) {
-			$list_page_link = get_page_link( self::$page_id );
-			if ( ! empty( $list_page_link ) ) {
-				return;
+
+		update_option( 'mg_upc_flush_rewrite', '1' );
+
+		self::$page_id = self::get_page_id();
+		if ( self::$page_id > 0 ) {
+			$status = get_post_status( self::$page_id );
+			if ( is_string( $status ) ) {
+				if ( 'trash' === $status ) {
+					wp_untrash_post( self::$page_id );
+					wp_publish_post( self::$page_id );
+				}
+				$list_page_link = get_page_link( self::$page_id );
+				if ( ! empty( $list_page_link ) ) {
+					return;
+				}
 			}
 		}
 
@@ -543,7 +565,15 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 		return $settings_fields;
 	}
 
-	public function deactivate() { }
+	public function deactivate() {
+		self::$page_id = self::get_page_id();
+		if ( self::$page_id > 0 ) {
+			$status = get_post_status( self::$page_id );
+			if ( is_string( $status ) ) {
+				wp_trash_post( self::$page_id );
+			}
+		}
+	}
 
 	public function register_hook_callbacks() { }
 
