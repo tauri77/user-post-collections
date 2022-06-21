@@ -74,6 +74,21 @@ class MG_UPC_List_Type implements ArrayAccess {
 	private $capability_type = 'user_post_collection';
 
 	/**
+	 * @var int $max_votes_per_user The max number of votes allowed for user
+	 */
+	private $max_votes_per_user = 1;
+
+	/**
+	 * @var int $max_votes_per_ip The max number of votes allowed per IP
+	 */
+	private $max_votes_per_ip = 5;
+
+	/**
+	 * @var bool $vote_require_login User require login for vote
+	 */
+	private $vote_require_login = true;
+
+	/**
 	 * The features that can be use
 	 *
 	 * @var array|bool $supports
@@ -194,6 +209,9 @@ class MG_UPC_List_Type implements ArrayAccess {
 				'show_in_settings',
 			),
 			'supports'              => null,
+			'max_votes_per_user'    => 1,
+			'max_votes_per_ip'      => 5,
+			'vote_require_login'    => true,
 			'capability_type'       => "mg_{$list_type}_collection",
 			'capabilities'          => array(),
 			'map_meta_cap'          => true,
@@ -304,7 +322,15 @@ class MG_UPC_List_Type implements ArrayAccess {
 		if ( isset( $option['supports'] ) && is_array( $option['supports'] ) ) {
 			$args['supports'] = $option['supports'];
 		}
-
+		if ( isset( $option['vote_require_login'] ) ) {
+			$args['vote_require_login'] = 'on' === $option['vote_require_login'];
+		}
+		if ( isset( $option['max_votes_per_user'] ) ) {
+			$args['max_votes_per_user'] = (int) $option['max_votes_per_user'];
+		}
+		if ( isset( $option['max_votes_per_ip'] ) ) {
+			$args['max_votes_per_ip'] = (int) $option['max_votes_per_ip'];
+		}
 		return $args;
 	}
 
@@ -323,7 +349,7 @@ class MG_UPC_List_Type implements ArrayAccess {
 			$list    = MG_List_Model::get_instance()->find_one( $list_id );
 			$author  = (int) $list->author;
 			$user_id = (int) $user_id;
-			$status  = $list->status;
+			$status  = MG_UPC_Helper::get_instance()->get_list_status( $list->status, true );
 			// empty $caps
 			$caps = array();
 
@@ -344,7 +370,7 @@ class MG_UPC_List_Type implements ArrayAccess {
 			}
 
 			if ( 'read_' . $type === $cap ) {
-				if ( 'private' !== $status ) {
+				if ( ! $status->private ) {
 					$caps[] = 'read';
 				} elseif ( $user_id === $author ) {
 					$caps[] = 'read';
@@ -354,16 +380,23 @@ class MG_UPC_List_Type implements ArrayAccess {
 			}
 
 			if ( 'vote_' . $type === $cap ) {
-				$model = MG_List_Model::get_instance();
+				$model          = MG_List_Model::get_instance();
+				$user_max_votes = $this->get_max_votes_per_user();
+				$ip_max_votes   = $this->get_max_votes_per_ip();
+
 				if (
-					empty( $user_id ) ||
-					! $model->support( $list_id, 'vote' ) ||
-					$model->user_already_vote( $list_id, $user_id )
+					! $this->support( 'vote' ) ||
+					( $this->vote_require_login() && empty( $user_id ) ) ||
+					( ! empty( $user_id ) && 0 !== $user_max_votes && $model->user_count_votes( $list_id, $user_id ) >= $user_max_votes ) ||
+					0 !== $ip_max_votes && $model->ip_count_votes( $list_id ) >= $ip_max_votes
 				) {
 					$caps[] = 'do_not_allow';
 				}
-				if ( 'private' !== $status || $user_id === $author ) {
-					$caps[] = 'read';
+
+				if ( ! $status->private || $user_id === $author ) {
+					if ( $this->vote_require_login() ) {
+						$caps[] = 'read';
+					}
 				} else {
 					$caps[] = $this->cap->read_private_posts;
 				}
@@ -388,6 +421,7 @@ class MG_UPC_List_Type implements ArrayAccess {
 			'edit_post'          => 'edit_' . $singular_base,
 			'read_post'          => 'read_' . $singular_base,
 			'delete_post'        => 'delete_' . $singular_base,
+			'vote'               => 'vote_' . $singular_base,
 			// Primitive capabilities used outside of map_meta_cap():
 			'edit_posts'         => 'edit_' . $plural_base,
 			'edit_others_posts'  => 'edit_others_' . $plural_base,
@@ -437,6 +471,18 @@ class MG_UPC_List_Type implements ArrayAccess {
 
 	public function get_cap() {
 		return $this->cap;
+	}
+
+	public function get_max_votes_per_user() {
+		return $this->max_votes_per_user;
+	}
+
+	public function vote_require_login() {
+		return $this->vote_require_login;
+	}
+
+	public function get_max_votes_per_ip() {
+		return $this->max_votes_per_ip;
 	}
 
 

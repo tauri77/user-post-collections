@@ -177,6 +177,37 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 			),
 		);
 
+
+		$settings_fields['mg_upc_texts'][] = array(
+			'name'    => 'add_to_list_product',
+			'label'   => __( 'Add to list... (Single Product)', 'user-post-collections' ),
+			'desc'    => __( 'Add to list button text on product page.', 'user-post-collections' ),
+			'default' => '',
+			'type'    => 'text',
+		);
+		$settings_fields['mg_upc_texts'][] = array(
+			'name'    => 'add_to_list_product_loop',
+			'label'   => __( 'Add to list... (Product loop)', 'user-post-collections' ),
+			'desc'    => __( 'Add to list button text on shop/loop page.', 'user-post-collections' ),
+			'default' => '',
+			'type'    => 'text',
+		);
+
+		$settings_fields['mg_upc_texts'][] = array(
+			'name'    => 'add_to_cart',
+			'label'   => __( 'Add to cart', 'user-post-collections' ),
+			'desc'    => __( 'Add to cart button text.', 'user-post-collections' ),
+			'default' => '',
+			'type'    => 'text',
+		);
+		$settings_fields['mg_upc_texts'][] = array(
+			'name'    => 'add_to_cart_link',
+			'label'   => __( 'Add to cart...', 'user-post-collections' ),
+			'desc'    => __( 'Add to cart text when action requires selecting from options.', 'user-post-collections' ),
+			'default' => '',
+			'type'    => 'text',
+		);
+
 		return $settings_fields;
 	}
 

@@ -778,17 +778,30 @@ class MG_List_Model {
 	}
 
 	/**
-	 * Check if a user already voted on the list
+	 * Count the votes of a user in a specific list
 	 *
 	 * @param int $list_id
 	 * @param int $user_id
 	 *
-	 * @return bool
+	 * @return int
 	 *
 	 * @throws Exception
 	 */
-	public function user_already_vote( $list_id, $user_id ) {
-		return $this->votes->vote_exists( $list_id, $user_id );
+	public function user_count_votes( $list_id, $user_id ) {
+		return $this->votes->count_votes( $list_id, $user_id );
+	}
+
+	/**
+	 * Count the votes of an IP in a specific list
+	 *
+	 * @param int $list_id
+	 *
+	 * @return int
+	 *
+	 * @throws Exception
+	 */
+	public function ip_count_votes( $list_id ) {
+		return $this->votes->count_votes( $list_id, 0, $this->votes->get_ip_to_storage() );
 	}
 
 	/**
@@ -972,7 +985,7 @@ class MG_List_Model {
 			if ( $list_type->support( 'vote' ) ) {
 				$ttl_vote = (int) apply_filters(
 					'mg_upc_ttl_votes_' . $list_type->name,
-					get_option( 'mg_upc_ttl_votes_' . $list_type->name, 365 )
+					$this->helper->get_list_type_option( $list_type->name, 'ttl_votes', 365 )
 				);
 
 				$summary['votes'] += (int) $this->votes->clear_votes( $list_type->name, $ttl_vote );

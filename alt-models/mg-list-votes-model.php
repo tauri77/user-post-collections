@@ -297,11 +297,11 @@ class MG_List_Votes_Model {
 	 * @param int $list_id
 	 * @param int $user_id
 	 *
-	 * @return object|null
+	 * @return object[]|null
 	 *
 	 * @throws Exception
 	 */
-	public function get_vote( $list_id, $user_id ) {
+	public function get_votes( $list_id, $user_id ) {
 		global $wpdb;
 		$list_id = (int) $list_id;
 		$user_id = (int) $user_id;
@@ -310,7 +310,7 @@ class MG_List_Votes_Model {
 			throw new Exception( 'Votes: Invalid parameters' );
 		}
 
-		return $wpdb->get_row(
+		return $wpdb->get_results(
 			$wpdb->prepare(
 			// phpcs:ignore
 				"SELECT * FROM `{$this->get_table_list_votes()}` WHERE `list_id` = %d AND `user_id` = %d",
@@ -323,16 +323,89 @@ class MG_List_Votes_Model {
 	}
 
 	/**
+	 * Count votes of an user for a list
+	 *
+	 * @param int          $list_id The list ID
+	 * @param int          $user_id (Optional) The user ID
+	 * @param null|string  $ip
+	 *
+	 * @return int
+	 *
+	 * @throws Exception
+	 */
+	public function count_votes( $list_id, $user_id = 0, $ip = null ) {
+		global $wpdb;
+		$list_id = (int) $list_id;
+
+		if ( ! $list_id ) {
+			throw new Exception( 'Votes: Invalid list ID parameter' );
+		}
+
+		if ( 0 === $user_id ) {
+			if ( null !== $ip ) {
+				return (int) $wpdb->get_var(
+					$wpdb->prepare(
+					// phpcs:ignore
+						"SELECT COUNT(*) FROM `{$this->get_table_list_votes()}` WHERE `list_id` = %d AND `ip` = %s",
+						array(
+							$list_id,
+							$ip,
+						)
+					)
+				);
+			}
+			return (int) $wpdb->get_var(
+				$wpdb->prepare(
+				// phpcs:ignore
+					"SELECT COUNT(*) FROM `{$this->get_table_list_votes()}` WHERE `list_id` = %d",
+					array( $list_id )
+				)
+			);
+		}
+
+
+		$user_id = (int) $user_id;
+		if ( ! $user_id ) {
+			throw new Exception( 'Votes: Invalid user ID parameter' );
+		}
+
+		if ( null !== $ip ) {
+			return (int) $wpdb->get_var(
+				$wpdb->prepare(
+				// phpcs:ignore
+					"SELECT COUNT(*) FROM `{$this->get_table_list_votes()}` WHERE `list_id` = %d AND `user_id` = %d AND `ip` = %s",
+					array(
+						$list_id,
+						$user_id,
+						$ip,
+					)
+				)
+			);
+		}
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+			// phpcs:ignore
+				"SELECT COUNT(*) FROM `{$this->get_table_list_votes()}` WHERE `list_id` = %d AND `user_id` = %d",
+				array(
+					$list_id,
+					$user_id,
+				)
+			)
+		);
+	}
+
+	/**
 	 * Check if user already vote in a list
 	 *
-	 * @param $list_id
-	 * @param $user_id
+	 * @param int $list_id
+	 * @param int $user_id
 	 *
 	 * @return bool
 	 * @throws Exception
 	 */
 	public function vote_exists( $list_id, $user_id ) {
-		$item = $this->get_vote( (int) $list_id, (int) $user_id );
+		$item = $this->get_votes( (int) $list_id, (int) $user_id );
 
 		return ! empty( $item );
 	}
@@ -356,11 +429,11 @@ class MG_List_Votes_Model {
 		$list_id = (int) $list_id;
 		$post_id = (int) $post_id;
 		$user_id = (int) $user_id;
-		if ( ! $user_id || ! $list_id || ! $post_id ) {
+		if ( ( 0 !== $user_id && ! $user_id ) || ! $list_id || ! $post_id ) {
 			throw new Exception( 'Invalid parameters' );
 		}
 
-		if ( ! $this->helper->user_id_exists( $user_id ) ) {
+		if ( 0 !== $user_id && ! $this->helper->user_id_exists( $user_id ) ) {
 			throw new MG_UPC_Item_Not_Found_Exception( 'User not found.' );
 		}
 
@@ -372,21 +445,9 @@ class MG_List_Votes_Model {
 			'list_id' => $list_id,
 			'user_id' => $user_id,
 			'post_id' => $post_id,
-			'ip'      => '',
+			'ip'      => $this->get_ip_to_storage(),
 			'added'   => gmdate( 'Y-m-d H:i:s' ),
 		);
-
-		if ( get_option( 'mg_upc_store_vote_ip', 'on' ) === 'on' ) {
-			$data['ip'] = apply_filters( 'mg_upc_vote_ip', $_SERVER['REMOTE_ADDR'] );
-		} elseif ( get_option( 'mg_upc_store_vote_ip', 'on' ) === 'unsafe' ) {
-			$data['ip'] = apply_filters( 'mg_upc_vote_ip', $this->get_unsafe_client_ip() );
-		}
-
-		if ( ! empty( $data['ip'] ) ) {
-			if ( get_option( 'mg_upc_store_vote_anonymize_ip', 'on' ) === 'on' ) {
-				$data['ip'] = wp_privacy_anonymize_ip( $data['ip'] );
-			}
-		}
 
 		$format = array( '%d', '%d', '%d', '%s', '%s' );
 
@@ -395,6 +456,22 @@ class MG_List_Votes_Model {
 		$this->cache->remove();
 
 		do_action( 'mg_upc_add_vote', $data, $ok );
+	}
+
+	public function get_ip_to_storage() {
+		$ip = '';
+		if ( get_option( 'mg_upc_store_vote_ip', 'on' ) === 'on' ) {
+			$ip = apply_filters( 'mg_upc_vote_ip', $_SERVER['REMOTE_ADDR'] );
+		} elseif ( get_option( 'mg_upc_store_vote_ip', 'on' ) === 'unsafe' ) {
+			$ip = apply_filters( 'mg_upc_vote_ip', $this->get_unsafe_client_ip() );
+		}
+
+		if ( ! empty( $ip ) ) {
+			if ( get_option( 'mg_upc_store_vote_anonymize_ip', 'on' ) === 'on' ) {
+				$ip = wp_privacy_anonymize_ip( $ip );
+			}
+		}
+		return $ip;
 	}
 
 	/**
@@ -455,13 +532,7 @@ class MG_List_Votes_Model {
 			return false;
 		}
 
-		$anon_ip = wp_privacy_anonymize_ip( $client_ip, true );
-
-		if ( '0.0.0.0' === $anon_ip || '::' === $anon_ip ) {
-			return false;
-		}
-
-		return $anon_ip;
+		return $client_ip;
 	}
 
 

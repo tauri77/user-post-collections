@@ -343,6 +343,32 @@ class MG_UPC_Helper {
 		return false;
 	}
 
+	/**
+	 * Get sub option of an list type settings
+	 *
+	 * @param string $list_type
+	 * @param string $sub_option
+	 * @param mixed  $default
+	 *
+	 * @return mixed
+	 */
+	public function get_list_type_option( $list_type, $sub_option, $default ) {
+		$stored = get_option( 'mg_upc_type_' . $list_type );
+		if ( $stored && isset( $stored[ $sub_option ] ) ) {
+			return $stored[ $sub_option ];
+		}
+
+		return $default;
+	}
+
+	/**
+	 * Check if user can add the post type to any type of enabled list type.
+	 * Use: Show the "add to list" button?
+	 *
+	 * @param string $post_type
+	 *
+	 * @return bool
+	 */
 	public function current_user_can_add_to_any( $post_type ) {
 		$available_list_types = $this->get_available_list_types( $post_type );
 		if ( ! empty( $available_list_types ) ) {

@@ -509,8 +509,22 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 			return $ret;
 		}
 
+		$list_type_obj = $this->get_type_obj_from_list( $list_id );
+
+		if ( false === $list_type_obj ) {
+			$ret = new WP_Error(
+				'rest_db_error',
+				'The list type is not valid',
+				array( 'status' => 500 )
+			);
+		}
+
 		// check for return a message ( current_user_can do this too )
-		if ( ! is_user_logged_in() ) {
+		if (
+			null === $ret &&
+			$list_type_obj->vote_require_login() &&
+			! is_user_logged_in()
+		) {
 			$ret = new WP_Error(
 				'mg_upc_login_required',
 				'Sorry, login required.',
@@ -519,16 +533,28 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 		}
 
 		// check for return a message ( current_user_can do this too )
-		$user_id = get_current_user_id();
-
 		try {
-			if ( null === $ret && $this->model->user_already_vote( $list_id, $user_id ) ) {
+			$max_votes = $list_type_obj->get_max_votes_per_user();
+			if (
+				null === $ret &&
+				is_user_logged_in() &&
+				( 0 !== $max_votes && $this->model->user_count_votes( $list_id, get_current_user_id() ) >= $max_votes )
+			) {
 				$ret = new WP_Error(
-					'mg_upc_vote_exist',
+					'mg_upc_vote_limit',
 					'You already voted in this poll.',
-					array(
-						'status' => 409,
-					)
+					array( 'status' => 409 )
+				);
+			}
+			$ip_max_votes = $list_type_obj->get_max_votes_per_ip();
+			if (
+				null === $ret &&
+				( 0 !== $ip_max_votes && $this->model->ip_count_votes( $list_id ) >= $ip_max_votes )
+			) {
+				$ret = new WP_Error(
+					'mg_upc_vote_limit',
+					'Your IP has already reached the limit for this poll.',
+					array( 'status' => 409 )
 				);
 			}
 		} catch ( Exception $e ) {
@@ -540,7 +566,7 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 		}
 
 		if ( null === $ret ) {
-			$ret = current_user_can( 'vote_user_post_collection', $list_id );
+			$ret = current_user_can( $list_type_obj->get_cap()->vote, $list_id );
 		}
 
 		return apply_filters( 'mg_upc_can_vote', $ret, $list_id );

@@ -58,6 +58,25 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 		/* Remove page links from head */
 		add_action( 'template_redirect', array( $this, 'remove_links' ) );
 
+		// Add a post display state for special page.
+		add_filter( 'display_post_states', array( $this, 'add_display_post_states' ), 10, 2 );
+
+	}
+
+	/**
+	 * Add a post display state for special page in the page list table.
+	 *
+	 * @param array $post_states An array of post display states.
+	 * @param WP_Post $post The current post object.
+	 *
+	 * @return array
+	 */
+	public function add_display_post_states( $post_states, $post ) {
+		if ( self::$page_id === $post->ID ) {
+			$post_states['mg_upc_page_for_list'] = __( 'User Post Collection Page', 'woocommerce' );
+		}
+
+		return $post_states;
 	}
 
 	/**

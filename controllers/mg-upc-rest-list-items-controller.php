@@ -596,8 +596,9 @@ class MG_UPC_REST_List_Items_Controller {
 					$data['vote'] = true;
 				}
 			} else {
-				if ( ! is_user_logged_in() ) {
-					$data['can_vote'] = true; //to show button and show required login on vote button
+				$list_type = MG_UPC_Helper::get_instance()->get_list_type( $list->type );
+				if ( ! is_user_logged_in() && $list_type->vote_require_login() ) {
+					$data['can_vote'] = true; // to show button and show required login on vote button
 				} else {
 					$data['can_vote'] = true === $can_vote;
 				}
@@ -615,7 +616,10 @@ class MG_UPC_REST_List_Items_Controller {
 					)
 				);
 
-				$data['posts'] = $actual['items'];
+				$show_on_vote = MG_UPC_Helper::get_instance()->get_list_type_option( $list->type, 'show_on_vote', 'off' );
+				if ( ! $show_on_vote || 0 !== $request['postid'] ) {
+					$data['posts'] = $actual['items'];
+				}
 			}
 
 			$list = MG_UPC_List_Controller::get_instance()->get_list( (int) $request['id'] );

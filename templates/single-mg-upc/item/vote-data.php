@@ -8,10 +8,10 @@
 
 global $mg_upc_item, $mg_upc_list;
 
-$show_on_vote = true;
+$show_on_vote = MG_UPC_Helper::get_instance()->get_list_type_option( $mg_upc_list['type'], 'show_on_vote', 'off' );
 
 $class = '';
-if ( true !== $show_on_vote ) {
+if ( 'on' !== $show_on_vote ) {
 	$votes   = $mg_upc_item['votes'];
 	$total   = $mg_upc_list['vote_counter'];
 	$percent = $total > 0 ? $votes * 100 / $total : 0;

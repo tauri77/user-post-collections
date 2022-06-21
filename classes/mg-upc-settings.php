@@ -218,6 +218,26 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 				'type'    => 'text',
 			);
 
+			$settings_fields['mg_upc_advanced'][] = array(
+				'name'    => 'store_vote_ip',
+				'default' => 'on',
+				'label'   => 'Store voting IP',
+				'desc'    => '',
+				'type'    => 'radio',
+				'options' => array(
+					'off'    => __( 'Non store', 'user-post-collections' ),
+					'on'     => __( 'Store IP', 'user-post-collections' ),
+					'unsafe' => __( 'Store unsafe IP (This does NOT guarantee that the returned address is valid or accurate, and it can be easily spoofed.)', 'user-post-collections' ),
+				),
+			);
+			$settings_fields['mg_upc_advanced'][] = array(
+				'name'    => 'mg_upc_store_vote_anonymize_ip',
+				'default' => 'on',
+				'label'   => '',
+				'desc'    => __( 'Anonymize stored IP', 'user-post-collections' ),
+				'type'    => 'checkbox',
+			);
+
 			//***************************************
 			//           TEXTS
 			//***************************************
@@ -226,36 +246,6 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 				'name'    => 'add_to_list',
 				'label'   => __( 'Add to list...', 'user-post-collections' ),
 				'desc'    => __( 'Add to list button text on single content.', 'user-post-collections' ),
-				'default' => '',
-				'type'    => 'text',
-			);
-			$settings_fields['mg_upc_texts'][] = array(
-				'name'    => 'add_to_list_product',
-				'label'   => __( 'Add to list... (Single Product)', 'user-post-collections' ),
-				'desc'    => __( 'Add to list button text on product page.', 'user-post-collections' ),
-				'default' => '',
-				'type'    => 'text',
-			);
-			$settings_fields['mg_upc_texts'][] = array(
-				'name'    => 'add_to_list_product_loop',
-				'label'   => __( 'Add to list... (Product loop)', 'user-post-collections' ),
-				'desc'    => __( 'Add to list button text on shop/loop page.', 'user-post-collections' ),
-				'default' => '',
-				'type'    => 'text',
-			);
-
-
-			$settings_fields['mg_upc_texts'][] = array(
-				'name'    => 'add_to_cart',
-				'label'   => __( 'Add to cart', 'user-post-collections' ),
-				'desc'    => __( 'Add to cart button text.', 'user-post-collections' ),
-				'default' => '',
-				'type'    => 'text',
-			);
-			$settings_fields['mg_upc_texts'][] = array(
-				'name'    => 'add_to_cart_link',
-				'label'   => __( 'Add to cart...', 'user-post-collections' ),
-				'desc'    => __( 'Add to cart text when action requires selecting from options.', 'user-post-collections' ),
 				'default' => '',
 				'type'    => 'text',
 			);
@@ -270,7 +260,7 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 				'name'    => 'total_votes',
 				'label'   => __( 'Total Votes', 'user-post-collections' ),
 				// translators: %s are literal
-				'desc'    => __( 'Use "%s" for number of votes. Ex: "Total votes: %s"', 'user-post-collections' ),
+				'desc'    => __( 'Use "%1$s" for number of votes. Ex: "Total votes: %2$s"', 'user-post-collections' ),
 				'default' => '',
 				'type'    => 'text',
 			);
@@ -278,7 +268,7 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 				'name'    => 'created_by',
 				'label'   => __( 'Created by', 'user-post-collections' ),
 				// translators: %s are literal
-				'desc'    => __( 'Use "%s" for author name. Ex: "Created by %s"', 'user-post-collections' ),
+				'desc'    => __( 'Use "%1$s" for author name. Ex: "Created by %2$s"', 'user-post-collections' ),
 				'default' => '',
 				'type'    => 'text',
 			);
@@ -518,6 +508,57 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 						'options' => $supports_options,
 					);
 				}
+
+				if ( $list_type->support( 'vote' ) ) {
+					$settings_fields[ $prefix . $list_type->name ][] = array(
+						'name'    => 'ttl_votes',
+						'label'   => __( 'TTL Votes', 'user-post-collections' ),
+						'desc'    => __( 'How long voting records should remain in the database', 'user-post-collections' ),
+						'default' => 365,
+						'type'    => 'radio',
+						'options' => array(
+							'1'    => __( 'One day', 'user-post-collections' ),
+							'7'    => __( 'Seven days', 'user-post-collections' ),
+							'30'   => __( 'Thirty days', 'user-post-collections' ),
+							'90'   => __( 'Ninety days', 'user-post-collections' ),
+							'182'  => __( 'Six months', 'user-post-collections' ),
+							'365'  => __( 'One year', 'user-post-collections' ),
+							'730'  => __( 'Two year', 'user-post-collections' ),
+							'1095' => __( 'Three years', 'user-post-collections' ),
+							'2190' => __( 'Six years', 'user-post-collections' ),
+						),
+					);
+					$settings_fields[ $prefix . $list_type->name ][] = array(
+						'name'    => 'show_on_vote',
+						'label'   => __( 'Showing results', 'user-post-collections' ),
+						'desc'    => __( 'Show voting information only after the user has voted', 'user-post-collections' ),
+						'default' => 'off',
+						'type'    => 'checkbox',
+					);
+					$settings_fields[ $prefix . $list_type->name ][] = array(
+						'name'    => 'vote_require_login',
+						'label'   => __( 'Require login to vote', 'user-post-collections' ),
+						'desc'    => __( 'Require login to vote', 'user-post-collections' ),
+						'default' => 'on',
+						'type'    => 'checkbox',
+					);
+					$settings_fields[ $prefix . $list_type->name ][] = array(
+						'name'    => 'max_votes_per_user',
+						'label'   => __( 'Max votes per logged user', 'user-post-collections' ),
+						'desc'    => __( 'Set to zero to apply no limits', 'user-post-collections' ),
+						'default' => 1,
+						'min'     => 0,
+						'type'    => 'number',
+					);
+					$settings_fields[ $prefix . $list_type->name ][] = array(
+						'name'    => 'max_votes_per_ip',
+						'label'   => __( 'Max votes per IP', 'user-post-collections' ),
+						'desc'    => __( 'Set to zero to apply no limits. Nake sure IP storage is enabled in the advanced settings section.', 'user-post-collections' ),
+						'default' => 5,
+						'min'     => 0,
+						'type'    => 'number',
+					);
+				}
 			}
 			//TODO: implement more settings:
 			/*array(
@@ -531,6 +572,7 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 			$sanitize_multi    = array( __CLASS__, 'sanitize_multicheck' );
 			$sanitize_checkbox = array( __CLASS__, 'sanitize_checkbox' );
 			$sanitize_text     = array( __CLASS__, 'sanitize_text' );
+			$sanitize_number   = array( __CLASS__, 'sanitize_number' );
 
 			foreach ( $settings_fields as $tab => $fileds ) {
 				foreach ( $fileds as $k => $field ) {
@@ -547,6 +589,9 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 						} elseif ( 'text' === $field['type'] ) {
 							$settings_fields[ $tab ][ $k ]['sanitize_callback']        = $sanitize_text;
 							$settings_fields[ $tab ][ $k ]['sanitize_callback_params'] = 3;
+						} elseif ( 'number' === $field['type'] ) {
+							$settings_fields[ $tab ][ $k ]['sanitize_callback']        = $sanitize_number;
+							$settings_fields[ $tab ][ $k ]['sanitize_callback_params'] = 4;
 						}
 					}
 					if ( 'array' === $field['type'] && isset( $field['item_fields'] ) ) {
@@ -564,6 +609,9 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 								} elseif ( 'text' === $sub_field['type'] ) {
 									$settings_fields[ $tab ][ $k ]['item_fields'][ $ss ]['sanitize_callback']        = $sanitize_text;
 									$settings_fields[ $tab ][ $k ]['item_fields'][ $ss ]['sanitize_callback_params'] = 3;
+								} elseif ( 'number' === $sub_field['type'] ) {
+									$settings_fields[ $tab ][ $k ]['item_fields'][ $ss ]['sanitize_callback']        = $sanitize_number;
+									$settings_fields[ $tab ][ $k ]['item_fields'][ $ss ]['sanitize_callback_params'] = 4;
 								}
 							}
 						}
@@ -706,6 +754,55 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 		 */
 		public static function sanitize_text( $value, $option, $original_value ) {
 			return sanitize_text_field( $value );
+		}
+
+		/**
+		 * Sanitize number option
+		 *
+		 * @param $value
+		 * @param $option
+		 * @param $original_value
+		 * @param $config
+		 *
+		 * @return int|float
+		 */
+		public static function sanitize_number( $value, $option, $original_value, $config ) {
+
+			if ( ! is_numeric( $value ) ) {
+				//Never happen this to normal user, no translate
+				add_settings_error(
+					$option,
+					sanitize_title( $option ) . '_ERR',
+					'Invalid option: ' . esc_html( $option ) . '.'
+				);
+
+				return $original_value;
+			}
+
+			$value = (float) $value;
+			if ( isset( $config['max'] ) && $value > $config['max'] ) {
+				//Never happen this to normal user, no translate
+				add_settings_error(
+					$option,
+					sanitize_title( $option ) . '_ERR',
+					'Invalid option: ' . esc_html( $option ) . '.'
+				);
+
+				return $original_value;
+			}
+
+			if ( isset( $config['min'] ) && $value < $config['min'] ) {
+				//Never happen this to normal user, no translate
+				add_settings_error(
+					$option,
+					sanitize_title( $option ) . '_ERR',
+					'Invalid option: ' . esc_html( $option ) . '.'
+				);
+
+				return $original_value;
+			}
+
+			return $value;
 		}
 
 		/**
