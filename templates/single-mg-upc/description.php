@@ -19,7 +19,7 @@ if ( strpos( $content, '<' ) !== false ) {
 <div class="mg-upc-description">
 	<p>
 		<?php
-			echo wp_kses( $content, MG_UPC_List_Controller::get_instance()->list_allowed_tags() );
+			echo wp_kses( nl2br( $content ), MG_UPC_List_Controller::get_instance()->list_allowed_tags() );
 		?>
 	</p>
 </div>

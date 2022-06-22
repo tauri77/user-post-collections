@@ -7,6 +7,7 @@ import {
 	typeSupport,
 	statusShowInList
 } from "../helpers/functions";
+import translate from "../helpers/translate";
 
 function ListEdit( props ) {
 	const [ title, setTitle ]     = useState( '' );
@@ -69,7 +70,7 @@ function ListEdit( props ) {
 	return (<div className="mg-list-edit">
 		{ props.list.ID === -1 && type === '' &&   (<>
 			<label>
-				Select a list type:
+				{ translate( 'Select a list type:' ) }
 			</label>
 			<ul
 				id={`type-${props.list.ID}`}
@@ -93,7 +94,7 @@ function ListEdit( props ) {
 		</>) }
 		{ type !== '' && typeSupport( type, 'editable_title') && (<>
 			<label htmlFor={`title-${props.list.ID}`}>
-				Title
+				{ translate( 'Title' ) }
 			</label>
 			<input
 				id={`title-${props.list.ID}`}
@@ -105,7 +106,7 @@ function ListEdit( props ) {
 		</>) }
 		{ type !== '' && typeSupport( type, 'editable_content' ) && (<>
 			<label htmlFor={`content-${props.list.ID}`}>
-				Description
+				{ translate( 'Description' ) }
 			</label>
 			<textarea
 				id={`content-${props.list.ID}`}
@@ -116,12 +117,12 @@ function ListEdit( props ) {
 			<span className={"mg-upc-dg-list-desc-edit-count"}><i>{content?.length}</i>/500</span>
 		</>) }
 		{ type !== '' && ! getUpcTypeConfig( type ) && (
-			<span>Unknown Type...</span>
+			<span>{ translate( 'Unknown List Type...' ) }</span>
 		)}
 		{ type !== '' && getUpcTypeConfig( type )?.available_statuses &&
 		  getUpcTypeConfig( type ).available_statuses.length > 1 && (<>
 			<label htmlFor={`status-${props.list.ID}`}>
-				Status
+				{ translate( 'Status' ) }
 			</label>
 			<select
 				id={`status-${props.list.ID}`}
@@ -137,10 +138,10 @@ function ListEdit( props ) {
 		</>) }
 		{ type !== '' && getUpcTypeConfig( type ) && (<div className={"mg-upc-dg-edit-actions"}>
 			<button onClick={ () => props.onSave( { title, content, type, status } ) }>
-				<span className={"mg-upc-icon upc-font-save"}></span><span>Save</span>
+				<span className={"mg-upc-icon upc-font-save"}></span><span>{ translate( 'Save' ) }</span>
 			</button>
 			<button onClick={ () => props.onCancel() }>
-				<span className={"mg-upc-icon upc-font-close"}></span><span>Cancel</span>
+				<span className={"mg-upc-icon upc-font-close"}></span><span>{ translate( 'Cancel' ) }</span>
 			</button>
 		</div>)}
 	</div>);

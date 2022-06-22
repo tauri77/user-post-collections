@@ -334,21 +334,21 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 	 */
 	public function prepare_list_for_response( $list, $config = array() ) {
 
-		$user            = get_user_by( 'id', $list->author );
-		$list->user_link = '';
+		$list_data = (array) $list;
+
+		$user                   = get_user_by( 'id', $list_data['author'] );
+		$list_data['user_link'] = '';
 		if (
 			! empty( $user ) &&
 			property_exists( $user, 'data' ) &&
 			property_exists( $user->data, 'display_name' )
 		) {
-			$list->user_login = $user->data->display_name;
-			$list->user_img   = get_avatar_url( $user->ID );
+			$list_data['user_login'] = $user->data->display_name;
+			$list_data['user_img']   = get_avatar_url( $user->ID );
 		} else {
-			$list->user_img = get_avatar_url( -1 );
+			$list_data['user_img'] = get_avatar_url( -1 );
 		}
-		$list->user_link = apply_filters( 'mg_upc_list_author_url', $list->user_link, $user, $list );
-
-		$list_data = (array) $list;
+		$list_data['user_link'] = apply_filters( 'mg_upc_list_author_url', $list_data['user_link'], $user, $list_data );
 
 		if ( isset( $config['context'] ) && 'view' === $config['context'] ) {
 			if ( is_int( $list_data['ID'] ) || ctype_digit( $list_data['ID'] ) ) {
@@ -735,6 +735,7 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 				'cite' => true,
 			),
 			'cite'       => array(),
+			'br'         => array(),
 		);
 
 		/**

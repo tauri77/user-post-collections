@@ -1,6 +1,7 @@
 import { h, Fragment } from 'preact';
 import {useEffect, useRef, useState} from "preact/hooks";
 import {noItemImage} from "../helpers/functions";
+import translate from "../helpers/translate";
 
 function ListItemAdding(props) {
 
@@ -46,8 +47,8 @@ function ListItemAdding(props) {
 				<a href={props.item?.link}>{props.item?.title}</a>
 				{ ! editingDesc && (<p>{ props.item?.description }</p>) }
 				{ ! editingDesc && (<button onClick={ switchToEditing }>
-					{ description === '' && (<span>Add Comment</span>) }
-					{ description !== '' && (<span>Edit Comment</span>) }
+					{ description === '' && (<span>{ translate( 'Add Comment' ) }</span>) }
+					{ description !== '' && (<span>{ translate( 'Edit Comment' ) }</span>) }
 				</button>) }
 				<input
 					ref={ inputDescRef }
@@ -58,14 +59,14 @@ function ListItemAdding(props) {
 					maxLength={400}
 				/>
 				{ editingDesc && (<button className={"mg-upc-dg-btn-item-desc-cancel"} onClick={ onCancel }>
-					<span className={"mg-upc-icon upc-font-close"}></span><span>Cancel</span>
+					<span className={"mg-upc-icon upc-font-close"}></span><span>{ translate( 'Cancel' ) }</span>
 				</button>) }
 				{ editingDesc && (<button className={"mg-upc-dg-btn-item-desc-save"} onClick={ handleSave }>
-					<span className={"mg-upc-icon upc-font-save"}></span><span>Save</span>
+					<span className={"mg-upc-icon upc-font-save"}></span><span>{ translate( 'Save' ) }</span>
 				</button>) }
 			</div>
 	</div>
-	<span>Select where the item will be added:</span>
+	<span>{ translate( 'Select where the item will be added:' ) }</span>
 	</>);
 }
 

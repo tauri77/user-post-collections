@@ -4,6 +4,7 @@ import {useEffect, useRef} from "preact/hooks";
 import loadScript from "../helpers/load-script";
 import Skeleton from "./skeleton";
 import {getSortableUrl, listSupport} from "../helpers/functions";
+import translate from "../helpers/translate";
 
 function List(props) {
 	const ulRef = useRef(null);
@@ -79,7 +80,7 @@ function List(props) {
 		} ) ) }
 	</ul>
 		{ listSupport( props.list, 'vote' ) && (
-			<span className={"mg-upc-dg-total-votes"}> Total votes: <span> {props.list.vote_counter}</span></span>
+			<span className={"mg-upc-dg-total-votes"}> { translate( "Total votes:" ) } <span> {props.list.vote_counter}</span></span>
 		)}
 	</>);
 }

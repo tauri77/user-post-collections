@@ -28,6 +28,7 @@ import {
 } from "./store/actions";
 import { ContextProvider, AppContext } from './contexts/app-context';
 import loadScript from "./helpers/load-script";
+import translate from "./helpers/translate";
 
 //import { A11yDialog } from 'react-a11y-dialog';
 //reducing 8kb..
@@ -35,7 +36,13 @@ import { A11yDialog } from './components/react-ally-dialog';
 
 import mgUpcApiClient from "./apiClient";
 
-import {getMgUpcConfig, getNotAlwaysExists, getSortableUrl, listIsEditable, listSupport} from "./helpers/functions";
+import {
+	getMgUpcConfig,
+	getNotAlwaysExists,
+	getSortableUrl,
+	listIsEditable,
+	listSupport, str_nl2br
+} from "./helpers/functions";
 
 import "./polls";
 import "./products";
@@ -324,7 +331,7 @@ function App() {
 							{ ( typesForCreate.length > 0 ) && (<button
 								className="mg-list-new"
 								onClick={handleNewList}>
-								<span className={"mg-upc-icon upc-font-add"}></span><span>Create List</span>
+								<span className={"mg-upc-icon upc-font-add"}></span><span>{ translate( 'Create List' ) }</span>
 							</button>) }
 						</div>
 						<ListOfList
@@ -345,12 +352,12 @@ function App() {
 						<div className={"mg-upc-dg-top-action"}>
 							{ listIsEditable( state.list ) && (
 								<button className={"mg-upg-edit"} onClick={ () => dispatch( setEditing( true ) ) }>
-									<span className={"mg-upc-icon upc-font-edit"}></span><span>Edit</span>
+									<span className={"mg-upc-icon upc-font-edit"}></span><span>{ translate( 'Edit' ) }</span>
 								</button>
 							)}
 							{ state.list.link && (
 								<button className={"mg-upg-share"} onClick={ () => setSharing( ! sharing ) }>
-									<span className={"mg-upc-icon upc-font-share"}></span><span>Share</span>
+									<span className={"mg-upc-icon upc-font-share"}></span><span>{ translate( 'Share' ) }</span>
 								</button>
 							)}
 						</div>
@@ -358,7 +365,7 @@ function App() {
 							<ShareLink link={state.list.link} title={state.list.title} />
 						) }
 						{ state.list.content && (
-							<p className={"mg-upc-dg-list-desc"} dangerouslySetInnerHTML={ { __html: state.list.content } }></p>
+							<p className={"mg-upc-dg-list-desc"} dangerouslySetInnerHTML={ { __html: str_nl2br( state.list.content ) } }></p>
 						) }
 						<Skeleton count={3}/>
 						<List

@@ -1,4 +1,5 @@
 import { h, Fragment } from 'preact';
+import translate from "../helpers/translate";
 
 
 function Pagination( props ) {
@@ -8,8 +9,8 @@ function Pagination( props ) {
 				className={ (props.page === 1) ? 'mg-upc-dg-hidden mg-upc-dg-pagination' : 'mg-upc-dg-pagination' }
 				ref={props.prevRef}
 				disabled={props.page === 1}
-				aria-label={"Previous page"}
-				title="Previous page"
+				aria-label={ translate( 'Previous page' ) }
+				title={ translate( 'Previous page' ) }
 				onClick={props.onPreview}>
 				<span className={"mg-upc-icon upc-font-arrow_left"}></span>
 			</button>
@@ -21,8 +22,8 @@ function Pagination( props ) {
 				className={ (props.page >= props.totalPages) ? 'mg-upc-dg-hidden mg-upc-dg-pagination' : 'mg-upc-dg-pagination' }
 				ref={props.nextRef}
 				disabled={props.page >= props.totalPages}
-				aria-label={"Next page"}
-				title="Next page"
+				aria-label={ translate( 'Next page' ) }
+				title={ translate( 'Next page' ) }
 				onClick={props.onNext}>
 				<span className={"mg-upc-icon upc-font-arrow_right"}></span>
 			</button>

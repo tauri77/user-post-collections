@@ -1,12 +1,19 @@
+.mg-upc-single-template {
+  .mg-upc-description {
+    margin-top: 1em;
+  }
+  .mg-upc-author-box {
+    margin: 1em 0;
+  }
+}
 
 .mg-upc-page-inner {
   flex-grow: 2;
-  padding: 3rem 3vh;
+  /*padding: 2rem 3vh;*/
 }
 
 .mg-upc-page-inner {
   .mg-upc-author-box {
-    margin-top: 20px;
     padding: 12px 10px 32px 120px;
     position: relative;
     min-height: 120px;
@@ -22,7 +29,7 @@
 
     h4 {
       font-size: 21px;
-      margin: 4px 0 8px;
+      margin: 12px 0 8px;
     }
 
     .mg-upc-author-data {

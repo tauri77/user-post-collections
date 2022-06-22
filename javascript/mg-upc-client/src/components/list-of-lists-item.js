@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import translate from "../helpers/translate";
 
 function ListOfListItem(props) {
 	return (<li
@@ -11,7 +12,7 @@ function ListOfListItem(props) {
 				<span className="mg-upc-dg-item-count">{props.list.count}</span>
 				<span className="mg-upc-dg-item-actions">
 					{ props.onRemove && (
-						<button onClick={ (e) => { e.stopPropagation(); props.onRemove(props.list); } }>
+						<button aria-label={ translate( 'Remove List' ) } onClick={ (e) => { e.stopPropagation(); props.onRemove(props.list); } }>
 							<span className={"mg-upc-icon upc-font-trash"}></span>
 						</button>
 					)}

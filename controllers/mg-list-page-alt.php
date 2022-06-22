@@ -52,7 +52,7 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 		add_shortcode( 'user_post_collection', array( $this, 'list_shortcode' ) );
 
 		/* Templates hook */
-		if ( get_option( 'mg_upc_single_page_mode', 'template_upc' ) === 'template_upc' ) {
+		if ( get_option( 'mg_upc_single_page_mode', 'template_page' ) === 'template_upc' ) {
 			add_filter( 'template_include', array( 'MG_UPC_List_Page', 'template_loader' ) );
 		}
 
@@ -549,7 +549,7 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 				'name'    => 'mg_upc_single_page_mode',
 				'label'   => __( 'Collection Page Template', 'user-post-collections' ),
 				'desc'    => __( 'Try change this if the single list page not show as you like.', 'user-post-collections' ),
-				'default' => 'template_upc',
+				'default' => 'template_page',
 				'type'    => 'radio',
 				'options' => array(
 					'template_upc'  => __( 'Load UPC template', 'user-post-collections' ),

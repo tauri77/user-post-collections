@@ -2,6 +2,7 @@ import { h, Fragment } from 'preact';
 import {useEffect, useRef, useState} from "preact/hooks";
 import List from "./list";
 import shareButton from "../helpers/share-button";
+import translate from "../helpers/translate";
 
 
 function ShareLink(props) {
@@ -9,7 +10,7 @@ function ShareLink(props) {
 	const linkRef = useRef( null );
 	const copyRef = useRef( null );
 
-	const defaultText = "Copy";
+	const defaultText = translate( 'Copy' );
 
 	const [ buttonText,  setButtonText ] = useState( defaultText );
 
@@ -17,7 +18,7 @@ function ShareLink(props) {
 		let c = null;
 		if ( buttonText !== defaultText ) {
 			c = setTimeout( () => {
-				setButtonText( 'Copy' );
+				setButtonText( defaultText );
 				clearTimeout(c);
 			}, 2000 );
 		}
@@ -29,7 +30,7 @@ function ShareLink(props) {
 
 	function handleCopyLink(btn) {
 		if ( copyInput( linkRef.current ) ) {
-			setButtonText( 'Copied!' );
+			setButtonText( translate( 'Copied!' ) );
 		} else {
 			setButtonText( 'Error!' );
 		}
@@ -89,7 +90,7 @@ function ShareLink(props) {
 		}) }
 		{ shareButton({
 			color: '#b2b2b2',
-			name: 'Email',
+			name: translate( 'Email' ),
 			url: 'mailto:?subject=' + title + '&body=' + link,
 			path: 'M17,22v20h30V22H17z M41.1,25L32,32.1L22.9,25H41.1z M20,39V26.6l12,9.3l12-9.3V39H20z',
 		}) }

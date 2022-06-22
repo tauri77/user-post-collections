@@ -84,6 +84,12 @@ if ( ! class_exists( 'User_Post_Collections' ) ) {
 					'sortable' => $sortable_url,
 				)
 			);
+			wp_localize_script(
+				'mg-user-post-collections',
+				'MgUpcTexts',
+				MG_UPC_Texts::get_context_array( 'modal_client' )
+			);
+
 
 			wp_register_style(
 				'mg-user-post-collections-admin',

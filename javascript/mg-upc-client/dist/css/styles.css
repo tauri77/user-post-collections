@@ -2,12 +2,17 @@
   !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./css/styles.scss ***!
   \**********************************************************************************************************/
 @charset "UTF-8";
+.mg-upc-single-template .mg-upc-description {
+  margin-top: 1em; }
+
+.mg-upc-single-template .mg-upc-author-box {
+  margin: 1em 0; }
+
 .mg-upc-page-inner {
   flex-grow: 2;
-  padding: 3rem 3vh; }
+  /*padding: 2rem 3vh;*/ }
 
 .mg-upc-page-inner .mg-upc-author-box {
-  margin-top: 20px;
   padding: 12px 10px 32px 120px;
   position: relative;
   min-height: 120px; }
@@ -20,7 +25,7 @@
     left: 0; }
   .mg-upc-page-inner .mg-upc-author-box h4 {
     font-size: 21px;
-    margin: 4px 0 8px; }
+    margin: 12px 0 8px; }
 
 .mg-upc-items-container {
   margin-left: 0;

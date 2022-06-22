@@ -1,10 +1,10 @@
 <?php
 
 /** @global MG_UPC_List_Type[] $mg_upc_list_types */
-$mg_upc_list_types = array();
+$GLOBALS['mg_upc_list_types'] = array();
 
 /** @global stdClass[] $mg_upc_list_statuses */
-$mg_upc_list_statuses = array();
+$GLOBALS['mg_upc_list_statuses'] = array();
 
 /**
  * @param string $list_type Same limit that list_type

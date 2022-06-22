@@ -260,7 +260,7 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 				'name'    => 'total_votes',
 				'label'   => __( 'Total Votes', 'user-post-collections' ),
 				// translators: %s are literal
-				'desc'    => __( 'Use "%1$s" for number of votes. Ex: "Total votes: %2$s"', 'user-post-collections' ),
+				'desc'    => __( 'Use "%1$s" for number of votes. Ex: "Total votes: %1$s"', 'user-post-collections' ),
 				'default' => '',
 				'type'    => 'text',
 			);
@@ -268,7 +268,123 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 				'name'    => 'created_by',
 				'label'   => __( 'Created by', 'user-post-collections' ),
 				// translators: %s are literal
-				'desc'    => __( 'Use "%1$s" for author name. Ex: "Created by %2$s"', 'user-post-collections' ),
+				'desc'    => __( 'Use "%1$s" for author name. Ex: "Created by %1$s"', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+
+
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'client_my_lists',
+				'label'   => __( 'My Lists (client js)', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'client_create_list',
+				'label'   => __( 'Create List (client js)', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'client_save',
+				'label'   => __( 'Save (client js)', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'client_cancel',
+				'label'   => __( 'Cancel (client js)', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'client_add_comment',
+				'label'   => __( 'Add Comment (client js)', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'client_edit_comment',
+				'label'   => __( 'Edit Comment (client js)', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'client_edit',
+				'label'   => __( 'Edit (client js)', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'client_title',
+				'label'   => __( 'Title (client js)', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'client_description',
+				'label'   => __( 'Description (client js)', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'client_status',
+				'label'   => __( 'Status (client js)', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'client_remove_list',
+				'label'   => __( 'Remove List (client js)', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'client_share',
+				'label'   => __( 'Share (client js)', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'client_copy',
+				'label'   => __( 'Copy (client js)', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'client_copied',
+				'label'   => __( 'Copied! (client js)', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'client_email',
+				'label'   => __( 'Email (client js)', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'client_select_to_add',
+				'label'   => __( 'Select where the item will be added: (client js)', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'client_select_list_type',
+				'label'   => __( 'Select a list type: (client js)', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'client_total_votes',
+				'label'   => __( 'Total votes: (client js)', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'client_unknown_type',
+				'label'   => __( 'Unknown List Type... (client js)', 'user-post-collections' ),
 				'default' => '',
 				'type'    => 'text',
 			);

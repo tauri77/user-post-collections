@@ -2,6 +2,7 @@ import { h } from 'preact';
 import { useReducer } from "preact/hooks";
 import { reducer } from '../store/reducer';
 import { createContext } from "preact";
+import translate from "../helpers/translate";
 
 
 
@@ -85,7 +86,7 @@ export const  initialState = {
 	error: null,
 	errorCode: null,
 	editing: false,
-	title: 'My Lists',
+	title: translate( 'My Lists' ),
 	actualAction: 'init', //MY, MY_ADD, LIST, EDIT, CREATE
 	page: 1,
 	totalPages: 1

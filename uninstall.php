@@ -9,7 +9,45 @@ if ( ! current_user_can( 'activate_plugins' ) ) {
 }
 
 
-function clear_blog() {
+function mg_upc_uninstall_remove_from_role( $role ) {
+	$list_types = MG_UPC_Helper::get_instance()->get_list_types( true );
+	foreach ( $list_types as $list_type ) {
+		$caps = $list_type->get_cap();
+		//Capabilities for create/publish/delete list
+		$post_capabilities = array(
+			'edit_posts',
+			'create_posts',
+			'delete_posts',
+			'publish_posts',
+			'edit_posts',
+			'create_posts',
+			'delete_posts',
+			'publish_posts',
+			'edit_others_posts',
+			'read_private_posts',
+		);
+		foreach ( $post_capabilities as $post_cap_name ) {
+			$role->remove_cap( $caps->$post_cap_name );
+		}
+	}
+}
+
+function mg_upc_clear_blog() {
+	//register blog list types
+	$GLOBALS['mg_upc_list_types']    = array();
+	$GLOBALS['mg_upc_list_statuses'] = array();
+
+	$register = new MG_UPC_List_Types_Register();
+	$register->init();
+
+	$all_roles = wp_roles()->roles;
+	foreach ( $all_roles as $role => $details ) {
+		$role_object = get_role( $role );
+		if ( $role_object ) {
+			mg_upc_uninstall_remove_from_role( $role_object );
+		}
+	}
+
 	delete_option( 'mg_upc_single_page' );
 	delete_option( 'mg_upc_single_page_mode' );
 	delete_option( 'mg_upc_flush_rewrite' );
@@ -46,10 +84,16 @@ function clear_blog() {
 	$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}upc_votes" );
 	$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}upc_items" );
 	$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}upc_lists" );
-
 }
 
 if ( get_option( 'mg_upc_purge_on_uninstall' ) === 'on' ) {
+
+	require_once __DIR__ . '/includes/utils.php';
+	require_once __DIR__ . '/classes/mg-upc-module.php';
+	require_once __DIR__ . '/includes/mg-upc-helper.php';
+	require_once __DIR__ . '/includes/mg-upc-list-type.php';
+	require_once __DIR__ . '/includes/list-types.php';
+	require_once __DIR__ . '/classes/mg-upc-list-types-register.php';
 
 	if ( is_multisite() ) {
 
@@ -63,12 +107,12 @@ if ( get_option( 'mg_upc_purge_on_uninstall' ) === 'on' ) {
 		foreach ( $site_ids as $site_id ) {
 			// switch to next blog
 			switch_to_blog( $site_id );
-			clear_blog();
+			mg_upc_clear_blog();
 		}
 		// restore the current blog, after calling switch_to_blog()
 		restore_current_blog();
 	} else {
-		clear_blog();
+		mg_upc_clear_blog();
 	}
 }
 

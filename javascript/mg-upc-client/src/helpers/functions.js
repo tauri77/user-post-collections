@@ -83,6 +83,13 @@ function cloneObj(obj){
 	return JSON.parse( JSON.stringify( obj ) );
 }
 
+function str_nl2br (str) {
+	if ( typeof str !== 'string' ) {
+		return '';
+	}
+	return str.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br>$2');
+}
+
 export {
 	getMgUpcConfig,
 	getSortableUrl,
@@ -94,5 +101,6 @@ export {
 	getStatusLabel,
 	statusShowInList,
 	noItemImage,
-	cloneObj
+	cloneObj,
+	str_nl2br
 };
