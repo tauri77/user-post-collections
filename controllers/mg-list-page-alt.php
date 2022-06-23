@@ -308,7 +308,7 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 			$GLOBALS['mg_upc_list'] = MG_UPC_List_Controller::get_instance()->get_list_for_response(
 				array(
 					'id'             => (int) $list->ID,
-					'items_per_page' => 50,
+					'items_per_page' => (int) get_option( 'mg_upc_item_per_page', 50 ),
 					'items_page'     => get_query_var( 'list-page', 1 ),
 				)
 			);

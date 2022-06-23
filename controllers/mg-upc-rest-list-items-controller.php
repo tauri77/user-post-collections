@@ -839,7 +839,7 @@ class MG_UPC_REST_List_Items_Controller {
 			'per_page' => array(
 				'description' => esc_html__( 'Maximum number of items to be returned in result set.', 'user-post-collections' ),
 				'type'        => 'integer',
-				'default'     => 12,
+				'default'     => (int) get_option( 'mg_upc_api_item_per_page', 12 ),
 				'minimum'     => 1,
 				'maximum'     => 100,
 			),

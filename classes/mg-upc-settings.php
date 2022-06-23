@@ -197,6 +197,26 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 				),
 			);
 
+			$settings_fields['mg_upc_general'][] = array(
+				'name'    => 'mg_upc_api_item_per_page',
+				'label'   => __( 'Items per page (API)', 'user-post-collections' ),
+				'desc'    => __( 'Default number of items per page on API request.', 'user-post-collections' ),
+				'max'     => 100,
+				'min'     => 1,
+				'default' => 12,
+				'type'    => 'number',
+			);
+
+			$settings_fields['mg_upc_general'][] = array(
+				'name'    => 'mg_upc_item_per_page',
+				'label'   => __( 'Items per page (List Page)', 'user-post-collections' ),
+				'desc'    => __( 'Default number of items per page (List Page).', 'user-post-collections' ),
+				'max'     => 100,
+				'min'     => 1,
+				'default' => 50,
+				'type'    => 'number',
+			);
+
 			//***************************************
 			//           ADVANCED
 			//***************************************
