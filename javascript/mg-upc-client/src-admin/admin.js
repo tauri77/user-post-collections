@@ -118,6 +118,7 @@ function App() {
 					if ( e ) {
 						prevent( e );
 					}
+					dispatch( setPage( 1 ) );
 					setAuthor( auth );
 					location.hash = '';
 				}
@@ -146,7 +147,7 @@ function App() {
 
 	useEffect(
 		() => {
-			if ( search == null ) {
+			if ( null == search ) {
 				return;
 			}
 			clearTimeout( timerSearch.current );
@@ -159,28 +160,28 @@ function App() {
 
 	function resetPage() {
 		if ( state.page > 1 ) {
-			dispatch( setListPage( 1 ) );
+			dispatch( setPage( 1 ) );
 		}
 	}
 
 	function handleType(type) {
-		setType( type );
 		resetPage();
+		setType( type );
 	}
 
 	function handleStatus(value) {
-		setStatus( value );
 		resetPage();
+		setStatus( value );
 	}
 
 	function handleSearch(event) {
-		setSearch( event.target.value );
 		resetPage();
+		setSearch( event.target.value );
 	}
 
 	function handleAuthor(event) {
-		setAuthor( event.target.value );
 		resetPage();
+		setAuthor( event.target.value );
 	}
 
 	const showForAdd = ( post_id ) => {
@@ -342,7 +343,7 @@ function App() {
 							</ul>
 							<ul className={"mg-upc-dg-filter"}>
 								<li className={"mg-upc-dg-filter-label"}><strong>{ translate( "Author (ID)" ) }</strong></li>
-								<input onChange={handleAuthor} value={author}/>
+								<input type="number" onChange={handleAuthor} value={author}/>
 							</ul>
 						</div>
 						<ListOfList
