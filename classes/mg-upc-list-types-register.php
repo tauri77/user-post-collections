@@ -180,6 +180,7 @@ class MG_UPC_List_Types_Register extends MG_UPC_Module {
 				'delete_posts',
 				'publish_posts',
 				'edit_others_posts',
+				'delete_others_posts',
 				'read_private_posts',
 			);
 			$post_capabilities = array_diff( $post_capabilities, $grant_listing );
