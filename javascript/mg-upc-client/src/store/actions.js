@@ -13,16 +13,23 @@ import {
 	CREATE_LIST,
 	SET_LIST_ITEMS,
 	SET_LIST_OF_LIST,
+	SET_PAGE,
+	SET_TOTAL_PAGE,
 	SET_LIST_PAGE,
 	SET_LIST_TOTAL_PAGE,
 	SET_ADDING_POST,
-	ADD_LIST_ITEM
+	ADD_LIST_ITEM,
+	SET_MODE
 } from "./actionTypes";
 import apiClient from "../apiClient";
 import {createAsyncThunk} from "../contexts/app-context";
 
 export const resetState = () => ({
 	type: RESET_STATE, payload: null
+});
+
+export const setMode = ( mode ) => ({
+	type: SET_MODE, payload: mode
 });
 
 export const setError = ( error ) => ({
@@ -52,32 +59,48 @@ export const setListOfList = createAsyncThunk(
 			args.adding = args.addingPost;
 		}
 		return await apiClient.my( args ).then( ( response ) => {
-			if ( response.headers.get( "x-wp-page" ) ) {
-				thunkAPI.dispatch( setListPage( parseInt( response.headers.get( "x-wp-page" ), 10 ) ) );
-				thunkAPI.dispatch( setListTotalPages( parseInt( response.headers.get( "X-WP-TotalPages" ), 10 ) ) );
-			}
-			if ( addingPostID && response.headers.get( "X-WP-Post-Type" ) ) {
-				const newAddingPost = {
-					post_id: addingPostID,
-				};
-
-				const mapHeaders = {
-					"X-WP-Post-Type": "type",
-					"X-WP-Post-Title": "title",
-					"X-WP-Post-Image": "image"
-				};
-				for ( const header in mapHeaders ) {
-					const info = response.headers.get( header );
-					if ( info ) {
-						newAddingPost[ mapHeaders[ header ] ] = decodeURIComponent( info );
-					}
-				}
-				thunkAPI.dispatch( setAddingPost( newAddingPost ) );
-			}
-			return response.data;
+			return listOfListResponse( response, thunkAPI, addingPostID );
 		} );
 	}
 );
+
+export const setListOfListDiscover = createAsyncThunk(
+	SET_LIST_OF_LIST,
+	async function ( args, thunkAPI) {
+		if ( null === args ) {
+			args = {};
+		}
+		return await apiClient.discover( args ).then( ( response ) => {
+			return listOfListResponse( response, thunkAPI, false );
+		} );
+	}
+);
+
+function listOfListResponse( response, thunkAPI, addingPostID ) {
+	if ( response.headers.get( "x-wp-page" ) ) {
+		thunkAPI.dispatch( setPage( parseInt( response.headers.get( "x-wp-page" ), 10 ) ) );
+		thunkAPI.dispatch( setTotalPages( parseInt( response.headers.get( "X-WP-TotalPages" ), 10 ) ) );
+	}
+	if ( addingPostID && response.headers.get( "X-WP-Post-Type" ) ) {
+		const newAddingPost = {
+			post_id: addingPostID,
+		};
+
+		const mapHeaders = {
+			"X-WP-Post-Type": "type",
+			"X-WP-Post-Title": "title",
+			"X-WP-Post-Image": "image"
+		};
+		for ( const header in mapHeaders ) {
+			const info = response.headers.get( header );
+			if ( info ) {
+				newAddingPost[ mapHeaders[ header ] ] = decodeURIComponent( info );
+			}
+		}
+		thunkAPI.dispatch( setAddingPost( newAddingPost ) );
+	}
+	return response.data;
+}
 
 export const removeList = createAsyncThunk(
 	REMOVE_LIST,
@@ -100,6 +123,14 @@ export const removeList = createAsyncThunk(
 	}
 );
 
+export const setPage = (page) => ({
+	type: SET_PAGE, payload: page
+});
+
+export const setTotalPages = (totalPages) => ({
+	type: SET_TOTAL_PAGE, payload: totalPages
+});
+
 export const setListPage = (page) => ({
 	type: SET_LIST_PAGE, payload: page
 });
@@ -116,7 +147,7 @@ export const setList = createAsyncThunk(
 			return list;
 		}
 		return await apiClient.get( typeof list === 'object' ? list.ID : list ).then( ( response ) => {
-			updatePageState( response, thunkAPI.dispatch );
+			updateListPageState( response, thunkAPI.dispatch );
 			return response.data;
 		} );
 	}
@@ -127,7 +158,7 @@ export const updateList = createAsyncThunk(
 	async function (data, thunkAPI) {
 		return await apiClient.update( data ).then( ( response ) => {
 			thunkAPI.dispatch( setEditing( false ) );
-			updatePageState( response, thunkAPI.dispatch );
+			updateListPageState( response, thunkAPI.dispatch );
 			return response.data;
 		} );
 	}
@@ -144,7 +175,7 @@ export const createList = createAsyncThunk(
 		}
 		return await apiClient.create( data ).then( ( response ) => {
 			thunkAPI.dispatch( setEditing( false ) );
-			updatePageState( response, thunkAPI.dispatch );
+			updateListPageState( response, thunkAPI.dispatch );
 			return response.data;
 		} );
 	}
@@ -154,7 +185,7 @@ export const loadListItems = createAsyncThunk(
 	SET_LIST_ITEMS,
 	async function (args, thunkAPI) {
 		return await apiClient.items( thunkAPI.getState().list.ID, args ).then( ( response ) => {
-			updatePageState( response, thunkAPI.dispatch );
+			updateListPageState( response, thunkAPI.dispatch );
 			return response.data;
 		} );
 	}
@@ -166,12 +197,12 @@ export const removeItem = createAsyncThunk(
 		const state = thunkAPI.getState();
 		return await apiClient.quit( state.list.ID, post_id ).then( ( response ) => {
 			if ( 1 === state.list.items.length ) {
-				const page  = state.page;
-				const total = state.totalPages;
+				const page  = state.listPage;
+				const total = state.listTotalPages;
 				if ( page < total ) {
 					thunkAPI.dispatch( loadListItems( { page: page } ) );
 				} else if ( page === total ) {
-					thunkAPI.dispatch( loadListItems( { page: Math.max( 1, state.page - 1 ) } ) );
+					thunkAPI.dispatch( loadListItems( { page: Math.max( 1, page - 1 ) } ) );
 				}
 				return false;
 			}
@@ -191,7 +222,7 @@ export const addItem = createAsyncThunk(
 			} );
 		} catch ( reason ) {
 			const data = reason?.response?.data;
-			ret = thunkAPI.rejectWithValue( data );
+			ret        = thunkAPI.rejectWithValue( data );
 		}
 
 		return ret;
@@ -211,8 +242,8 @@ export const updateItem = createAsyncThunk(
 export const moveItem = createAsyncThunk(
 	MOVE_LIST_ITEM,
 	async function (oldIndex, thunkAPI) {
-		const list       =  thunkAPI.extra[0]; //thunkAPI.getState().list;
-		const newIndex   = thunkAPI.extra[1];
+		const list     =  thunkAPI.extra[0]; //thunkAPI.getState().list;
+		const newIndex = thunkAPI.extra[1];
 
 		const movingIt  = list.items[oldIndex];
 		const newNumber = movingIt.position - oldIndex + newIndex;
@@ -240,7 +271,7 @@ export const moveItemNextPage = createAsyncThunk(
 		const itemToNext = list.items[oldIndex];
 
 		await apiClient.move( list.ID, itemToNext.post_id, lastNumber + 1 );
-		await thunkAPI.dispatch( loadListItems( { page: thunkAPI.getState().page } ) );
+		await thunkAPI.dispatch( loadListItems( { page: thunkAPI.getState().listPage } ) );
 		return oldIndex;
 	}
 );
@@ -258,13 +289,13 @@ export const moveItemPrevPage = createAsyncThunk(
 		const itemToPrev = list.items[oldIndex];
 
 		await apiClient.move( list.ID, itemToPrev.post_id, positionOne - 1 );
-		await thunkAPI.dispatch( loadListItems( { page: thunkAPI.getState().page } ) );
+		await thunkAPI.dispatch( loadListItems( { page: thunkAPI.getState().listPage } ) );
 		return oldIndex;
 	}
 );
 
 
-function updatePageState(response, dispatch) {
+function updateListPageState(response, dispatch) {
 	if ( ! response.data.items_page && response.headers.get( "x-wp-page" ) ) {
 		dispatch( setListPage( parseInt( response.headers.get( "x-wp-page" ), 10 ) ) );
 		dispatch( setListTotalPages( parseInt( response.headers.get( "X-WP-TotalPages" ), 10 ) ) );

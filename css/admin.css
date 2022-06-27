@@ -1,1 +1,54 @@
-
+#mg-upc-admin-app button{
+	min-height: 40px;
+}
+.mg-upc-dg-back {
+	text-decoration: none;
+}
+.mg-upc-dg-filter {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	margin: 1em 0;
+}
+.mg-upc-dg-filter > li {
+	flex-grow: 2;
+	padding: 0.6em;
+	margin: 0.2em;
+	border: solid 1px #e5e5e5;
+	cursor: pointer;
+	text-align: center;
+}
+.mg-upc-dg-filter > input {
+	height: 30px;
+	flex-grow: 2;
+}
+.mg-upc-dg-filter .mg-upc-dg-filter-label {
+	width: 100px;
+	flex-grow: 0;
+	border: none;
+	border-bottom: 1px solid #ccc;
+}
+.mg-upc-selected {
+	background: #ffffff !important;
+	border-color: #000;
+}
+.mg-upc-list-dates {
+	float: right;
+}
+.mg-upc-dg-df {
+	display: flex;
+	margin: 1em 0;
+}
+.mg-upc-dg-df > * {
+	flex-grow: 2;
+	margin: 0;
+}
+@media (max-width: 600px) {
+	.mg-upc-dg-df {
+		flex-direction: column;
+	}
+	.mg-upc-list-dates {
+		display: block;
+		float: none;
+	}
+}

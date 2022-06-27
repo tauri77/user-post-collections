@@ -1,4 +1,5 @@
 import {
+	SET_MODE,
 	SET_ERROR,
 	SET_LIST_OF_LIST,
 	SET_LIST,
@@ -14,7 +15,10 @@ import {
 	MOVE_LIST_ITEM_NEXT,
 	MOVE_LIST_ITEM_PREV,
 	ADD_LIST_ITEM,
-	SET_EDITING, RESET_STATE
+	SET_EDITING,
+	RESET_STATE,
+	SET_PAGE,
+	SET_TOTAL_PAGE
 } from "./actionTypes";
 import reduceList from './reduceList';
 import reduceListOfList from './reduceListOfLists';
@@ -62,8 +66,11 @@ export function reducer (state, action) {
 	}
 
 	switch (type) {
+		case SET_MODE:
+			return getCloned( {mode: payload} );
+
 		case RESET_STATE:
-			return {...initialState};
+			return {...initialState, mode: state.mode};
 
 		case SET_ERROR:
 			if ( false === payload ) {
@@ -83,11 +90,11 @@ export function reducer (state, action) {
 			return newState;
 
 		case CREATE_LIST:
-			newState            = getCloned();
-			newState.title      = payload.title ? payload.title : initialState.title;
-			newState.totalPages = 1;
-			newState.page       = 1;
-			newState.addingPost = false;
+			newState                = getCloned();
+			newState.title          = payload.title ? payload.title : initialState.title;
+			newState.listTotalPages = 1;
+			newState.listPage       = 1;
+			newState.addingPost     = false;
 			break;
 
 		case ADD_LIST_ITEM:
@@ -98,8 +105,8 @@ export function reducer (state, action) {
 
 				const pages = list?.items_page;
 				if ( pages ) {
-					newState.totalPages = pages['X-WP-TotalPages'] ? pages['X-WP-TotalPages'] : 1;
-					newState.page       = pages['X-WP-Page'] ? pages['X-WP-Page'] : 1;
+					newState.listTotalPages = pages['X-WP-TotalPages'] ? pages['X-WP-TotalPages'] : 1;
+					newState.listPage       = pages['X-WP-Page'] ? pages['X-WP-Page'] : 1;
 				}
 			}
 			if ( payload.message ) {
@@ -110,11 +117,17 @@ export function reducer (state, action) {
 			newState.addingPost = false;
 			break;
 
-		case SET_LIST_PAGE:
+		case SET_PAGE:
 			return getCloned( {page: payload} );
 
-		case SET_LIST_TOTAL_PAGE:
+		case SET_TOTAL_PAGE:
 			return getCloned( {totalPages: payload} );
+
+		case SET_LIST_PAGE:
+			return getCloned( {listPage: payload} );
+
+		case SET_LIST_TOTAL_PAGE:
+			return getCloned( {listTotalPages: payload} );
 
 		case SET_LIST + '/loading':
 			newState            = getCloned();
@@ -185,8 +198,8 @@ export function reducer (state, action) {
 
 				const pages = list?.items_page;
 				if ( pages ) {
-					newState.totalPages = pages['X-WP-TotalPages'] ? pages['X-WP-TotalPages'] : 1;
-					newState.page       = pages['X-WP-Page'] ? pages['X-WP-Page'] : 1;
+					newState.listTotalPages = pages['X-WP-TotalPages'] ? pages['X-WP-TotalPages'] : 1;
+					newState.listPage       = pages['X-WP-Page'] ? pages['X-WP-Page'] : 1;
 				}
 			}
 			if ( payload.message ) {

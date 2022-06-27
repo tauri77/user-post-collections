@@ -15,7 +15,15 @@ function getUpcTypeConfig( type ) {
 	return false;
 }
 
-function getUpcStatuses( status ) {
+function getUpcTypes() {
+	return Object.values(getMgUpcConfig()?.types);
+}
+
+function getUpcStatuses() {
+	return Object.values(getMgUpcConfig()?.statuses);
+}
+
+function getUpcStatus( status ) {
 	const statuses = getMgUpcConfig()?.statuses;
 	if ( statuses && statuses[status] ) {
 		return statuses[status];
@@ -24,7 +32,7 @@ function getUpcStatuses( status ) {
 }
 
 function getStatusLabel( status ) {
-	const statusConfig = getUpcStatuses( status );
+	const statusConfig = getUpcStatus( status );
 	if ( statusConfig ) {
 		return statusConfig.label;
 	}
@@ -32,7 +40,7 @@ function getStatusLabel( status ) {
 }
 
 function statusShowInList( status ) {
-	const statusConfig = getUpcStatuses( status );
+	const statusConfig = getUpcStatus( status );
 	return statusConfig && statusConfig.show_in_status_list;
 }
 
@@ -90,17 +98,27 @@ function str_nl2br (str) {
 	return str.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br>$2');
 }
 
+function prevent(e) {
+	if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+	if (e.stopPropagation) e.stopPropagation();
+	e.preventDefault();
+	return false;
+}
+
 export {
 	getMgUpcConfig,
+	getUpcTypes,
 	getSortableUrl,
 	getUpcTypeConfig,
 	getNotAlwaysExists,
 	listSupport,
 	typeSupport,
 	listIsEditable,
+	getUpcStatuses,
 	getStatusLabel,
 	statusShowInList,
 	noItemImage,
 	cloneObj,
-	str_nl2br
+	str_nl2br,
+	prevent
 };

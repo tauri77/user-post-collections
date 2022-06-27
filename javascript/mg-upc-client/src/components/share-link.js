@@ -1,6 +1,6 @@
 import { h, Fragment } from 'preact';
 import {useEffect, useRef, useState} from "preact/hooks";
-import List from "./list";
+import ListItems from "./list-items";
 import shareButton from "../helpers/share-button";
 import translate from "../helpers/translate";
 

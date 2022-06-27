@@ -1,87 +1,210 @@
 import { h, Fragment } from 'preact';
-import ListItem from "./list-item";
-import {useEffect, useRef} from "preact/hooks";
-import loadScript from "../helpers/load-script";
-import Skeleton from "./skeleton";
-import {getSortableUrl, listSupport} from "../helpers/functions";
+import ListEdit from "./list-edit";
+import {getSortableUrl, listIsEditable, listSupport, str_nl2br} from "../helpers/functions";
+import {
+	createList, loadListItems,
+	moveItem,
+	moveItemNextPage,
+	moveItemPrevPage,
+	removeItem,
+	resetState,
+	setEditing,
+	setList,
+	setListOfList,
+	updateItem,
+	updateList
+} from "../store/actions";
 import translate from "../helpers/translate";
+import ShareLink from "./share-link";
+import Skeleton from "./skeleton";
+import ListItems from "./list-items";
+import {useContext, useEffect, useRef, useState} from "preact/hooks";
+import {AppContext} from "../contexts/app-context";
+import Pagination from "./pagination";
+import loadScript from "../helpers/load-script";
 
-function List(props) {
-	const ulRef = useRef(null);
+function List( props ) {
 
-	const moveRef = useRef(
-		(evt) => {
-			props.onMove( evt );
-		}
-	);
-	useEffect(() => {
-		moveRef.current = props.onMove;
-	});
+	const { state, dispatch } = useContext( AppContext );
 
-	useEffect(() => {
-		let s = false;
-		if ( listSupport( props.list, 'sortable' ) ) {
-			const run = () => {
-				s = Sortable.create( ulRef.current, {
-					handle: '.mg-upc-dg-item-handle',
-					group: 'shared',
-					animation: 150,
-					onUpdate: function ( evt ) {
-						moveRef.current( evt );
+	const [ sharing, setSharing ] = useState( false );
+
+	const nextRef = useRef( false );
+	const prevRef = useRef( false );
+
+	useEffect(
+		() => {
+			const list = state.list;
+			let s1     = false;
+			let s2     = false;
+			if ( list && listSupport( list, 'sortable' ) ) {
+				const run = () => {
+					if ( state.listPage < state.listTotalPages ) {
+						s1 = Sortable.create(
+							nextRef.current,
+							{
+								group: 'shared',
+								onAdd: ( evt ) => {
+									dispatch( moveItemNextPage( evt.oldIndex ) );
+								}
+							}
+						);
 					}
-				} );
-			};
-			if ( typeof Sortable !== 'undefined' ) {
-				run();
-			} else {
-				loadScript( getSortableUrl() ).then(()=> {
+					if ( state.listPage > 1 ) {
+						s2 = Sortable.create(
+							prevRef.current,
+							{
+								group: 'shared',
+								onAdd: ( evt ) => {
+									dispatch( moveItemPrevPage( evt.oldIndex ) );
+								}
+							}
+						);
+					}
+				};
+				if ( typeof Sortable !== 'undefined' ) {
 					run();
-				});
+				} else {
+					loadScript( getSortableUrl() ).then(
+						() => {
+							run();
+						}
+					);
+				}
 			}
+			return () => {
+				s1 && s1.destroy();
+				s2 && s2.destroy();
+			};
+		},
+		[ state.list, state.listPage, state.listTotalPages ]
+	);
+
+	useEffect(
+		() => {
+			setSharing( false );
+		},
+		[ state.editing, state.list, state.addingPost  ]
+	);
+
+	function handleItemUpdateDescription(list, item, description) {
+		dispatch( updateItem( item.post_id, {description} ) );
+	}
+
+	function handleMoveItem(evt) {
+		dispatch( moveItem( evt.oldIndex, state.list, evt.newIndex ) );
+	}
+
+	function handleRemoveItem(list, item) {
+		dispatch( removeItem( item.post_id ) );
+	}
+
+	function onSave(data) {
+		if (
+			-1 !== state.list.ID &&
+			data.title === state.list.title &&
+			data.content === state.list.content &&
+			data.status === state.list.status
+		) {
+			//no change
+			return;
 		}
-		return () => {
-			s && s.destroy();
-		};
-	});
+
+		if ( -1 === state.list.ID ) {
+			//create new list
+			const save   = {};
+			save.title   = data.title;
+			save.content = data.content;
+			save.type    = data.type;
+			save.status  = data.status;
+			if ( state.addingPost?.post_id ) {
+				save.adding = state.addingPost.post_id;
+			}
+			dispatch( createList( save ) );
+		} else {
+			const save = { id: state.list.ID };
+			if ( data.status !== state.list.status ) {
+				save.status = data.status;
+			}
+			if ( data.title !== state.list.title ) {
+				save.title = data.title;
+			}
+			if ( data.content !== state.list.content ) {
+				save.content = data.content;
+			}
+			dispatch( updateList( save ) );
+		}
+	}
+
+	function handleEditCancel() {
+		dispatch( setEditing( false ) );
+		if ( -1 === state.list.ID ) {
+			dispatch( setList( false ) );
+			dispatch( resetState() );
+			dispatch( setListOfList() );
+		}
+	}
+
+	function loadNext() {
+		loadPage( state.listPage + 1 );
+	}
+
+	function loadPreview() {
+		loadPage( state.listPage - 1 );
+	}
+
+	function loadPage(newPage) {
+		if ( newPage < 1 || newPage > state.listTotalPages || state.status === 'loading' ) {
+			return;
+		}
+		dispatch( loadListItems( { page: newPage } ) );
+	}
 
 	return (<>
-		<ul className="mg-upc-dg-list-fake mg-upc-dg-on-loading">
-			{ [0,1,2].map( ( item ) => {
-				return (<li className="mg-upc-dg-item" >
-					{  listSupport( props.list, 'sortable' ) && (<>
-						<span className="mg-upc-dg-item-handle-skeleton"> &nbsp;<Skeleton width={"1.5em"} /> &nbsp;</span>
-						<span className="mg-upc-dg-item-number-skeleton">&nbsp; <Skeleton width={"1em"} /> &nbsp;</span>
-					</>) }
-					{ listSupport( props.list, 'vote' ) && (<>
-						<span className="mg-upc-dg-item-number-skeleton">&nbsp; <Skeleton width={"1em"} /> &nbsp;</span>
-					</>) }
-					<div className="mg-upc-dg-item-skeleton-image" >
-						<Skeleton width={"5em"} height={"5em"}/>
-					</div>
-					<div className="mg-upc-dg-item-data">
-						<Skeleton count={2}/>
-					</div>
-				</li>);
-			} ) }
-		</ul>
-		<ul ref={ulRef} className="mg-upc-dg-list">
-		{ props?.items?.length === 0 && (
-			<span>There are no items in this list</span>
-		) }
-		{ props?.items?.length > 0 && props.items?.map && (props.items.map( ( item ) => {
-			return (<ListItem
-							list={props.list}
-							item={item}
-							editable={props.editable}
-							onRemove={() => props.onRemove(props.list, item)}
-							onSaveItemDescription={ (description) => props.onSaveItemDescription(props.list, item, description)}
-							key={ item.ID + ':' + item.post_id }
-			/>);
-		} ) ) }
-	</ul>
-		{ listSupport( props.list, 'vote' ) && (
-			<span className={"mg-upc-dg-total-votes"}> { translate( "Total votes:" ) } <span> {props.list.vote_counter}</span></span>
-		)}
+		{ state.editing && (<ListEdit
+			list={state.list}
+			addingPost={state.addingPost}
+			onSave={ onSave }
+			onCancel={ handleEditCancel }
+		></ListEdit>) }
+		{ ! state.editing && (<>
+			<div className={"mg-upc-dg-top-action"}>
+				{ listIsEditable( state.list ) && (
+					<button className={"mg-upg-edit"} onClick={ () => dispatch( setEditing( true ) ) }>
+						<span className={"mg-upc-icon upc-font-edit"}></span><span>{ translate( 'Edit' ) }</span>
+					</button>
+				)}
+				{ state.list.link && (
+					<button className={"mg-upg-share"} onClick={ () => setSharing( ! sharing ) }>
+						<span className={"mg-upc-icon upc-font-share"}></span><span>{ translate( 'Share' ) }</span>
+					</button>
+				)}
+			</div>
+			{ sharing && state.list.link && (
+				<ShareLink link={state.list.link} title={state.list.title} />
+			) }
+			{ state.list.content && (
+				<p className={"mg-upc-dg-list-desc"}
+				   dangerouslySetInnerHTML={ { __html: str_nl2br( state.list.content ) } }></p>
+			) }
+			<Skeleton count={3}/>
+			<ListItems
+				list={state.list}
+				items={state.list?.items || []}
+				onMove={handleMoveItem}
+				onRemove={handleRemoveItem}
+				onSaveItemDescription={handleItemUpdateDescription}
+				editable={props.editable}/>
+		</>) }
+		{(( ! state.editing || ! state.list) && state.listTotalPages > 1) &&
+		(<Pagination
+			totalPages={state.listTotalPages}
+			page={state.listPage}
+			onPreview={loadPreview}
+			onNext={loadNext}
+			prevRef={prevRef}
+			nextRef={nextRef}
+		></Pagination>)}
 	</>);
 }
 

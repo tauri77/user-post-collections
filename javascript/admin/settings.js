@@ -70,12 +70,14 @@ jQuery( document ).ready(
 			}
 		);
 
-		$( ".mg-upc-sortable-items-container" ).sortable(
-			{
-				handle: '.dashicons-sort', update: function () {
+		if ( $.fn.sortable ) {
+			$( ".mg-upc-sortable-items-container" ).sortable(
+				{
+					handle: '.dashicons-sort', update: function () {
+					}
 				}
-			}
-		);
+			);
+		}
 
 		//Para hacer valido o no el nuevo item
 		$( ".mg-upc-add-array-toggle" ).change(

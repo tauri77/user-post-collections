@@ -629,9 +629,11 @@ class MG_UPC_REST_Lists_Controller {
 	public function get_lists( $request ) {
 
 		$args = array(
-			'limit'  => $request['per_page'],
-			'page'   => $request['page'],
-			'status' => array( 'publish' ),
+			'limit'   => $request['per_page'],
+			'page'    => $request['page'],
+			'status'  => array( 'publish' ),
+			'orderby' => 'created',
+			'pined'   => false, //No sort by pined list
 		);
 
 		$no_empty_set = array(
@@ -653,16 +655,23 @@ class MG_UPC_REST_Lists_Controller {
 			}
 		}
 
+		if ( isset( $request['status'] ) && ! is_array( $request['status'] ) ) {
+			$request['status'] = array( $request['status'] );
+		}
+		if ( isset( $request['type'] ) && ! is_array( $request['type'] ) ) {
+			$request['type'] = array( $request['type'] );
+		}
+
 		//limit to searcheable list types and statuses
 		if ( ! empty( $args['search'] ) ) {
 			$searchable_list_type   = MG_UPC_Helper::get_instance()->get_searchable_list_types();
 			$searchable_list_status = MG_UPC_Helper::get_instance()->get_searchable_list_statuses();
-			if ( isset( $request['status'] ) && ! in_array( 'any', $args['status'], true ) ) {
+			if ( isset( $request['status'] ) && ! in_array( 'any', $request['status'], true ) ) {
 				$request['status'] = array_intersect( $request['status'], $searchable_list_status );
 			} else {
 				$request['status'] = $searchable_list_status;
 			}
-			if ( isset( $request['type'] ) && ! in_array( 'any', $args['type'], true ) ) {
+			if ( isset( $request['type'] ) && ! in_array( 'any', $request['type'], true ) ) {
 				$request['type'] = array_intersect( $request['type'], $searchable_list_type );
 			} else {
 				$request['type'] = $searchable_list_type;
@@ -705,7 +714,6 @@ class MG_UPC_REST_Lists_Controller {
 			}
 			$args['status'] = $request['status'];
 		}
-
 		return $this->process_lists( $args, $request );
 	}
 
@@ -731,8 +739,8 @@ class MG_UPC_REST_Lists_Controller {
 			'page'    => $request['page'],
 			'status'  => 'any',
 			'author'  => get_current_user_id(),
-			'orderby' => $request['orderby'] ? $request['orderby'] : get_option( 'mg_upc_my_orderby', 'modified'),
-			'order'   => $request['order'] ? $request['order'] : get_option( 'mg_upc_my_order', 'desc'),
+			'orderby' => $request['orderby'] ? $request['orderby'] : get_option( 'mg_upc_my_orderby', 'modified' ),
+			'order'   => $request['order'] ? $request['order'] : get_option( 'mg_upc_my_order', 'desc' ),
 		);
 
 		$lists = MG_UPC_List_Controller::get_instance()->get_user_lists( $args, $request );
@@ -1287,7 +1295,6 @@ class MG_UPC_REST_Lists_Controller {
 				'date',
 				'id',
 				'modified',
-				'relevance',
 				'slug',
 				'title',
 			),
@@ -1338,7 +1345,7 @@ class MG_UPC_REST_Lists_Controller {
 
 		$types = wp_parse_slug_list( $types );
 
-		$valid_types = $this->model->valid_types();
+		$valid_types = array_merge( $this->model->valid_types(), array( 'any' ) );
 
 		foreach ( $types as $type ) {
 

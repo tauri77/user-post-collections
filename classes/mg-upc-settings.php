@@ -48,7 +48,7 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 		 * @return array
 		 */
 		public static function add_plugin_action_links( $links ) {
-			array_unshift( $links, '<a href="options-general.php?page=mg_upc_settings">Settings</a>' );
+			array_unshift( $links, '<a href="admin.php?page=mg_upc_settings">Settings</a>' );
 
 			return $links;
 		}
@@ -82,14 +82,35 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 		 * Adds pages to the Admin Panel menu
 		 */
 		public function admin_menu() {
+
+			$menu = add_menu_page(
+				'User Post Lists',
+				'User Post Lists',
+				self::REQUIRED_CAPABILITY,
+				'user-post-list',
+				array( &$this, 'render_admin' ),
+				'dashicons-list-view',
+				25
+			);
+
+			add_action( 'admin_print_scripts-' . $menu, array( $this, 'enqueue_admin_scripts' ) );
+
 			$this->settings_api->page_ref = add_submenu_page(
-				'options-general.php',
+				'user-post-list',
 				__( 'User Post Collections Settings', 'user-post-collections' ),
-				__( 'User Post Collections', 'user-post-collections' ),
+				__( 'Settings', 'user-post-collections' ),
 				self::REQUIRED_CAPABILITY,
 				'mg_upc_settings',
 				array( $this, 'plugin_page' )
 			);
+		}
+
+		public function render_admin() {
+			echo "<div id='mg-upc-admin-app'></div>";
+		}
+
+		public function enqueue_admin_scripts() {
+			User_Post_Collections::load_resources();
 		}
 
 		/**
@@ -292,7 +313,6 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 				'default' => '',
 				'type'    => 'text',
 			);
-
 
 			$settings_fields['mg_upc_texts'][] = array(
 				'name'    => 'client_my_lists',

@@ -316,7 +316,8 @@ class MG_List_Model {
 
 		//search
 		if ( isset( $args['search'] ) ) {
-			$where[]   = '`title` LIKE %s';
+			$where[]   = '(`title` LIKE %s OR `slug` LIKE %s)';
+			$prepare[] = '%' . $wpdb->esc_like( $args['search'] ) . '%';
 			$prepare[] = '%' . $wpdb->esc_like( $args['search'] ) . '%';
 		}
 
@@ -331,7 +332,10 @@ class MG_List_Model {
 		$args['page'] = max( intval( $args['page'] ), 1 );
 
 		if ( $args['limit'] > 1 ) { //for find one not run count query and not set order
-			$sql_pin_query = $this->get_pins_query();
+			$sql_pin_query = '';
+			if ( false !== $args['pined'] ) {
+				$sql_pin_query = $this->get_pins_query();
+			}
 			if (
 				isset( $args['orderby'] ) &&
 				in_array(
@@ -383,7 +387,6 @@ class MG_List_Model {
 				$prepare[] = $args['limit'];
 			}
 		}
-
 		$results = $wpdb->get_results(
 			// phpcs:ignore
 			$wpdb->prepare( $select . $sql, $prepare )

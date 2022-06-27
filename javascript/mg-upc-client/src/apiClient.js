@@ -37,6 +37,14 @@ let apiClient = {
 			}
 		);
 	},
+	discover: function (args) {
+		return apiRequest( 'GET', '/' + objectToGetParams( args ), {} ).then(
+			function(response) {
+				checkResponseError( response );
+				return response;
+			}
+		);
+	},
 	get: function (id) {
 		return apiRequest( 'GET', '/' + id /*+ '?_embed=items,author'*/, {} ).then(
 			function(response) {

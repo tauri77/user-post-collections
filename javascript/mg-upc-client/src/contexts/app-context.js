@@ -89,7 +89,10 @@ export const  initialState = {
 	title: translate( 'My Lists' ),
 	actualAction: 'init', //MY, MY_ADD, LIST, EDIT, CREATE
 	page: 1,
-	totalPages: 1
+	totalPages: 1,
+	listPage: 1,
+	listTotalPages: 1,
+	mode: 'my'
 };
 
 export const  AppContext = createContext( {} );

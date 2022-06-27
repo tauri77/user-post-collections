@@ -35,8 +35,12 @@ module.exports = {
 			"react-a11y-dialog": "react-a11y-dialog"
 		},
 	},
+	entry: {
+		'main': './src/index.js',
+		'admin': './src-admin/admin.js',
+	},
 	output: {
-		filename: 'main.js',
+		filename: '[name].js',
 		path: path.resolve(__dirname, 'dist'),
 		clean: true
 	},

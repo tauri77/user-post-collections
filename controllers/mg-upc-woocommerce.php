@@ -429,7 +429,8 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 	 */
 	public static function item_cart_button() {
 		global $mg_upc_item;
-		if ( false === $mg_upc_item['is_in_stock'] ) {
+
+		if ( ! function_exists( 'wc_get_product' ) || false === $mg_upc_item['is_in_stock'] ) {
 			return;
 		}
 		$option = get_option( 'mg_upc_page_add_to_cart', 'on' );

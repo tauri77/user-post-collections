@@ -572,11 +572,16 @@
     text-align: center; }
   .mg-upc-dg-item-list .mg-upc-dg-item-title,
   .mg-upc-dg-item-list-type .mg-upc-dg-item-title {
+    display: flex;
+    flex-direction: column;
     color: #333;
     flex-grow: 2;
     text-align: start;
     padding: 0.1em 1em;
     word-break: break-word; }
+    .mg-upc-dg-item-list .mg-upc-dg-item-title > span:nth-child(2),
+    .mg-upc-dg-item-list-type .mg-upc-dg-item-title > span:nth-child(2) {
+      opacity: 0.6; }
   .mg-upc-dg-item-list .mg-upc-dg-item-count,
   .mg-upc-dg-item-list-type .mg-upc-dg-item-count {
     width: 3em;
@@ -611,6 +616,9 @@
 
 .mg-upc-dg-item-type-bookmarks:before {
   content: ""; }
+
+.mg-upc-dg-item-type-none:before {
+  content: ""; }
 
 .mg-upg-edit {
   float: right; }
@@ -888,6 +896,7 @@ EDIT
     height: 40px;
     border: none;
     background: #e2e2e2;
+    color: #333;
     margin: 0;
     display: inline-block;
     vertical-align: bottom;
