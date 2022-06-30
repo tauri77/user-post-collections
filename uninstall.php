@@ -84,6 +84,12 @@ function mg_upc_clear_blog() {
 	$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}upc_votes" );
 	$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}upc_items" );
 	$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}upc_lists" );
+
+	delete_metadata( 'post', 0, 'mg_upc_listed', '', true );
+	$list_types = MG_UPC_Helper::get_instance()->get_list_types( true );
+	foreach ( $list_types as $list_type ) {
+		delete_metadata( 'post', 0, 'mg_upc_listed_' . $list_type->name, '', true );
+	}
 }
 
 if ( get_option( 'mg_upc_purge_on_uninstall' ) === 'on' ) {

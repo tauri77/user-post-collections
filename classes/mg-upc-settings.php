@@ -238,6 +238,16 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 				'type'    => 'number',
 			);
 
+
+			$settings_fields['mg_upc_general'][] = array(
+				'name'    => 'mg_upc_post_stats',
+				'label'   => __( 'Save general count in posts', 'user-post-collections' ),
+				'desc'    => __( 'Save count of how many times an item is added to lists.', 'user-post-collections' ),
+				'default' => 'on',
+				'type'    => 'checkbox',
+			);
+
+
 			//***************************************
 			//           ADVANCED
 			//***************************************
@@ -505,6 +515,15 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 					'default' => $list_type->available_post_types,
 					'type'    => 'multicheck',
 					'options' => $post_types_options,
+				);
+
+
+				$settings_fields[ $prefix . $list_type->name ][] = array(
+					'name'    => 'mg_upc_post_stats',
+					'label'   => __( 'Save count in posts', 'user-post-collections' ),
+					'desc'    => __( 'Keep count of how many times an item is added to lists of this type.', 'user-post-collections' ),
+					'default' => 'off',
+					'type'    => 'checkbox',
 				);
 
 				$roles_options  = array();

@@ -526,6 +526,25 @@ class MG_List_Items_Model {
 
 		$ok = $wpdb->insert( $this->get_table_list_items(), $data, $format );
 
+		//update general counter if enabled
+		if ( get_option( 'mg_upc_post_stats', 'on' ) === 'on' ) {
+			$count = get_post_meta( $post_id, 'mg_upc_listed', true );
+			if ( ! $count ) {
+				$count = 0;
+			}
+			$count++;
+			update_post_meta( $post_id, 'mg_upc_listed', $count );
+		}
+		//update general counter if enabled
+		if ( $this->helper->get_list_type_option( $list->type, 'mg_upc_post_stats', 'off' ) === 'on' ) {
+			$count = get_post_meta( $post_id, 'mg_upc_listed_' . $list->type, true );
+			if ( ! $count ) {
+				$count = 0;
+			}
+			$count++;
+			update_post_meta( $post_id, 'mg_upc_listed_' . $list->type, $count );
+		}
+
 		$this->cache->remove();
 
 		do_action( 'mg_upc_add_item', $data, $ok );
