@@ -1,22 +1,5 @@
 <?php
 
-
-function mg_upc_strimwidth( $string, $start, $width, $trim_marker = '', $encoding = null ) {
-	if ( null === $encoding ) {
-		$encoding = get_option( 'blog_charset', 'utf8' );
-	}
-	try {
-		if ( mb_strlen( $string, $encoding ) ) {
-			return mb_substr( $string, $start, $width, $encoding ) . $trim_marker;
-		}
-	} catch ( Exception $e ) {
-		if ( strlen( $string ) ) {
-			return substr( $string, $start, $width ) . $trim_marker;
-		}
-	}
-	return $string;
-}
-
 function mg_upc_strlen( $string, $encoding = null ) {
 	if ( null === $encoding ) {
 		$encoding = get_option( 'blog_charset', 'utf8' );
@@ -28,56 +11,13 @@ function mg_upc_strlen( $string, $encoding = null ) {
 	}
 }
 
-
-
-
 function mg_upc_get_templates_path() {
 	return untrailingslashit( plugin_dir_path( MG_UPC_PLUGIN_FILE ) ) . '/templates/';
 }
 
-
-function mg_upc_time_elapsed_string( $datetime, $full = false ) {
-	//mmmm... translate this?
-	if ( empty( $datetime ) ) {
-		return '';
-	}
-	$now  = new DateTime();
-	$ago  = new DateTime( $datetime );
-	$diff = $now->diff( $ago );
-
-	if ( $diff->invert < 1 ) {
-		return $ago->format( 'Y-m-d' );
-	}
-
-	$diff->w  = floor( $diff->d / 7 );
-	$diff->d -= $diff->w * 7;
-
-	$string = array(
-		'y' => 'year',
-		'm' => 'month',
-		'w' => 'week',
-		'd' => 'day',
-		'h' => 'hour',
-		'i' => 'minute',
-		's' => 'second',
-	);
-	foreach ( $string as $k => &$v ) {
-		if ( $diff->$k ) {
-			$v = $diff->$k . ' ' . $v . ( $diff->$k > 1 ? 's' : '' );
-		} else {
-			unset( $string[ $k ] );
-		}
-	}
-
-	if ( ! $full ) {
-		$string = array_slice( $string, 0, 1 );
-	}
-	return $string ? implode( ', ', $string ) . ' ago' : 'just now';
-}
-
 /**
  * Get template part.
- **
+ *
  * @param mixed  $slug Template slug.
  * @param string $name Template name (default: '').
  */
@@ -185,6 +125,7 @@ function mg_upc_get_template( $template_name, $args = array(), $template_path = 
 		$action_args['args']
 	);
 
+	/** @noinspection PhpIncludeInspection */
 	include $action_args['located'];
 
 	do_action(

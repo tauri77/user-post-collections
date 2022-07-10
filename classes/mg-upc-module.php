@@ -16,9 +16,7 @@ if ( ! class_exists( 'MG_UPC_Module' ) ) {
 		/**
 		 * Provides access to a single instance of a module using the singleton pattern
 		 *
-		 * @mvc Controller
-		 *
-		 * @return object
+		 * @return static
 		 */
 		public static function get_instance() {
 			$module = get_called_class();
@@ -36,15 +34,11 @@ if ( ! class_exists( 'MG_UPC_Module' ) ) {
 
 		/**
 		 * Constructor
-		 *
-		 * @mvc Controller
 		 */
 		abstract protected function __construct();
 
 		/**
 		 * Prepares sites to use the plugin during single or network-wide activation
-		 *
-		 * @mvc Controller
 		 *
 		 * @param bool $network_wide
 		 */
@@ -52,31 +46,23 @@ if ( ! class_exists( 'MG_UPC_Module' ) ) {
 
 		/**
 		 * Rolls back activation procedures when de-activating the plugin
-		 *
-		 * @mvc Controller
 		 */
 		abstract public function deactivate();
 
 		/**
 		 * Register callbacks for actions and filters
-		 *
-		 * @mvc Controller
 		 */
 		abstract public function register_hook_callbacks();
 
 		/**
 		 * Initializes variables
-		 *
-		 * @mvc Controller
 		 */
 		abstract public function init();
 
 		/**
 		 * Checks if the plugin was recently updated and upgrades if necessary
 		 *
-		 * @mvc Controller
-		 *
-		 * @param string $db_version
+		 * @param int|string $db_version
 		 */
 		abstract public function upgrade( $db_version = 0 );
 

@@ -46,6 +46,8 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 		 *
 		 * @param array $links The links currently mapped to the plugin
 		 * @return array
+		 *
+		 * @noinspection PhpUnused ( add_filter register_hook_callbacks callback )
 		 */
 		public static function add_plugin_action_links( $links ) {
 			array_unshift( $links, '<a href="admin.php?page=mg_upc_settings">Settings</a>' );
@@ -58,25 +60,21 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 		 *
 		 * @param bool $network_wide
 		 */
-		public function activate( $network_wide ) {
-		}
+		public function activate( $network_wide ) { }
 
 		/**
 		 * Rolls back activation procedures when de-activating the plugin
 		 */
-		public function deactivate() {
-		}
+		public function deactivate() { }
 
 		/**
 		 * Executes the logic of upgrading from specific older versions of the plugin to the current version
 		 *
 		 * @mvc Model
 		 *
-		 * @param string $db_version
+		 * @param int|string $db_version
 		 */
-		public function upgrade( $db_version = 0 ) {
-
-		}
+		public function upgrade( $db_version = 0 ) { }
 
 		/**
 		 * Adds pages to the Admin Panel menu
@@ -238,7 +236,6 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 				'type'    => 'number',
 			);
 
-
 			$settings_fields['mg_upc_general'][] = array(
 				'name'    => 'mg_upc_post_stats',
 				'label'   => __( 'Save general count in posts', 'user-post-collections' ),
@@ -246,7 +243,6 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 				'default' => 'on',
 				'type'    => 'checkbox',
 			);
-
 
 			//***************************************
 			//           ADVANCED
@@ -264,6 +260,7 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 			$settings_fields['mg_upc_advanced'][] = array(
 				'name'    => 'mg_upc_single_title',
 				'label'   => __( 'Single title', 'user-post-collections' ),
+				// translators: not change %title%, %author%, %sitename%
 				'desc'    => __( 'You can use %title%, %author%, %sitename%.', 'user-post-collections' ),
 				'default' => '%title% by %author% | User List | %sitename%',
 				'type'    => 'text',
@@ -517,7 +514,6 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 					'options' => $post_types_options,
 				);
 
-
 				$settings_fields[ $prefix . $list_type->name ][] = array(
 					'name'    => 'mg_upc_post_stats',
 					'label'   => __( 'Save count in posts', 'user-post-collections' ),
@@ -735,11 +731,6 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 					);
 				}
 			}
-			//TODO: implement more settings:
-			/*array(
-				'default_content'    => '',
-				'available_statuses' => $list_type->available_statuses, // for this implement "disable status" and then diff
-			);*/
 
 			$settings_fields = apply_filters( 'mg_upc_settings_fields', $settings_fields );
 
@@ -805,6 +796,8 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 		 * @param $original_value
 		 *
 		 * @return string
+		 *
+		 * @noinspection PhpUnused (Option sanitize callback)
 		 */
 		public static function sanitize_checkbox( $value, $option, $original_value ) {
 
@@ -834,6 +827,8 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 		 * @param $config
 		 *
 		 * @return mixed
+		 *
+		 * @noinspection PhpUnused (Option sanitize callback)
 		 */
 		public static function sanitize_options( $value, $option, $original_value, $config ) {
 			if ( ! isset( $config['options'] ) ) {
@@ -876,6 +871,8 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 		 * @param $config
 		 *
 		 * @return array
+		 *
+		 * @noinspection PhpUnused (Option sanitize callback)
 		 */
 		public static function sanitize_multicheck( $value, $option, $original_value, $config ) {
 
@@ -926,6 +923,8 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 		 * @param $original_value
 		 *
 		 * @return string
+		 *
+		 * @noinspection PhpUnused (Option sanitize callback)
 		 */
 		public static function sanitize_text( $value, $option, $original_value ) {
 			return sanitize_text_field( $value );
@@ -940,6 +939,8 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 		 * @param $config
 		 *
 		 * @return int|float
+		 *
+		 * @noinspection PhpUnused (Option sanitize callback)
 		 */
 		public static function sanitize_number( $value, $option, $original_value, $config ) {
 

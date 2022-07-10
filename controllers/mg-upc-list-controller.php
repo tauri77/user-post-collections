@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * Class MG_List_Controller
  *
@@ -25,15 +24,6 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 		global $mg_upc;
 
 		$this->model = $mg_upc->model;
-	}
-
-	/**
-	 * Provides access to a single instance of a module using the singleton pattern
-	 *
-	 * @return MG_UPC_List_Controller
-	 */
-	public static function get_instance() {
-		return parent::get_instance();
 	}
 
 	/**
@@ -113,7 +103,7 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 			return new WP_Error( 'upc_invalid_field', esc_html( $e->getMessage() ), array( 'status' => 500 ) );
 		}
 
-		if ( isset( $config['adding'] ) ) {
+		if ( isset( $config['adding'], $post ) ) {
 			$lists['addingPost'] = $post;
 			//Add no sticky with always exist enabled
 			$found_lists = array_map(
@@ -443,6 +433,20 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 	}
 
 	/**
+	 * Overwrites the default protected title format.
+	 *
+	 * By default, WordPress will show password protected posts with a title of
+	 * "Protected: %s", as the REST API communicates the protected status of a post
+	 * in a machine readable format, we remove the "Protected: " prefix.
+	 *
+	 *
+	 * @return string Protected title format.
+	 */
+	public function protected_title_format() {
+		return '%s';
+	}
+
+	/**
 	 * Get the post, if the ID is valid.
 	 *
 	 * @param int                   $id       Supplied ID.
@@ -715,6 +719,8 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 	 * @param $content
 	 *
 	 * @return string
+	 *
+	 * @noinspection PhpUnused
 	 */
 	public function sanitize_content( $content ) {
 		return wp_kses( $content, $this->list_allowed_tags() );

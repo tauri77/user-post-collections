@@ -45,6 +45,7 @@ class MG_UPC_Database extends MG_UPC_Module {
 	public function on_delete_user( $id, $reassign ) {
 		/** @global User_Post_Collections $mg_upc Global plugin object. */
 		global $mg_upc;
+		/** @global MG_UPC_List_Type[] $mg_upc_list_types Global array with list types. */
 		global $mg_upc_list_types;
 		if ( null === $reassign ) {
 			$list_types_to_delete = array();

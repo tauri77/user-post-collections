@@ -346,7 +346,13 @@ class MG_UPC_List_Type implements ArrayAccess {
 		) {
 
 			$list_id = (int) $args[0];
-			$list    = MG_List_Model::get_instance()->find_one( $list_id );
+			try {
+				$list = MG_List_Model::get_instance()->find_one( $list_id );
+			} catch ( MG_UPC_Invalid_Field_Exception $e ) {
+				$caps[] = 'do_not_allow';
+
+				return $caps;
+			}
 			$author  = (int) $list->author;
 			$user_id = (int) $user_id;
 			$status  = MG_UPC_Helper::get_instance()->get_list_status( $list->status, true );
@@ -384,13 +390,19 @@ class MG_UPC_List_Type implements ArrayAccess {
 				$user_max_votes = $this->get_max_votes_per_user();
 				$ip_max_votes   = $this->get_max_votes_per_ip();
 
-				if (
-					! $this->support( 'vote' ) ||
-					( $this->vote_require_login() && empty( $user_id ) ) ||
-					( ! empty( $user_id ) && 0 !== $user_max_votes && $model->user_count_votes( $list_id, $user_id ) >= $user_max_votes ) ||
-					0 !== $ip_max_votes && $model->ip_count_votes( $list_id ) >= $ip_max_votes
-				) {
+				try {
+					if (
+						! $this->support( 'vote' ) ||
+						( $this->vote_require_login() && empty( $user_id ) ) ||
+						( ! empty( $user_id ) && 0 !== $user_max_votes && $model->user_count_votes( $list_id, $user_id ) >= $user_max_votes ) ||
+						0 !== $ip_max_votes && $model->ip_count_votes( $list_id ) >= $ip_max_votes
+					) {
+						$caps[] = 'do_not_allow';
+					}
+				} catch ( Exception $e ) {
 					$caps[] = 'do_not_allow';
+
+					return $caps;
 				}
 
 				if ( ! $status->private || $user_id === $author ) {

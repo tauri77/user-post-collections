@@ -126,6 +126,8 @@ if ( ! function_exists( 'mg_upc_btn_classes' ) ) {
 	/**
 	 * Get the classes for buttons
 	 *
+	 * @param string $class
+	 *
 	 * @return string
 	 */
 	function mg_upc_btn_classes( $class ) {

@@ -1,8 +1,4 @@
 <?php
-/** @noinspection PhpUnusedParameterInspection */
-/** @noinspection PhpUnused */
-/** @noinspection DuplicatedCode */
-
 
 class MG_UPC_REST_List_Items_Controller {
 
@@ -182,6 +178,8 @@ class MG_UPC_REST_List_Items_Controller {
 	 * @param WP_REST_Request $request Current request.
 	 *
 	 * @return bool|WP_Error
+	 *
+	 * @noinspection PhpUnused (Rest API callback)
 	 */
 	public function get_items_permissions_check_always_exist( $request ) {
 		if ( ! is_user_logged_in() ) {
@@ -206,6 +204,8 @@ class MG_UPC_REST_List_Items_Controller {
 	 * @param WP_REST_Request $request Current request.
 	 *
 	 * @return bool|WP_Error
+	 *
+	 * @noinspection PhpUnused (Rest API callback)
 	 */
 	public function write_item_permissions_check_always_exist( $request ) {
 		if ( ! is_user_logged_in() ) {
@@ -250,6 +250,8 @@ class MG_UPC_REST_List_Items_Controller {
 	 * @param WP_REST_Request $request Current request.
 	 *
 	 * @return bool|WP_Error
+	 *
+	 * @noinspection PhpUnused (Rest API callback)
 	 */
 	public function write_item_permissions_check( $request ) {
 		if ( ! MG_UPC_List_Controller::get_instance()->can_edit( $request['id'] ) ) {
@@ -270,6 +272,8 @@ class MG_UPC_REST_List_Items_Controller {
 	 * @param WP_REST_Request $request Current request.
 	 *
 	 * @return bool|WP_Error
+	 *
+	 * @noinspection PhpUnused (Rest API callback)
 	 */
 	public function vote_item_permissions_check( $request ) {
 
@@ -328,6 +332,8 @@ class MG_UPC_REST_List_Items_Controller {
 	 * @param WP_REST_Request $request Current request.
 	 *
 	 * @return WP_Error|WP_REST_Response
+	 *
+	 * @noinspection PhpUnused (Rest API callback)
 	 */
 	public function create_item_always_exist( $request ) {
 
@@ -553,6 +559,8 @@ class MG_UPC_REST_List_Items_Controller {
 	 * @param WP_REST_Request $request Current request.
 	 *
 	 * @return WP_Error|WP_REST_Response
+	 *
+	 * @noinspection PhpUnused (Rest API callback)
 	 */
 	public function vote_item( $request ) {
 		$request['id']     = (int) $request['id'];
@@ -691,6 +699,8 @@ class MG_UPC_REST_List_Items_Controller {
 	 * @param WP_REST_Request $request Current request.
 	 *
 	 * @return WP_Error|WP_REST_Response
+	 *
+	 * @noinspection PhpUnused (Rest API callback)
 	 */
 	public function get_items_always_exist( $request ) {
 		try {
@@ -742,20 +752,6 @@ class MG_UPC_REST_List_Items_Controller {
 		$rest_response->header( 'X-WP-Page', $data['current'] );
 
 		return $rest_response;
-	}
-
-	/**
-	 * Overwrites the default protected title format.
-	 *
-	 * By default, WordPress will show password protected posts with a title of
-	 * "Protected: %s", as the REST API communicates the protected status of a post
-	 * in a machine readable format, we remove the "Protected: " prefix.
-	 *
-	 *
-	 * @return string Protected title format.
-	 */
-	public function protected_title_format() {
-		return '%s';
 	}
 
 	/**

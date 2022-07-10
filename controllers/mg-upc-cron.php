@@ -19,6 +19,8 @@ if ( ! class_exists( 'MG_UPC_Cron' ) ) {
 
 		/**
 		 * Fires the maintenance cron job at a specific time of day
+		 *
+		 * @noinspection PhpUnused
 		 */
 		public static function fire_maintenance_at_time() {
 			$hour     = (int) apply_filters( 'mg_upc_maintenance_hour', 1 );

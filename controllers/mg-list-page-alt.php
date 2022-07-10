@@ -27,7 +27,7 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 
 		if ( is_admin() ) {
 			add_filter( 'mg_upc_settings_fields', array( $this, 'add_settings_fields' ) );
-			add_action( 'save_post_page', array( $this, 'save_post_page' ), 10, 3 );
+			add_action( 'save_post_page', array( $this, 'save_post_page' ), 10, 1 );
 		}
 
 		/* Title Hooks*/
@@ -67,7 +67,7 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 
 	}
 
-	public function save_post_page( $post_id, $post, $update ) {
+	public function save_post_page( $post_id ) {
 		if ( $post_id === self::$page_id ) {
 			$this->add_rewrite();
 			flush_rewrite_rules();
@@ -84,7 +84,7 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 	 */
 	public function add_display_post_states( $post_states, $post ) {
 		if ( self::$page_id === $post->ID ) {
-			$post_states['mg_upc_page_for_list'] = __( 'User Post Collection Page', 'woocommerce' );
+			$post_states['mg_upc_page_for_list'] = __( 'User Post Collection Page', 'user-post-collections' );
 		}
 
 		return $post_states;
@@ -373,6 +373,8 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 	 * @param bool|object $presentation
 	 *
 	 * @return mixed
+	 *
+	 * @noinspection PhpUnusedParameterInspection
 	 */
 	public function list_desc( $desc, $presentation = false ) {
 		$list = self::get_list_requested();
@@ -390,6 +392,8 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 	 * @param bool|object $presentation
 	 *
 	 * @return mixed
+	 *
+	 * @noinspection PhpUnusedParameterInspection
 	 */
 	public function list_canonical( $link, $presentation = false ) {
 		$list = self::get_list_requested();

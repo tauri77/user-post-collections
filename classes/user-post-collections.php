@@ -15,9 +15,7 @@ if ( ! class_exists( 'User_Post_Collections' ) ) {
 		 */
 		public $model;
 
-		const VERSION    = '0.7.2';
-		const PREFIX     = 'mg_upc_';
-		const DEBUG_MODE = false;
+		const VERSION = '0.7.2';
 
 		/**
 		 * Constructor

@@ -1,5 +1,4 @@
 <?php
-/** @noinspection PhpUnused */
 /** @noinspection SqlNoDataSourceInspection */
 /** @noinspection SqlResolve */
 
@@ -345,7 +344,7 @@ class MG_List_Votes_Model {
 			if ( null !== $ip ) {
 				return (int) $wpdb->get_var(
 					$wpdb->prepare(
-					// phpcs:ignore
+						// phpcs:ignore
 						"SELECT COUNT(*) FROM `{$this->get_table_list_votes()}` WHERE `list_id` = %d AND `ip` = %s",
 						array(
 							$list_id,
@@ -356,13 +355,12 @@ class MG_List_Votes_Model {
 			}
 			return (int) $wpdb->get_var(
 				$wpdb->prepare(
-				// phpcs:ignore
+					// phpcs:ignore
 					"SELECT COUNT(*) FROM `{$this->get_table_list_votes()}` WHERE `list_id` = %d",
 					array( $list_id )
 				)
 			);
 		}
-
 
 		$user_id = (int) $user_id;
 		if ( ! $user_id ) {
@@ -372,7 +370,7 @@ class MG_List_Votes_Model {
 		if ( null !== $ip ) {
 			return (int) $wpdb->get_var(
 				$wpdb->prepare(
-				// phpcs:ignore
+					// phpcs:ignore
 					"SELECT COUNT(*) FROM `{$this->get_table_list_votes()}` WHERE `list_id` = %d AND `user_id` = %d AND `ip` = %s",
 					array(
 						$list_id,
@@ -385,7 +383,7 @@ class MG_List_Votes_Model {
 
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
-			// phpcs:ignore
+				// phpcs:ignore
 				"SELECT COUNT(*) FROM `{$this->get_table_list_votes()}` WHERE `list_id` = %d AND `user_id` = %d",
 				array(
 					$list_id,
@@ -393,21 +391,6 @@ class MG_List_Votes_Model {
 				)
 			)
 		);
-	}
-
-	/**
-	 * Check if user already vote in a list
-	 *
-	 * @param int $list_id
-	 * @param int $user_id
-	 *
-	 * @return bool
-	 * @throws Exception
-	 */
-	public function vote_exists( $list_id, $user_id ) {
-		$item = $this->get_votes( (int) $list_id, (int) $user_id );
-
-		return ! empty( $item );
 	}
 
 	/**
@@ -550,47 +533,13 @@ class MG_List_Votes_Model {
 
 		return $wpdb->query(
 			$wpdb->prepare(
-			// phpcs:ignore
+				// phpcs:ignore
 				"DELETE `{$this->get_table_list_votes()}` FROM `{$this->get_table_list_votes()}` INNER JOIN `{$mg_upc->model->get_table_list()}` " .
 				'WHERE `ID` = `list_id` AND `type` = %s AND `added` < %s',
 				$list_type_name,
 				gmdate( 'Y-m-d H:i:s', time() - ( 3600 * 24 * $ttl_vote ) )
 			)
 		);
-	}
-
-	protected function cache_get( $group, $id ) {
-		if ( isset( self::$cache[ $group ] ) && isset( self::$cache[ $group ][ $id ] ) ) {
-			return self::$cache[ $group ][ $id ];
-		}
-		return null;
-	}
-
-	protected function cache_add( $group, $id, $val ) {
-		if ( ! isset( self::$cache[ $group ] ) ) {
-			if ( count( self::$cache ) > 10 ) {
-				array_shift( self::$cache );
-			}
-			self::$cache[ $group ] = array();
-		}
-		if ( count( self::$cache[ $group ] ) > 10 ) {
-			array_shift( self::$cache[ $group ] );
-		}
-		self::$cache[ $group ][ $id ] = $val;
-	}
-
-	protected function cache_remove( $group = null, $id = null ) {
-		if ( null === $group ) {
-			self::$cache = array();
-		} elseif ( isset( self::$cache[ $group ] ) ) {
-			if ( null === $id ) {
-				self::$cache[ $group ] = array();
-			} else {
-				if ( isset( self::$cache[ $group ][ $id ] ) ) {
-					unset( self::$cache[ $group ][ $id ] );
-				}
-			}
-		}
 	}
 
 }

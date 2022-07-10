@@ -1,5 +1,4 @@
 <?php
-/** @noinspection PhpUnused */
 /** @noinspection SqlNoDataSourceInspection */
 /** @noinspection SqlResolve */
 
@@ -830,67 +829,6 @@ class MG_List_Model {
 	}
 
 	/**
-	 * Check if user is owner of the list
-	 *
-	 * @param int|object $list The list or list ID
-	 * @param int        $user_id
-	 *
-	 * @return bool
-	 *
-	 * @throws MG_UPC_Invalid_Field_Exception
-	 */
-	public function is_owner( $list, $user_id ) {
-
-		if ( is_string( $list ) || is_int( $list ) ) {
-			$list = $this->find_one( (int) $list );
-		}
-
-		if ( $list && is_object( $list ) && (int) $user_id === (int) $list->author ) {
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Check if the list is public
-	 *
-	 * @param int|object $list The list or list ID
-	 *
-	 * @return bool
-	 *
-	 * @throws MG_UPC_Invalid_Field_Exception
-	 */
-	public function is_public( $list ) {
-		return $this->is_status( $list, 'publish' );
-	}
-
-	/**
-	 * Check if a list status is in specific statuses
-	 *
-	 * @param int|object   $list     The list or list ID
-	 * @param string|array $statuses string or array of strings for status to check
-	 *
-	 * @return bool
-	 *
-	 * @throws MG_UPC_Invalid_Field_Exception
-	 */
-	public function is_status( $list, $statuses ) {
-		if ( ! is_array( $statuses ) ) {
-			$statuses = array( $statuses );
-		}
-
-		if ( is_string( $list ) || is_int( $list ) ) {
-			$list = $this->find_one( (int) $list );
-		}
-
-		if ( $list && is_object( $list ) && in_array( $list->status, $statuses, true ) ) {
-			return true;
-		}
-		return false;
-	}
-
-	/**
 	 * Check if a list support an specific feature
 	 *
 	 * @param int|object $list     List ID or list object
@@ -949,7 +887,7 @@ class MG_List_Model {
 		if ( is_int( $deleted_count ) && $deleted_count > 0 ) {
 			$wpdb->query(
 				$wpdb->prepare(
-				// phpcs:ignore
+					// phpcs:ignore
 					"UPDATE `{$this->get_table_list()}` SET `count` = count - %d WHERE `ID` = %d",
 					$deleted_count,
 					$list_id
@@ -988,7 +926,7 @@ class MG_List_Model {
 		global $wpdb;
 		$wpdb->query(
 			$wpdb->prepare(
-			// phpcs:ignore
+				// phpcs:ignore
 				"UPDATE `{$this->get_table_list()}` SET `vote_counter` = vote_counter + 1 WHERE `ID` = %d",
 				$list_id
 			)

@@ -1,5 +1,4 @@
 <?php
-/** @noinspection PhpUnused */
 
 class MG_UPC_REST_Lists_Controller {
 	/**
@@ -161,6 +160,8 @@ class MG_UPC_REST_Lists_Controller {
 	 * @param WP_REST_Request $request Current request.
 	 *
 	 * @return bool|WP_Error
+	 *
+	 * @noinspection PhpUnused (Rest API callback)
 	 */
 	public function get_list_permissions_check( $request ) {
 		if ( ! MG_UPC_List_Controller::get_instance()->can_read( $request['id'] ) ) {
@@ -180,6 +181,8 @@ class MG_UPC_REST_Lists_Controller {
 	 * @param WP_REST_Request $request Current request.
 	 *
 	 * @return bool|WP_Error
+	 *
+	 * @noinspection PhpUnused (Rest API callback)
 	 */
 	public function get_list_permissions_check_always_exist( $request ) {
 		if ( ! is_user_logged_in() ) {
@@ -204,6 +207,9 @@ class MG_UPC_REST_Lists_Controller {
 	 * @param WP_REST_Request $request Current request.
 	 *
 	 * @return bool|WP_Error
+	 *
+	 * @noinspection PhpUnused (Rest API callback)
+	 * @noinspection PhpUnusedParameterInspection
 	 */
 	public function get_lists_my_permissions_check( $request ) {
 		if ( ! is_user_logged_in() ) {
@@ -223,6 +229,9 @@ class MG_UPC_REST_Lists_Controller {
 	 * @param WP_REST_Request $request Current request.
 	 *
 	 * @return bool
+	 *
+	 * @noinspection PhpUnused (Rest API callback)
+	 * @noinspection PhpUnusedParameterInspection
 	 */
 	public function get_lists_permissions_check( $request ) {
 		return true;
@@ -234,6 +243,8 @@ class MG_UPC_REST_Lists_Controller {
 	 * @param WP_REST_Request $request Current request.
 	 *
 	 * @return bool|WP_Error
+	 *
+	 * @noinspection PhpUnused (Rest API callback)
 	 */
 	public function create_list_permissions_check( $request ) {
 
@@ -269,11 +280,13 @@ class MG_UPC_REST_Lists_Controller {
 	}
 
 	/**
-	 * Checks if a given request has access to update a post.
+	 * Checks if a given request has access to update a list.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 *
 	 * @return true|WP_Error True if the request has access to update the item, WP_Error object otherwise.
+	 *
+	 * @noinspection PhpUnused (Rest API callback)
 	 */
 	public function update_list_permissions_check( $request ) {
 
@@ -306,6 +319,15 @@ class MG_UPC_REST_Lists_Controller {
 		return true;
 	}
 
+	/**
+	 * Checks if a given request has access to delete a list.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 *
+	 * @return true|WP_Error True if the request has access to update the item, WP_Error object otherwise.
+	 *
+	 * @noinspection PhpUnused (Rest API callback)
+	 */
 	public function delete_list_permissions_check( $request ) {
 
 		$list = MG_UPC_List_Controller::get_instance()->get_list( (int) $request['id'] );
@@ -331,6 +353,8 @@ class MG_UPC_REST_Lists_Controller {
 	 * @param WP_REST_Request $request Current request
 	 *
 	 * @return WP_Error|WP_HTTP_Response|WP_REST_Response
+	 *
+	 * @noinspection PhpUnused (Rest API callback)
 	 */
 	public function create_list( $request ) {
 
@@ -416,6 +440,8 @@ class MG_UPC_REST_Lists_Controller {
 	 * @param WP_REST_Request $request Full details about the request.
 	 *
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 *
+	 * @noinspection PhpUnused (Rest API callback)
 	 */
 	public function update_list( $request ) {
 
@@ -459,6 +485,8 @@ class MG_UPC_REST_Lists_Controller {
 	 * @param WP_REST_Request $request Full details about the request.
 	 *
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 *
+	 * @noinspection PhpUnused (Rest API callback)
 	 */
 	public function delete_list( $request ) {
 
@@ -625,6 +653,8 @@ class MG_UPC_REST_Lists_Controller {
 	 * @param WP_REST_Request $request Current request.
 	 *
 	 * @return WP_Error|WP_HTTP_Response|WP_REST_Response
+	 *
+	 * @noinspection PhpUnused (Rest API callback)
 	 */
 	public function get_lists( $request ) {
 
@@ -723,6 +753,8 @@ class MG_UPC_REST_Lists_Controller {
 	 * @param WP_REST_Request $request Current request.
 	 *
 	 * @return WP_Error|WP_HTTP_Response|WP_REST_Response
+	 *
+	 * @noinspection PhpUnused (Rest API callback)
 	 */
 	public function get_lists_my( $request ) {
 
@@ -822,6 +854,8 @@ class MG_UPC_REST_Lists_Controller {
 	 * @param WP_REST_Request $request Current request.
 	 *
 	 * @return WP_Error|WP_HTTP_Response|WP_REST_Response
+	 *
+	 * @noinspection PhpUnused (Rest API callback)
 	 */
 	public function get_list( $request ) {
 		$id = (int) $request['id'];
@@ -836,6 +870,8 @@ class MG_UPC_REST_Lists_Controller {
 	 * @param WP_REST_Request $request Current request.
 	 *
 	 * @return WP_Error|WP_HTTP_Response|WP_REST_Response
+	 *
+	 * @noinspection PhpUnused (Rest API callback)
 	 */
 	public function get_list_always_exist( $request ) {
 		try {
@@ -990,6 +1026,8 @@ class MG_UPC_REST_Lists_Controller {
 	 * Get schema for a list.
 	 *
 	 * @return array The schema for a list
+	 *
+	 * @noinspection PhpUnused (Rest API callback)
 	 */
 	public function get_list_schema() {
 		if ( $this->schema ) {
@@ -1340,6 +1378,8 @@ class MG_UPC_REST_Lists_Controller {
 	 * @param string          $parameter The param key
 	 *
 	 * @return string[]|WP_Error
+	 *
+	 * @noinspection PhpUnused (Rest API callback)
 	 */
 	public function sanitize_list_types( $types, $request, $parameter ) {
 

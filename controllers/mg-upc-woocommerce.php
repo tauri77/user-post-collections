@@ -177,7 +177,6 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 			),
 		);
 
-
 		$settings_fields['mg_upc_texts'][] = array(
 			'name'    => 'add_to_list_product',
 			'label'   => __( 'Add to list... (Single Product)', 'user-post-collections' ),
