@@ -17,6 +17,20 @@ $icomoon-font-path: "icomoon/fonts" !default;
   min-height: 30px;
 }
 
+.mg-upc-dg-msg {
+  display: block;
+  background: rgba(172, 205, 100, 0.75);
+  padding: 0.7em;
+  border: solid 1px #7dbf21;
+  border-radius: 2px;
+  color: #314f00;
+  margin: 1em 0;
+  white-space: pre-line;
+  @media screen and (min-width: 700px) {
+    top: -2em;
+  }
+}
+
 .mg-upc-dg-error {
   display: block;
   background: rgba(255, 48, 48, 0.75);
@@ -28,6 +42,7 @@ $icomoon-font-path: "icomoon/fonts" !default;
   position: sticky;
   top: -1em;
   z-index: 5;
+  white-space: pre-line;
   @media screen and (min-width: 700px) {
       top: -2em;
   }
@@ -169,6 +184,11 @@ $icomoon-font-path: "icomoon/fonts" !default;
 .mg-upc-dg-item-type-bookmarks {
   &:before {
     content: $upc-font-bookmark;
+  }
+}
+.mg-upc-dg-item-type-cart {
+  &:before {
+    content: $upc-font-cart;
   }
 }
 .mg-upc-dg-item-type-none {
@@ -532,7 +552,22 @@ EDIT
 }
 
 
-
+.mg-upc-zero-quantity {
+  opacity: 0.3;
+}
+.mg-upc-dg-quantity {
+  width: 4em;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  margin: 1em;
+  small {
+    opacity: 0.5;
+  }
+  input {
+    text-align: center;
+  }
+}
 
 .mg-upc-err-required_logged_in {
   .mg-list-new,

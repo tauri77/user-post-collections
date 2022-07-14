@@ -84,6 +84,7 @@ export const  initialState = {
 	addingPost: null,
 	status: 'idle', //'idle' | 'loading' | 'succeeded' | 'failed'
 	error: null,
+	message: null,
 	errorCode: null,
 	editing: false,
 	title: translate( 'My Lists' ),

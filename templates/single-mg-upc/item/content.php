@@ -47,6 +47,14 @@ global $mg_upc_item, $mg_upc_list;
 		do_action( 'mg_upc_single_list_item_after_description' );
 		?>
 	</aside>
+	<?php
+	/**
+	 * Hook: mg_upc_single_list_item_after_data.
+	 *
+	 * @hooked mg_upc_show_item_quantity - 10
+	 */
+	do_action( 'mg_upc_single_list_item_after_data' );
+	?>
 	<div class="mg-upc-item-actions">
 		<?php
 		/**

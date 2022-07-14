@@ -129,7 +129,7 @@ class MG_List_Items_Model {
 		if ( null === $items ) {
 
 			$select_count = "SELECT COUNT(*) FROM `{$this->get_table_list_items()}` ";
-			$select       = 'SELECT `list_id`, `post_id`, `votes`, `position`, `description` ' .
+			$select       = 'SELECT `list_id`, `post_id`, `votes`, `position`, `description`, `quantity`' .
 							"FROM `{$this->get_table_list_items()}` ";
 			$sql          = '';
 
@@ -434,22 +434,24 @@ class MG_List_Items_Model {
 	/**
 	 * Add an item to a list
 	 *
-	 * @param int $list_id
-	 * @param int $post_id
+	 * @param int    $list_id
+	 * @param int    $post_id
 	 * @param string $description (Optional)
+	 * @param int    $quantity (Optional)
 	 *
 	 * @throws MG_UPC_Invalid_Field_Exception
 	 * @throws MG_UPC_Item_Exist_Exception
 	 * @throws MG_UPC_Item_Not_Found_Exception
 	 * @throws Exception
 	 */
-	public function add_item( $list_id, $post_id, $description = '' ) {
+	public function add_item( $list_id, $post_id, $description = '', $quantity = 0 ) {
 		global $wpdb;
 		/** @global User_Post_Collections $mg_upc Global plugin object. */
 		global $mg_upc;
 
-		$post_id = (int) $post_id;
-		$list_id = (int) $list_id;
+		$post_id  = (int) $post_id;
+		$list_id  = (int) $list_id;
+		$quantity = (int) $quantity;
 		if ( ! $post_id || ! $list_id || ! is_string( $description ) ) {
 			throw new Exception( 'Invalid parameters' );
 		}
@@ -519,6 +521,7 @@ class MG_List_Items_Model {
 			'list_id'     => $list_id,
 			'position'    => $position,
 			'description' => $description,
+			'quantity'    => $quantity,
 			'added'       => gmdate( 'Y-m-d H:i:s' ),
 		);
 
@@ -600,6 +603,55 @@ class MG_List_Items_Model {
 			$this->cache->remove();
 
 			do_action( 'mg_upc_update_item_description', $list_id, $post_id, $description );
+		}
+	}
+
+	/**
+	 * Update quantity for a item
+	 *
+	 * @param int $list_id
+	 * @param int $post_id
+	 * @param int $quantity
+	 *
+	 * @throws MG_UPC_Item_Not_Found_Exception
+	 * @throws Exception
+	 */
+	public function update_item_quantity( $list_id, $post_id, $quantity ) {
+		global $wpdb;
+		$post_id = (int) $post_id;
+		$list_id = (int) $list_id;
+		if ( ! $post_id || ! $list_id ) {
+			throw new Exception( 'Invalid parameters' );
+		}
+
+		$quantity = (int) $quantity;
+
+		if ( ! $this->item_exists( $list_id, $post_id ) ) {
+			throw new MG_UPC_Item_Not_Found_Exception( 'Item not found.' );
+		}
+
+		if ( ! $this->helper->post_exist( $post_id ) ) {
+			throw new MG_UPC_Item_Not_Found_Exception( 'Item not found.' );
+		}
+
+		$data = array(
+			'quantity' => $quantity,
+		);
+
+		$where = array(
+			'post_id' => $post_id,
+			'list_id' => $list_id,
+		);
+
+		$format       = array( '%s' );
+		$where_format = array( '%d', '%d' );
+
+		$ok = $wpdb->update( $this->get_table_list_items(), $data, $where, $format, $where_format );
+
+		if ( $ok ) {
+			$this->cache->remove();
+
+			do_action( 'mg_upc_update_item_quantity', $list_id, $post_id, $quantity );
 		}
 	}
 

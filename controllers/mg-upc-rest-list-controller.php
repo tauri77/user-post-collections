@@ -398,7 +398,7 @@ class MG_UPC_REST_Lists_Controller {
 				);
 			}
 			try {
-				$this->model->items->add_item( $list->ID, $post->ID );
+				MG_UPC_REST_List_Items_Controller::add_tem_to_list( $list->ID, $post->ID, $request );
 			} catch ( MG_UPC_Item_Exist_Exception $e ) {
 				return new WP_Error(
 					'rest_item_exist_error',

@@ -6,7 +6,94 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 	public function __construct() {
 		//before added list types on init with priority 10.. and WooCommerce already defined
 		add_action( 'init', array( $this, 'pre_init' ), 5 );
+
+		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
+
+	public function register_routes() {
+		register_rest_route(
+			'mg-upc/v1',
+			'/cart',
+			array(
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'api_add_to_cart' ),
+					'permission_callback' => array( $this, 'api_add_to_cart_permissions_check' ),
+					'args'                => array(
+						'list' => array(
+							'description'       => __( 'The list id for add to cart.', 'user-post-collections' ),
+							'type'              => 'integer',
+							'minimum'           => 1,
+							'sanitize_callback' => 'absint',
+							'validate_callback' => 'rest_validate_request_arg',
+						),
+					),
+				),
+				'schema' => array( $this, 'get_list_schema' ),
+			)
+		);
+	}
+
+	/**
+	 * Check user permission for add a list to the cart
+	 *
+	 * @param $request
+	 *
+	 * @return bool|WP_Error
+	 *
+	 * @noinspection PhpUnused (API callback)
+	 */
+	public function api_add_to_cart_permissions_check( $request ) {
+		if ( ! MG_UPC_List_Controller::get_instance()->can_read( (int) $request['list'] ) ) {
+			return new WP_Error(
+				'rest_forbidden',
+				esc_html__( 'You cannot view the list.', 'user-post-collections' ),
+				array( 'status' => 403 )
+			);
+		}
+		return true;
+	}
+
+	/**
+	 * Add a list to the cart
+	 *
+	 * @param $request
+	 *
+	 * @return array|WP_Error
+	 *
+	 * @noinspection PhpUnused (API callback)
+	 */
+	public function api_add_to_cart( $request ) {
+		$list = MG_UPC_List_Controller::get_instance()->get_list( (int) $request['list'] );
+
+		if ( is_wp_error( $list ) ) {
+			return $list;
+		}
+
+		$items       = MG_List_Model::get_instance()->items->items(
+			array(
+				'list_id'        => (int) $request['list'],
+				'page'           => 1,
+				'items_per_page' => 0,
+			)
+		);
+		$products_id = array_map(
+			function ( $item ) {
+				return $item->post_id;
+			},
+			$items['items']
+		);
+		$quantities  = array_map(
+			function ( $item ) {
+				return $item->quantity;
+			},
+			$items['items']
+		);
+		$messages    = self::add_to_cart_batch( $products_id, $quantities );
+
+		return self::cart_response_from_messages( $messages );
+	}
+
 
 	/**
 	 * Before added list types on init with priority 10.. and WooCommerce already defined
@@ -26,6 +113,7 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 					return $list_type_arg;
 				}
 			);
+
 			//If product in available post type, then add product_variation
 			add_filter(
 				'register_list_type_args',
@@ -65,6 +153,8 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 
 			add_filter( 'mg_upc_settings_sections', array( $this, 'mg_upc_settings_sections' ) );
 			add_filter( 'mg_upc_settings_fields', array( $this, 'mg_upc_settings_fields' ) );
+
+			add_action( 'mg_upc_texts_loaded', array( $this, 'woo_texts' ) );
 		}
 
 		add_filter( 'mg_post_item_product_variation_for_response', array( $this, 'product_variant_item' ) );
@@ -207,7 +297,93 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 			'type'    => 'text',
 		);
 
+		$settings_fields['mg_upc_texts'][] = array(
+			'name'    => 'cart_all',
+			'label'   => __( 'Add all to cart', 'user-post-collections' ),
+			'desc'    => __( 'Add all to cart button text on list page.', 'user-post-collections' ),
+			'default' => '',
+			'type'    => 'text',
+		);
+
+		$settings_fields['mg_upc_texts'][] = array(
+			'name'    => 'client_cart_all',
+			'label'   => __( 'Add all to cart (client js)', 'user-post-collections' ),
+			'desc'    => '',
+			'default' => '',
+			'type'    => 'text',
+		);
+
 		return $settings_fields;
+	}
+
+	public function woo_texts() {
+		MG_UPC_Texts::add_string(
+			'modal_client',
+			'Add all to cart',
+			array(
+				'default' => __( 'Add all to cart', 'user-post-collections' ),
+				'option'  => 'client_cart_all',
+			)
+		);
+		MG_UPC_Texts::add_string(
+			'modal_client',
+			'Quantity',
+			array(
+				'default' => __( 'Quantity', 'user-post-collections' ),
+				'option'  => 'client_quantity',
+			)
+		);
+
+		MG_UPC_Texts::add_string(
+			'product',
+			'Add to list...',
+			array(
+				'default' => __( 'Add to list...', 'user-post-collections' ),
+				'option'  => 'add_to_list_product',
+			)
+		);
+
+		MG_UPC_Texts::add_string(
+			'product_loop',
+			'Add to list...',
+			array(
+				'default' => __( 'Add to list...', 'user-post-collections' ),
+				'option'  => 'add_to_list_product_loop',
+			)
+		);
+
+		MG_UPC_Texts::add_string(
+			'mg_upc_list',
+			'Add to cart',
+			array(
+				'default' => __( 'Add to cart', 'user-post-collections' ),
+				'option'  => 'add_to_cart',
+			)
+		);
+		MG_UPC_Texts::add_string(
+			'mg_upc_list',
+			'Add to cart...',
+			array(
+				'default' => __( 'Add to cart...', 'user-post-collections' ),
+				'option'  => 'add_to_cart_link',
+			)
+		);
+		MG_UPC_Texts::add_string(
+			'mg_upc_list',
+			'Add all to cart',
+			array(
+				'default' => __( 'Add all to cart', 'user-post-collections' ),
+				'option'  => 'cart_all',
+			)
+		);
+		MG_UPC_Texts::add_string(
+			'mg_upc_list',
+			'Quantity',
+			array(
+				'default' => __( 'Quantity', 'user-post-collections' ),
+				'option'  => 'quantity',
+			)
+		);
 	}
 
 	/**
@@ -269,6 +445,11 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 	 */
 	private function add_product_properties( $item, $product ) {
 		if ( $product ) {
+			if ( null === WC()->cart ) {
+				wc_load_cart();
+			}
+			$GLOBALS['product'] = $product;
+
 			$item['product_type'] = $product->get_type();
 			$item['is_in_stock']  = $product->is_in_stock();
 			$item['is_on_sale']   = $product->is_on_sale();
@@ -287,7 +468,11 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 			if ( 'never' === $option || ( 'onsale' === $option && ! $item['is_on_sale'] ) ) {
 				$item['price_html'] = '';
 			} else {
-				$item['price_html'] = $product->get_price_html();
+				if ( mg_upc_list_check_support( (int) $item['list_id'], 'quantity' ) ) {
+					$item['price_html'] = self::get_price_html( $product, $item['quantity'] );
+				} else {
+					$item['price_html'] = self::get_price_html( $product, 1 );
+				}
 			}
 
 			$option = (int) get_option( 'mg_upc_modal_show_stock', '0' );
@@ -318,6 +503,199 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 
 		return $item;
 	}
+
+	/**
+	 * Create response for add to cart request
+	 *
+	 * @param $messages
+	 *
+	 * @return array
+	 */
+	private static function cart_response_from_messages( $messages ) {
+		ob_start();
+		woocommerce_mini_cart();
+		$mini_cart = ob_get_clean();
+		$data      = array(
+			'fragments' => apply_filters(
+				'woocommerce_add_to_cart_fragments',
+				array(
+					'div.widget_shopping_cart_content' => '<div class="widget_shopping_cart_content">' . $mini_cart . '</div>',
+				)
+			),
+			'cart_hash' => WC()->cart->get_cart_hash(),
+		);
+
+		$data['msg'] = implode(
+			"\n",
+			array_filter(
+				array_map(
+					function ( $err ) {
+						return false === $err['error'] ? $err['msg'] : false;
+					},
+					$messages
+				)
+			)
+		);
+
+		$data['err'] = implode(
+			"\n",
+			array_filter(
+				array_map(
+					function ( $err ) {
+						return false === $err['error'] ? false : $err['msg'];
+					},
+					$messages
+				)
+			)
+		);
+
+		return $data;
+	}
+
+	public static function add_to_cart_batch( $products_id, $quantities ) {
+		if ( null === WC()->cart ) {
+			wc_load_cart();
+		}
+		WC()->cart->maybe_set_cart_cookies();
+
+		$messages    = array();
+		$on_cart     = array();
+		$products_id = array_values( $products_id );
+		$quantities  = array_values( $quantities );
+
+		foreach ( $products_id as $i => $product_id ) {
+			$product_id = $products_id[ $i ];
+			$product_id = apply_filters( 'woocommerce_add_to_cart_product_id', $product_id );
+			$product    = wc_get_product( $product_id );
+			if ( isset( $quantities[ $i ] ) && 0 === (int) $quantities[ $i ] ) {
+				$messages[] = array(
+					'msg'   => sprintf(
+						// translators: %s is product name
+						__( 'Product "%s" with quantity equal to zero was not added.', 'user-post-collections' ),
+						wp_strip_all_tags( $product->get_title() )
+					),
+					'error' => true,
+					'url'   => get_permalink( $product_id ),
+				);
+				continue;
+			}
+			$quantity = empty( $quantities[ $i ] ) ? 1 : wc_stock_amount( absint( $quantities[ $i ] ) );
+
+			$passed_validation = apply_filters( 'woocommerce_add_to_cart_validation', true, $product_id, $quantity );
+			$product_status    = get_post_status( $product_id );
+			$variation_id      = 0;
+			$variation         = array();
+
+			if ( $product && 'variation' === $product->get_type() ) {
+				$variation_id = $product_id;
+				$product_id   = $product->get_parent_id();
+				$variation    = $product->get_variation_attributes();
+			}
+
+			try {
+				$cart_res = WC()->cart->add_to_cart( $product_id, $quantity, $variation_id, $variation );
+				if (
+					$passed_validation &&
+					false !== $cart_res &&
+					'publish' === $product_status
+				) {
+
+					do_action( 'woocommerce_ajax_added_to_cart', $product_id );
+
+					$on_cart[ $product_id ] = $quantity;
+				} else {
+					$messages[] = array(
+						'msg'   => sprintf(
+							// translators: %s is product name
+							__( 'Error on add item "%s" to cart.', 'user-post-collections' ),
+							$product->get_title()
+						),
+						'error' => true,
+						'url'   => get_permalink( $product_id ),
+					);
+				}
+			} catch ( Exception $e ) {
+				$messages[] = array(
+					'msg'   => __( 'Unknown Error on add items to cart', 'user-post-collections' ),
+					'error' => true,
+					'url'   => get_permalink( $product_id ),
+				);
+			}
+		}
+
+		//Use woocommerce translation...
+		$titles = array();
+		$count  = 0;
+		foreach ( $on_cart as $product_id => $qty ) {
+			$times    = ( $qty > 1 ? absint( $qty ) . ' x ' : '' );
+			$desc     = sprintf(
+				'“%s”',
+				strip_tags( get_the_title( $product_id ) )
+			);
+			$titles[] = $times . $desc;
+			$count   += $qty;
+		}
+
+		$titles = array_filter( $titles );
+
+		$general_message = sprintf(
+			/* translators: %s: product name */
+			_n(
+				'%s has been added to your cart.',
+				'%s have been added to your cart.',
+				$count,
+				'woocommerce'
+			),
+			wc_format_list_of_items( $titles )
+		);
+
+		$messages[] = array(
+			'msg'   => $general_message,
+			'error' => false,
+			'url'   => wc_get_cart_url(),
+		);
+
+		return $messages;
+	}
+
+	/**
+	 * Returns the price in html format.
+	 *
+	 * @param $product
+	 * @param $quantity
+	 *
+	 * @return string
+	 */
+	public static function get_price_html( $product, $quantity = 1 ) {
+		$pre = '';
+		$pos = '';
+		if ( 0 === (int) $quantity ) {
+			$pre      = '<span class="mg-upc-zero-quantity" aria-hidden="true">';
+			$pos      = '</span>';
+			$quantity = 1;
+		}
+
+		if ( '' === $product->get_price() ) {
+			//TODO: quantity?
+			$price = apply_filters( 'woocommerce_empty_price_html', '', $product );
+		} elseif ( $product->is_on_sale() ) {
+			$price = wc_format_sale_price(
+				wc_get_price_to_display(
+					$product,
+					array(
+						'price' => $product->get_regular_price(),
+						'qty'   => $quantity,
+					)
+				),
+				wc_get_price_to_display( $product, array( 'qty' => $quantity ) )
+			) . $product->get_price_suffix();
+		} else {
+			$price = wc_price( wc_get_price_to_display( $product, array( 'qty' => $quantity ) ) ) . $product->get_price_suffix();
+		}
+
+		return $pre . apply_filters( 'woocommerce_get_price_html', $price, $product ) . $pos;
+	}
+
 
 	/**
 	 * Set price range for product item
@@ -379,6 +757,13 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 		}
 	}
 
+	public static function item_cart_all_button() {
+		global $mg_upc_list;
+		if ( 'cart' === $mg_upc_list['type'] ) {
+			mg_upc_get_template( 'mg-upc-wc/single-all-cart-buttons.php' );
+		}
+	}
+
 	/**
 	 * Show price of items on list page
 	 */
@@ -394,7 +779,13 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 			}
 			$product = wc_get_product( $mg_upc_item['post_id'] );
 			if ( $product ) {
-				echo '<div class="mg-upc-list-item-price">' . $product->get_price_html() . '</div>'; // phpcs:ignore
+				echo '<div class="mg-upc-list-item-price">';
+				if ( mg_upc_list_check_support( (int) $mg_upc_item['list_id'], 'quantity' ) ) {
+					echo self::get_price_html( $product, $mg_upc_item['quantity'] ); // phpcs:ignore
+				} else {
+					echo self::get_price_html( $product, 1 ); // phpcs:ignore
+				}
+				echo '</div>';
 			}
 		}
 	}
@@ -471,7 +862,62 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 		);
 	}*/
 
-	public function init() {}
+	public function init() {
+		if ( class_exists( 'WooCommerce' ) ) {
+
+			$list_type_config = array(
+				'label'                => __( 'Cart', 'user-post-collections' ),
+				'plural_label'         => __( 'Cart Lists', 'user-post-collections' ),
+				'description'          => __( 'List to add items to a virtual cart', 'user-post-collections' ),
+				'default_status'       => 'private',
+				'available_post_types' => array( 'product' ),
+				'supported_features'   => array(
+					'editable_title',
+					'editable_content',
+					'editable_item_description',
+					'show_in_my_lists',
+					'show_in_settings',
+					'quantity',
+				),
+			);
+			mg_upc_register_list_type( 'cart', $list_type_config );
+
+			add_filter(
+				'mg_upc_pre_add_item',
+				function( $to_save, $list ) {
+					if ( 'cart' === $list->type ) {
+						$product = wc_get_product( $to_save['post_id'] );
+						if ( ! isset( $to_save['quantity'] ) ) {
+							$to_save['quantity'] = $product->get_min_purchase_quantity();
+						}
+						if ( ! $product->is_purchasable() ) {
+							return new WP_Error(
+								'mg_upc_no_purchasable',
+								__( 'This list type only support purchasable items', 'user-post-collections' ),
+								array(
+									'status' => 409,
+								)
+							);
+						}
+					}
+					return $to_save;
+				},
+				10,
+				2
+			);
+
+			//This not managed with version! Woo can install after that UPC..
+			$activated = get_option( 'mg_upc_woo_activated', array() );
+			if ( ! in_array( 'cart_type', $activated, true ) ) {
+				$cart_type = MG_UPC_Helper::get_instance()->get_list_type( 'cart' );
+				if ( false !== $cart_type ) {
+					MG_UPC_List_Types_Register::set_initial_roles_caps( array( $cart_type ) );
+				}
+				$activated[] = 'cart_type';
+				update_option( 'mg_upc_woo_activated', $activated, true );
+			}
+		}
+	}
 
 	public function activate( $network_wide ) { }
 

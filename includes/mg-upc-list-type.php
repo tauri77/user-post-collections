@@ -376,12 +376,14 @@ class MG_UPC_List_Type implements ArrayAccess {
 			}
 
 			if ( 'read_' . $type === $cap ) {
-				if ( ! $status->private ) {
-					$caps[] = 'read';
-				} elseif ( $user_id === $author ) {
-					$caps[] = 'read';
-				} else {
-					$caps[] = $this->cap->read_private_posts;
+				if ( ! mg_upc_is_list_publicly_viewable( $list ) ) {
+					if ( ! $status->private ) {
+						$caps[] = 'read';
+					} elseif ( $user_id === $author ) {
+						$caps[] = 'read';
+					} else {
+						$caps[] = $this->cap->read_private_posts;
+					}
 				}
 			}
 
@@ -527,6 +529,7 @@ class MG_UPC_List_Type implements ArrayAccess {
 			'show_in_settings',
 			'sortable',
 			'vote',
+			'quantity',
 		);
 
 		if ( in_array( $offset, $supports, true ) ) {

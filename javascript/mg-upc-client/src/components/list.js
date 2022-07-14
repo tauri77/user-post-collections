@@ -2,7 +2,8 @@ import { h, Fragment } from 'preact';
 import ListEdit from "./list-edit";
 import {getSortableUrl, listIsEditable, listSupport, str_nl2br} from "../helpers/functions";
 import {
-	createList, loadListItems,
+	cartList, createList,
+	loadListItems,
 	moveItem,
 	moveItemNextPage,
 	moveItemPrevPage,
@@ -91,6 +92,10 @@ function List( props ) {
 		dispatch( updateItem( item.post_id, {description} ) );
 	}
 
+	function handleItemUpdateQuantity(list, item, quantity) {
+		dispatch( updateItem( item.post_id, {quantity} ) );
+	}
+
 	function handleMoveItem(evt) {
 		dispatch( moveItem( evt.oldIndex, state.list, evt.newIndex ) );
 	}
@@ -160,6 +165,10 @@ function List( props ) {
 		dispatch( loadListItems( { page: newPage } ) );
 	}
 
+	function addToCart() {
+		dispatch( cartList( state.list.ID ) );
+	}
+
 	return (<>
 		{ state.editing && (<ListEdit
 			list={state.list}
@@ -179,6 +188,11 @@ function List( props ) {
 						<span className={"mg-upc-icon upc-font-share"}></span><span>{ translate( 'Share' ) }</span>
 					</button>
 				)}
+				{ state.list.type === 'cart' && (
+					<button className={"mg-upg-share"} onClick={ addToCart }>
+						<span className={"mg-upc-icon upc-font-cart"}></span><span>{ translate( 'Add all to cart' ) }</span>
+					</button>
+				)}
 			</div>
 			{ sharing && state.list.link && (
 				<ShareLink link={state.list.link} title={state.list.title} />
@@ -194,6 +208,7 @@ function List( props ) {
 				onMove={handleMoveItem}
 				onRemove={handleRemoveItem}
 				onSaveItemDescription={handleItemUpdateDescription}
+				onSaveItemQuantity={handleItemUpdateQuantity}
 				editable={props.editable}/>
 		</>) }
 		{(( ! state.editing || ! state.list) && state.listTotalPages > 1) &&

@@ -7,24 +7,16 @@ class MG_UPC_Texts {
 
 	public function __construct() {
 		self::$texts['mg_upc_list'] = array(
-			'Add to cart'    => array(
-				'default' => __( 'Add to cart', 'user-post-collections' ),
-				'option'  => 'add_to_cart',
-			),
-			'Add to cart...' => array(
-				'default' => __( 'Add to cart...', 'user-post-collections' ),
-				'option'  => 'add_to_cart_link',
-			),
-			'Vote'           => array(
+			'Vote'          => array(
 				'default' => __( 'Vote', 'user-post-collections' ),
 				'option'  => 'vote_action',
 			),
-			'%s votes'       => array(
+			'%s votes'      => array(
 				// translators: %s is the number of votes
 				'default' => __( '%s votes', 'user-post-collections' ),
 				'option'  => 'total_votes',
 			),
-			'Created by %s'  => array(
+			'Created by %s' => array(
 				// translators: %s is author user
 				'default' => __( 'Created by %s', 'user-post-collections' ),
 				'option'  => 'created_by',
@@ -35,20 +27,6 @@ class MG_UPC_Texts {
 			'Add to list...' => array(
 				'default' => __( 'Add to list...', 'user-post-collections' ),
 				'option'  => 'add_to_list',
-			),
-		);
-
-		self::$texts['product'] = array(
-			'Add to list...' => array(
-				'default' => __( 'Add to list...', 'user-post-collections' ),
-				'option'  => 'add_to_list_product',
-			),
-		);
-
-		self::$texts['product_loop'] = array(
-			'Add to list...' => array(
-				'default' => __( 'Add to list...', 'user-post-collections' ),
-				'option'  => 'add_to_list_product_loop',
 			),
 		);
 
@@ -131,7 +109,16 @@ class MG_UPC_Texts {
 			),
 		);
 
+		do_action( 'mg_upc_texts_loaded' );
+
 		self::$mods = get_option( 'mg_upc_texts', array() );
+	}
+
+	public static function add_string( $context, $text, $value ) {
+		if ( ! isset( self::$texts[ $context ] ) ) {
+			self::$texts[ $context ] = array();
+		}
+		self::$texts[ $context ][ $text ] = $value;
 	}
 
 	public static function get_default( $text, $context = 'mg_upc_list' ) {

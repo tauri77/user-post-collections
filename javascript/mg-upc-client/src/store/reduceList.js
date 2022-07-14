@@ -79,9 +79,10 @@ export default function reduceList (state, action) {
 			return state;
 
 		case UPDATE_LIST_ITEM:
+			const newItemReplacement = payload.item ? payload.item : false;
 			newStateItems = getCloned().items.map(
 				(it) => {
-					return ( it.post_id === payload.post_id ) ? Object.assign({}, it, payload) : {...it};
+					return ( it.post_id === payload.post_id ) ? newItemReplacement || Object.assign({}, it, payload) : {...it};
 				}
 			);
 			return getCloned( { items: newStateItems } );

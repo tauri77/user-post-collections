@@ -75,6 +75,7 @@ function ListItems( props) {
 							editable={props.editable}
 							onRemove={() => props.onRemove(props.list, item)}
 							onSaveItemDescription={ (description) => props.onSaveItemDescription(props.list, item, description)}
+							onSaveItemQuantity={ (quantity) => props.onSaveItemQuantity(props.list, item, quantity)}
 							key={ item.ID + ':' + item.post_id }
 			/>);
 		} ) ) }

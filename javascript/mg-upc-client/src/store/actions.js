@@ -1,5 +1,6 @@
 import {
 	SET_ERROR,
+	SET_MESSAGE,
 	RESET_STATE,
 	SET_EDITING,
 	MOVE_LIST_ITEM,
@@ -19,10 +20,12 @@ import {
 	SET_LIST_TOTAL_PAGE,
 	SET_ADDING_POST,
 	ADD_LIST_ITEM,
-	SET_MODE
+	SET_MODE,
+	ADD_LIST_TO_CART,
 } from "./actionTypes";
 import apiClient from "../apiClient";
 import {createAsyncThunk} from "../contexts/app-context";
+import {addListToCart} from "../helpers/functions";
 
 export const resetState = () => ({
 	type: RESET_STATE, payload: null
@@ -36,6 +39,10 @@ export const setError = ( error ) => ({
 	type: SET_ERROR, payload: error
 });
 
+export const setMessage = ( msg ) => ({
+	type: SET_MESSAGE, payload: msg
+});
+
 export const setAddingPost = ( post ) => ({
 	type: SET_ADDING_POST, payload: post
 });
@@ -44,6 +51,12 @@ export const setEditing = ( editing ) => ({
 	type: SET_EDITING, payload: editing
 });
 
+export const cartList = createAsyncThunk(
+	ADD_LIST_TO_CART,
+	async function (data, thunkAPI) {
+		return await addListToCart( data );
+	}
+);
 
 export const setListOfList = createAsyncThunk(
 	SET_LIST_OF_LIST,
@@ -234,7 +247,7 @@ export const updateItem = createAsyncThunk(
 	async function (post_id, thunkAPI) {
 		const data = thunkAPI.extra[0];
 		return await apiClient.updateItem( thunkAPI.getState().list.ID, post_id, data ).then( ( response ) => {
-			return {...data, post_id: post_id};
+			return { ...data, post_id: post_id, item: response?.data?.item };
 		} );
 	}
 );

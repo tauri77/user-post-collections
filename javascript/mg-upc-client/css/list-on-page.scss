@@ -133,6 +133,18 @@
   text-align: center;
 }
 
+.mg-upc-item-quantity {
+  margin: 0.3em 1em;
+  & >* {
+    display: block;
+    text-align: center;
+    padding: 0.1em 0.5em;
+  }
+  small {
+    opacity: 0.5;
+  }
+}
+
 .mg-upc-item-actions {
   display: flex;
   flex-direction: column;
@@ -286,7 +298,12 @@
   padding: 10px 40px 10px 1em;
   border: solid 1px #017401;
   background: rgba(154, 240, 173, 0.8);
+  color: #000;
+  margin: 1em 0;
   animation: mg-upc-alert 0.3s 1 ease-in-out both;
+  p {
+    margin: 0;
+  }
 }
 
 .mg-upc-item {
@@ -295,13 +312,13 @@
     bottom: -19px;
     left: 0;
     right: 0;
+    margin: 0;
   }
 }
 
 .mg-upc-alert-error {
   border-color: #d50000;
   background: rgba(255, 121, 121, 0.8);
-  color: #000;
 }
 
 .mg-upc-alert-close {
@@ -340,12 +357,13 @@
   position: relative;
   overflow: hidden;
   z-index: 1; /* Necessary for overflow: hidden to work correctly in Safari */
+  vertical-align: middle;
 }
 
 .mg-upc-btn-loading::before,
 .mg-upc-btn-loading::after {
   content: ' ';
-  display: block;
+  display: block !important;
   position: absolute;
   top: 0;
   left: 0;
@@ -378,4 +396,8 @@
 .post-adding {
   margin: 1em;
   text-align: center;
+}
+
+.mg-upc-add-list-to-cart{
+  margin: 1em 1em 1em 0;
 }

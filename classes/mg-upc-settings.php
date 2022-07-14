@@ -320,6 +320,13 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 				'default' => '',
 				'type'    => 'text',
 			);
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'quantity',
+				'label'   => __( 'Quantity', 'user-post-collections' ),
+				'desc'    => __( 'Quantity item label on list page.', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
 
 			$settings_fields['mg_upc_texts'][] = array(
 				'name'    => 'client_my_lists',
@@ -354,6 +361,12 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 			$settings_fields['mg_upc_texts'][] = array(
 				'name'    => 'client_edit_comment',
 				'label'   => __( 'Edit Comment (client js)', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'client_quantity',
+				'label'   => __( 'Quantity (client js)', 'user-post-collections' ),
 				'default' => '',
 				'type'    => 'text',
 			);

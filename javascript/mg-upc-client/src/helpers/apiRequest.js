@@ -1,7 +1,7 @@
 
 import { getMgUpcConfig } from './functions';
 
-async function apiRequest( type, path = '', data = {}) {
+async function apiRequest( type, path = '', data = {}, basePath = 'mg-upc/v1/lists') {
 	const config = {
 		method: type, // *GET, POST, PUT, DELETE, etc.
 		//mode: 'cors', // no-cors, *cors, same-origin
@@ -18,7 +18,7 @@ async function apiRequest( type, path = '', data = {}) {
 	if ( 'GET' !== type && data) {
 		config.body = JSON.stringify( data );
 	}
-	const response = await fetch( getMgUpcConfig().root + 'mg-upc/v1/lists' + path, config );
+	const response = await fetch( getMgUpcConfig().root + basePath + path, config );
 	if (response.headers.get( "x-wp-nonce" )) {
 		getMgUpcConfig().nonce = response.headers.get( "x-wp-nonce" );
 	}

@@ -181,3 +181,19 @@ if ( ! function_exists( 'mg_upc_get_text' ) ) {
 		return MG_UPC_Texts::get( $text, $context );
 	}
 }
+
+
+if ( ! function_exists( 'mg_upc_show_item_quantity' ) ) {
+
+	/**
+	 * Show item quantity.
+	 *
+	 * @return string
+	 */
+	function mg_upc_show_item_quantity() {
+		global $mg_upc_list;
+		if ( MG_UPC_Helper::get_instance()->list_type_support( $mg_upc_list['type'], 'quantity', true ) ) {
+			mg_upc_get_template( 'single-mg-upc/item/quantity.php' );
+		}
+	}
+}

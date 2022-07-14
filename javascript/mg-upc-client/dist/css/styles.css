@@ -102,6 +102,15 @@
   min-width: 2em;
   text-align: center; }
 
+.mg-upc-item-quantity {
+  margin: 0.3em 1em; }
+  .mg-upc-item-quantity > * {
+    display: block;
+    text-align: center;
+    padding: 0.1em 0.5em; }
+  .mg-upc-item-quantity small {
+    opacity: 0.5; }
+
 .mg-upc-item-actions {
   display: flex;
   flex-direction: column;
@@ -221,18 +230,22 @@
   padding: 10px 40px 10px 1em;
   border: solid 1px #017401;
   background: rgba(154, 240, 173, 0.8);
+  color: #000;
+  margin: 1em 0;
   animation: mg-upc-alert 0.3s 1 ease-in-out both; }
+  .mg-upc-alert p {
+    margin: 0; }
 
 .mg-upc-item .mg-upc-alert {
   position: absolute;
   bottom: -19px;
   left: 0;
-  right: 0; }
+  right: 0;
+  margin: 0; }
 
 .mg-upc-alert-error {
   border-color: #d50000;
-  background: rgba(255, 121, 121, 0.8);
-  color: #000; }
+  background: rgba(255, 121, 121, 0.8); }
 
 .mg-upc-alert-close {
   position: absolute;
@@ -261,12 +274,13 @@
   position: relative;
   overflow: hidden;
   z-index: 1;
-  /* Necessary for overflow: hidden to work correctly in Safari */ }
+  /* Necessary for overflow: hidden to work correctly in Safari */
+  vertical-align: middle; }
 
 .mg-upc-btn-loading::before,
 .mg-upc-btn-loading::after {
   content: ' ';
-  display: block;
+  display: block !important;
   position: absolute;
   top: 0;
   left: 0;
@@ -291,6 +305,9 @@
 .post-adding {
   margin: 1em;
   text-align: center; }
+
+.mg-upc-add-list-to-cart {
+  margin: 1em 1em 1em 0; }
 
 /**
  * 1. Make the dialog container, and its child overlay spread across
@@ -487,6 +504,19 @@
 .mg-upc-dg-content button {
   min-height: 30px; }
 
+.mg-upc-dg-msg {
+  display: block;
+  background: rgba(172, 205, 100, 0.75);
+  padding: 0.7em;
+  border: solid 1px #7dbf21;
+  border-radius: 2px;
+  color: #314f00;
+  margin: 1em 0;
+  white-space: pre-line; }
+  @media screen and (min-width: 700px) {
+    .mg-upc-dg-msg {
+      top: -2em; } }
+
 .mg-upc-dg-error {
   display: block;
   background: rgba(255, 48, 48, 0.75);
@@ -497,7 +527,8 @@
   margin: 1em 0;
   position: sticky;
   top: -1em;
-  z-index: 5; }
+  z-index: 5;
+  white-space: pre-line; }
   @media screen and (min-width: 700px) {
     .mg-upc-dg-error {
       top: -2em; } }
@@ -616,6 +647,9 @@
 
 .mg-upc-dg-item-type-bookmarks:before {
   content: ""; }
+
+.mg-upc-dg-item-type-cart:before {
+  content: ""; }
 
 .mg-upc-dg-item-type-none:before {
   content: ""; }
@@ -914,6 +948,20 @@ EDIT
   .mg-upc-dg-share-link .mg-upc-dg-share {
     display: inline-block;
     margin: 2% 0; }
+
+.mg-upc-zero-quantity {
+  opacity: 0.3; }
+
+.mg-upc-dg-quantity {
+  width: 4em;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  margin: 1em; }
+  .mg-upc-dg-quantity small {
+    opacity: 0.5; }
+  .mg-upc-dg-quantity input {
+    text-align: center; }
 
 .mg-upc-err-required_logged_in .mg-list-new,
 .mg-upc-err-required_logged_in .mg-upc-dg-alert-close {

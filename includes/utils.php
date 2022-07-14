@@ -1,5 +1,14 @@
 <?php
 
+function mg_upc_list_check_support( $list, $feature ) {
+	if ( is_scalar( $list ) ) {
+		$list = MG_List_Model::get_instance()->find_one( $list );
+	}
+	$list_type = MG_UPC_Helper::get_instance()->get_list_type( $list->type, true );
+
+	return $list_type && $list_type->support( $feature );
+}
+
 function mg_upc_strlen( $string, $encoding = null ) {
 	if ( null === $encoding ) {
 		$encoding = get_option( 'blog_charset', 'utf8' );

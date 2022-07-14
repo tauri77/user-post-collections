@@ -18,7 +18,8 @@ import {
 	SET_EDITING,
 	RESET_STATE,
 	SET_PAGE,
-	SET_TOTAL_PAGE
+	SET_TOTAL_PAGE,
+	SET_MESSAGE, ADD_LIST_TO_CART
 } from "./actionTypes";
 import reduceList from './reduceList';
 import reduceListOfList from './reduceListOfLists';
@@ -77,6 +78,22 @@ export function reducer (state, action) {
 				return getCloned( {error: false, errorCode: false} );
 			}
 			return getCloned( {error: payload} );
+
+		case SET_MESSAGE:
+			if ( false === payload ) {
+				return getCloned( {message: false, errorCode: false} );
+			}
+			return getCloned( {message: payload} );
+
+		case ADD_LIST_TO_CART:
+			const $carted_state = getCloned();
+			if ( payload.msg ) {
+				$carted_state.message = payload.msg;
+			}
+			if ( payload.err ) {
+				$carted_state.error = payload.err;
+			}
+			return $carted_state;
 
 		case SET_EDITING:
 			return getCloned( {editing: payload} );
@@ -153,6 +170,7 @@ export function reducer (state, action) {
 		case MOVE_LIST_ITEM_PREV + '/loading':
 		case UPDATE_LIST + '/loading':
 		case CREATE_LIST + '/loading':
+		case ADD_LIST_TO_CART + '/loading':
 			return getCloned( {status: 'loading'} );
 
 		case ADD_LIST_ITEM + '/succeeded':
@@ -163,6 +181,9 @@ export function reducer (state, action) {
 			newState.errorCode  = false;
 			newState.title      = newState.list ? newState.list.title : initialState.title;
 			return newState;
+
+		case ADD_LIST_TO_CART + '/succeeded':
+			return getCloned( {status: 'succeeded', errorCode: false } );
 
 		case SET_LIST + '/succeeded':
 			if ( state.list === false ) {
@@ -217,6 +238,7 @@ export function reducer (state, action) {
 		case MOVE_LIST_ITEM_PREV + '/failed':
 		case UPDATE_LIST + '/failed':
 		case SET_LIST + '/failed':
+		case ADD_LIST_TO_CART + '/failed':
 			return setFailed( action );
 	}
 	if ( newState !== false ) {

@@ -5,7 +5,16 @@ import {useEffect, useState, useContext, useRef, useMemo} from "preact/hooks";
 import ListOfList from "./components/list-of-lists";
 import ListItemAdding from "./components/list-item-adding";
 import {
-	setListOfList, setAddingPost, setEditing, removeList, setList, addItem, resetState, setError, setListPage, setPage
+	setListOfList,
+	setAddingPost,
+	setEditing,
+	removeList,
+	setList,
+	addItem,
+	resetState,
+	setError,
+	setListPage,
+	setPage, setMessage
 } from "./store/actions";
 import { ContextProvider, AppContext } from './contexts/app-context';
 import translate from "./helpers/translate";
@@ -17,8 +26,7 @@ import { A11yDialog } from './components/react-ally-dialog';
 import mgUpcApiClient from "./apiClient";
 
 import {
-	getMgUpcConfig,
-	getNotAlwaysExists
+	addListToCart, getMgUpcConfig, getNotAlwaysExists
 } from "./helpers/functions";
 
 import "./polls";
@@ -71,6 +79,7 @@ function App() {
 					showForAdd( post_id );
 				}
 			};
+			window.mgUpcAddListToCart = addListToCart;
 		},
 		[ dialog.current, dispatch ]
 	);
@@ -168,6 +177,14 @@ function App() {
 	>
 		<div className={ 'mg-upc-dg-content-wrapper mg-upc-dg-status-' + state.status + ' mg-upc-dg-view-' + actualView }>
 			<div className="mg-upc-dg-wait"></div>
+			{ state.message && (<div className="mg-upc-dg-msg">
+				{state.message}
+				<a href="#"
+				   className={"mg-upc-dg-alert-close"}
+				   aria-label={"Hide alert"}
+				   onClick={ (evt) => { evt.preventDefault(); dispatch( setMessage( null ) ); } }
+				><span className="mg-upc-icon upc-font-close"></span></a>
+			</div>) }
 			{ state.error && (<div className="mg-upc-dg-error">
 				{state.error}
 				<a href="#"
@@ -209,16 +226,24 @@ function App() {
 
 render( ( <ContextProvider><App/> </ContextProvider> ), document.querySelector( 'body' ) );
 
+function clearHash() {
+	if ("replaceState" in history) {
+		history.replaceState( '', document.title, location.pathname );
+		history.go( -1 );
+	} else {
+		location.hash = '';
+	}
+}
 
 if ( location.hash === '#my-lists' ) {
-	location.hash = '';
+	clearHash();
 }
 window.addEventListener(
 	'hashchange',
 	function() {
 		if ( location.hash === '#my-lists' ) {
 			window.showMyLists();
-			location.hash = '';
+			clearHash();
 		}
 	},
 	false

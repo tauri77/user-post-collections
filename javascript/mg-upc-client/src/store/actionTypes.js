@@ -1,6 +1,7 @@
 
 export const RESET_STATE         = "ui/reset";
 export const SET_ERROR           = "ui/error";
+export const SET_MESSAGE         = "ui/message";
 export const SET_EDITING         = "ui/editing";
 export const SET_MODE            = "ui/mode";
 
@@ -23,4 +24,5 @@ export const MOVE_LIST_ITEM      = "list/moveItem";
 export const MOVE_LIST_ITEM_NEXT = "list/moveItemNext";
 export const MOVE_LIST_ITEM_PREV = "list/moveItemPrev";
 
+export const ADD_LIST_TO_CART    = "list/cart";
 

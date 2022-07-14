@@ -1,6 +1,8 @@
 /*globals jQuery:false*/
 
-(function ($){
+import {get_alert} from "./helpers/functions";
+
+(function ( $){
 
 	function voteItem(lisID, postID, $listNode, $itemNode) {
 		const $list    = $listNode ? $listNode : $itemNode.parent();
@@ -109,21 +111,6 @@
 			$widget.show();
 		}
 	);
-
-	function get_alert( message, type="error" ) {
-		const $container = $( '<div>' ).addClass( "mg-upc-alert mg-upc-alert-" + type );
-		$container.append( $( '<p>' ).html( message ) );
-		const $close = $( '<a class="mg-upc-alert-close" href="#"><span class="mg-upc-icon upc-font-close"></span></a>' )
-			.on(
-				'click',
-				function () {
-					$container.remove();
-					return false;
-				}
-			);
-		$container.append( $close );
-		return $container;
-	}
 
 	return false;
 })( jQuery );

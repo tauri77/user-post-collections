@@ -45,6 +45,7 @@ if ( post_password_required() ) {
 		 * @hooked mg_upc_template_single_author - 10
 		 * @hooked mg_upc_template_single_sharing - 10
 		 * @hooked mg_upc_template_single_description - 20
+		 * @hooked MG_UPC_Woocommerce::item_cart_all_button - 25
 		 * @hooked mg_upc_template_single_items - 30
 		 */
 		do_action( 'mg_upc_single_list_content' );

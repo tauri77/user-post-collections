@@ -1,3 +1,4 @@
+import apiClient from "../apiClient";
 
 function getMgUpcConfig() {
 	return MgUserPostCollections;
@@ -105,6 +106,33 @@ function prevent(e) {
 	return false;
 }
 
+function addListToCart( data ) {
+	return apiClient.cart( data ).then( ( response ) => {
+		if ( jQuery && response.data.fragments && response.data.cart_hash ) {
+			jQuery( document.body ).trigger( 'added_to_cart', [ response.data.fragments, response.data.cart_hash ] );
+		}
+		return response.data;
+	} );
+}
+
+function get_alert( message, type="error" ) {
+	if ( ! jQuery ) {
+		return false;
+	}
+	const $container = jQuery( '<div>' ).addClass( "mg-upc-alert mg-upc-alert-" + type );
+	$container.append( jQuery( '<p>' ).html( message ) );
+	const $close = jQuery( '<a class="mg-upc-alert-close" href="#"><span class="mg-upc-icon upc-font-close"></span></a>' )
+		.on(
+			'click',
+			function () {
+				$container.remove();
+				return false;
+			}
+		);
+	$container.append( $close );
+	return $container;
+}
+
 export {
 	getMgUpcConfig,
 	getUpcTypes,
@@ -120,5 +148,7 @@ export {
 	noItemImage,
 	cloneObj,
 	str_nl2br,
-	prevent
+	prevent,
+	addListToCart,
+	get_alert
 };

@@ -140,28 +140,31 @@ class MG_UPC_List_Types_Register extends MG_UPC_Module {
 	 */
 	public function upgrade( $db_version = 0 ) {
 		if ( version_compare( $db_version, '0.6.22', '<' ) ) {
-			self::set_initial_roles_caps();
+			self::set_initial_roles_caps( MG_UPC_Helper::get_instance()->get_list_types( true ) );
 		}
 	}
 
 	/**
-	 * Initial roles caps
+	 * Initial roles capsMG_UPC_Helper::get_instance()->get_list_type
+	 *
+	 * @param MG_UPC_List_Type[] $list_types
 	 */
-	private static function set_initial_roles_caps() {
+	public static function set_initial_roles_caps( $list_types ) {
 		$all_roles = wp_roles()->roles;
 		foreach ( $all_roles as $role => $details ) {
 			$role_object = get_role( $role );
 			if ( $role_object ) {
-				self::set_initial_role_caps( $role_object );
+				self::set_initial_role_caps( $role_object, $list_types );
 			}
 		}
 	}
 
 	/**
 	 * @param WP_Role $role
+	 *
+	 * @param MG_UPC_List_Type[] $list_types
 	 */
-	private static function set_initial_role_caps( $role ) {
-		$list_types = MG_UPC_Helper::get_instance()->get_list_types( true );
+	private static function set_initial_role_caps( $role, $list_types ) {
 		foreach ( $list_types as $list_type ) {
 			$caps = $list_type->get_cap();
 			//Capabilities for create/publish/delete list

@@ -7,6 +7,7 @@ function ListItem(props) {
 
 	const [ editingDesc, setEditingDescription ] = useState( false )
 	const [ description, setDescription ]        = useState( '' );
+	const [ quantity, setQuantity ]              = useState( props.item?.quantity );
 
 	const inputDescRef = useRef({} );
 
@@ -20,12 +21,30 @@ function ListItem(props) {
 		}
 	}, [ editingDesc ] );
 
+	const timerUpdate = useRef( false );
+	useEffect(
+		() => {
+			if ( props.item.quantity === quantity ) {
+				return;
+			}
+			clearTimeout( timerUpdate.current );
+			timerUpdate.current = setTimeout( function () {
+				props.onSaveItemQuantity( quantity );
+			}, 600 );
+		},
+		[ quantity ]
+	);
+
 	function handleDesc(event) {
 		setDescription( event.target.value );
 	}
 
+	function handleQuantity() {
+		setQuantity( event.target.value );
+	}
+
 	const switchToEditing = () => {
-			setEditingDescription( true );
+		setEditingDescription( true );
 	};
 
 	const onCancel = () => {
@@ -97,6 +116,18 @@ function ListItem(props) {
 					</button>
 				) }
 			</div>
+			{ props.editable && listSupport( props.list, 'quantity' )  && (
+				<div
+					className={ 'mg-upc-dg-quantity' }>
+					<small>{ translate( 'Quantity' ) }</small>
+					<input
+						aria-label={ translate( 'Quantity' ) }
+						type="number"
+						value={ quantity }
+						onChange={ handleQuantity }
+					/>
+				</div>
+			) }
 			{ props.editable &&  ! editingDesc && (<div>
 				<button aria-label={"Remove item"} onClick={props.onRemove}><span className={"mg-upc-icon upc-font-trash"}></span></button>
 			</div>) }

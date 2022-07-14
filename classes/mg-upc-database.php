@@ -93,6 +93,9 @@ class MG_UPC_Database extends MG_UPC_Module {
 		if ( version_compare( $db_version, '0.1.2', '<' ) ) {
 			self::update_db_tables_2();
 		}
+		if ( version_compare( $db_version, '0.8.21', '<' ) ) {
+			self::add_cart_quantity();
+		}
 	}
 
 	/**
@@ -144,6 +147,7 @@ class MG_UPC_Database extends MG_UPC_Module {
 			post_id bigint(20) UNSIGNED NOT NULL,
 			position bigint(20) UNSIGNED NOT NULL DEFAULT 0,
 			votes bigint(20) UNSIGNED NOT NULL DEFAULT 0,
+			quantity int(11) UNSIGNED NOT NULL DEFAULT 0,
 		 	added datetime NOT NULL DEFAULT current_timestamp(),
 			description varchar(400) NOT NULL DEFAULT '',
   			KEY list_post (list_id, post_id),
@@ -192,5 +196,15 @@ class MG_UPC_Database extends MG_UPC_Module {
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $sql );
+	}
+
+	private static function add_cart_quantity() {
+		/** @global User_Post_Collections $mg_upc Global plugin object. */
+		global $mg_upc;
+		global $wpdb;
+
+		$table_items = $mg_upc->model->items->get_table_list_items();
+		//phpcs:ignore
+		$wpdb->query( "ALTER TABLE {$table_items} ADD `quantity` int(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `votes`;" );
 	}
 }

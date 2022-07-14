@@ -53,6 +53,14 @@ let apiClient = {
 			}
 		);
 	},
+	cart: function (id) {
+		return apiRequest( 'POST', '/cart', { 'list': id }, 'mg-upc/v1' ).then(
+			function(response) {
+				checkResponseError( response );
+				return response;
+			}
+		);
+	},
 	items: function (id, args= {}) {
 		return apiRequest( 'GET', '/' + id + '/items' + objectToGetParams( args ), {} ).then(
 			function(response) {

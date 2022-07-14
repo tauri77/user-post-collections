@@ -138,6 +138,11 @@ class MG_UPC_REST_List_Items_Controller {
 							'description'       => esc_html__( 'The description/comment for the post on the list.', 'user-post-collections' ),
 							'sanitize_callback' => 'sanitize_text_field',
 						),
+						'quantity'    => array(
+							'type'              => 'integer',
+							'description'       => esc_html__( 'The quantity for the post on the list.', 'user-post-collections' ),
+							'sanitize_callback' => 'absint',
+						),
 					),
 				),
 			)
@@ -379,7 +384,69 @@ class MG_UPC_REST_List_Items_Controller {
 	 */
 	public function create_item( $request ) {
 
-		$list_before = MG_UPC_List_Controller::get_instance()->get_list( (int) $request['id'] );
+		$response = new WP_REST_Response();
+
+		$data = array();
+
+		try {
+			$data = self::add_tem_to_list( (int) $request['id'], (int) $request['post_id'], $request );
+			if ( is_wp_error( $data ) ) {
+				return $data;
+			}
+		} catch ( MG_UPC_Item_Exist_Exception $e ) {
+			$data['code']    = 'rest_item_exist_error';
+			$data['message'] = esc_html( $e->getMessage() );
+			$data['status']  = 409;
+		} catch ( Exception $e ) {
+			return new WP_Error(
+				'rest_db_error',
+				esc_html( $e->getMessage() ),
+				array( 'status' => 500 )
+			);
+		}
+
+		if ( 'view' === $request['context'] ) {
+			$list_before = MG_UPC_List_Controller::get_instance()->get_list( (int) $request['id'] );
+
+			$post = MG_UPC_List_Controller::get_instance()->get_post_for_add( (int) $request['post_id'], $request );
+
+			$data['post'] = array(
+				'title' => $post->post_title,
+				'link'  => get_the_permalink( $post->ID ),
+			);
+
+			$data['list'] = MG_UPC_List_Controller::get_instance()->prepare_list_for_response(
+				$list_before,
+				array( 'context' => 'view' )
+			);
+		}
+
+		$response->set_data( $data );
+		$response->set_status( $data['status'] );
+
+		return $response;
+
+	}
+
+	/**
+	 * Add an item to a list
+	 *
+	 * @param int                   $list_id
+	 * @param int                   $post_id
+	 * @param array|WP_REST_Request $request
+	 *
+	 * @return array|WP_Error
+	 *
+	 * @throws MG_UPC_Invalid_Field_Exception
+	 * @throws MG_UPC_Item_Exist_Exception
+	 * @throws MG_UPC_Item_Not_Found_Exception
+	 */
+	public static function add_tem_to_list( $list_id, $post_id, $request ) {
+		/** @global $mg_upc User_Post_Collections */
+		global $mg_upc;
+		$model = $mg_upc->model;
+
+		$list_before = MG_UPC_List_Controller::get_instance()->get_list( (int) $list_id );
 
 		if ( is_wp_error( $list_before ) ) {
 			return $list_before;
@@ -388,7 +455,7 @@ class MG_UPC_REST_List_Items_Controller {
 		$list_type_obj = MG_UPC_Helper::get_instance()->get_list_type( $list_before->type );
 		if ( false === $list_type_obj ) {
 			return new WP_Error(
-				'rest_unable_post_add_max',
+				'rest_unable_post_add',
 				esc_html__( 'Unable to add items to this list.', 'user-post-collections' ),
 				array( 'status' => 403 )
 			);
@@ -404,7 +471,7 @@ class MG_UPC_REST_List_Items_Controller {
 			}
 		}
 
-		$post = MG_UPC_List_Controller::get_instance()->get_post_for_add( $request['post_id'], $request );
+		$post = MG_UPC_List_Controller::get_instance()->get_post_for_add( $post_id, $request );
 		if ( is_wp_error( $post ) ) {
 			return $post;
 		}
@@ -417,61 +484,60 @@ class MG_UPC_REST_List_Items_Controller {
 			);
 		}
 
-		$response = new WP_REST_Response();
-
-		$data = array();
-
-		try {
-			if (
-				is_string( $request['description'] ) &&
-				! empty( $request['description'] )
-			) {
-				if ( ! $list_type_obj->support( 'editable_item_description' ) ) {
-
-					$this->model->items->add_item( $request['id'], $request['post_id'] );
-
-					$data['code']    = 'rest_item_desc_error';
-					$data['message'] = esc_html__( 'This list dont support item description', 'user-post-collections' );
-					$data['status']  = 409;
-					$data['added']   = true;
-				} else {
-					$this->model->items->add_item( $request['id'], $request['post_id'], $request['description'] );
+		$to_save = array(
+			'list_id'     => $list_id,
+			'post_id'     => $post_id,
+		);
+		$data    = array();
+		if (
+			is_string( $request['description'] ) &&
+			! empty( $request['description'] )
+		) {
+			if ( ! $list_type_obj->support( 'editable_item_description' ) ) {
+				$data['code']    = 'rest_item_desc_error';
+				$data['message'] = esc_html__( 'This list dont support item description', 'user-post-collections' );
+				$data['status']  = 409;
+				$data['added']   = true;
+			} else {
+				$to_save['description'] = $request['description'];
+				$data['status']         = 201;
+				$data['added']          = true;
+			}
+		} else {
+			$data['status'] = 201;
+			$data['added']  = true;
+		}
+		if (
+			isset( $request['quantity'] ) &&
+			is_numeric( $request['quantity'] )
+		) {
+			if ( $list_type_obj->support( 'quantity' ) && 0 <= (int) $request['quantity'] ) {
+				$to_save['quantity'] = $request['quantity'];
+				if ( ! isset( $data['code'] ) ) {
 					$data['status'] = 201;
 					$data['added']  = true;
 				}
-			} else {
-				$this->model->items->add_item( $request['id'], $request['post_id'] );
-				$data['status'] = 201;
-				$data['added']  = true;
 			}
-		} catch ( MG_UPC_Item_Exist_Exception $e ) {
-			$data['code']    = 'rest_item_exist_error';
-			$data['message'] = esc_html( $e->getMessage() );
-			$data['status']  = 409;
-		} catch ( Exception $e ) {
-			return new WP_Error(
-				'rest_db_error',
-				esc_html( $e->getMessage() ),
-				array( 'status' => 500 )
-			);
 		}
 
-		if ( 'view' === $request['context'] ) {
-			$data['post'] = array(
-				'title' => $post->post_title,
-				'link'  => get_the_permalink( $post->ID ),
-			);
-			$data['list'] = MG_UPC_List_Controller::get_instance()->prepare_list_for_response(
-				$list_before,
-				array( 'context' => 'view' )
-			);
+		/**
+		 * Filter for item to save. If return WP_Error, the operation is canceled.
+		 * @param array $to_save      The item to insert
+		 * @param object $list_before The list object
+		 */
+		$to_save = apply_filters( 'mg_upc_pre_add_item', $to_save, $list_before );
+		if ( is_wp_error( $to_save ) ) {
+			return $to_save;
 		}
 
-		$response->set_data( $data );
-		$response->set_status( $data['status'] );
+		$model->items->add_item(
+			$to_save['list_id'],
+			$to_save['post_id'],
+			isset( $to_save['description'] ) ? $to_save['description'] : '',
+			isset( $to_save['quantity'] ) ? $to_save['quantity'] : 0
+		);
 
-		return $response;
-
+		return $data;
 	}
 
 	/**
@@ -541,6 +607,38 @@ class MG_UPC_REST_List_Items_Controller {
 						'update' => true,
 					)
 				);
+			}
+
+			if (
+				isset( $request['quantity'] ) &&
+				is_numeric( $request['quantity'] )
+			) {
+
+				if ( ! $list_type_obj->support( 'quantity' ) ) {
+					return new WP_Error(
+						'rest_item_desc_error',
+						esc_html__( 'This list dont support item quantity', 'user-post-collections' ),
+						array( 'status' => 409 )
+					);
+				}
+
+				$this->model->items->update_item_quantity( $request['id'], $request['postid'], $request['quantity'] );
+				$response->set_data(
+					array(
+						'update' => true,
+					)
+				);
+
+				$item = $this->model->items->get_item( $request['id'], $request['postid'] );
+				if ( ! empty( $item ) ) {
+					$it_response = MG_UPC_List_Controller::get_instance()->prepare_item_for_response( $item, array() );
+					$response->set_data(
+						array(
+							'update' => true,
+							'item'   => $it_response,
+						)
+					);
+				}
 			}
 		} catch ( Exception $e ) {
 			return new WP_Error(
@@ -913,6 +1011,10 @@ class MG_UPC_REST_List_Items_Controller {
 				'description' => esc_html__( 'Item description.', 'user-post-collections' ),
 				'type'        => 'string',
 			),
+			'quantity'       => array(
+				'description' => esc_html__( 'Quantity of items (in cart type, the quantity for the product).', 'user-post-collections' ),
+				'type'        => 'integer',
+			),
 			'position'       => array(
 				'description' => esc_html__( 'Item position.', 'user-post-collections' ),
 				'type'        => 'integer',
@@ -953,7 +1055,7 @@ class MG_UPC_REST_List_Items_Controller {
 				'readonly'    => true,
 			),
 			'price_html'     => array(
-				'description' => esc_html__( 'Product price in html format.', 'user-post-collections' ),
+				'description' => esc_html__( 'Item price in html format.', 'user-post-collections' ),
 				'type'        => 'string',
 				'readonly'    => true,
 			),
