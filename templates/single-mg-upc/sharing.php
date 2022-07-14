@@ -19,6 +19,10 @@ $buttons = array(
 		'url'  => 'https://www.facebook.com/sharer/sharer.php?u=' . $list_link . '&quote=' . $list_title,
 	),
 	array(
+		'name' => 'Pinterest',
+		'url'  => 'https://pinterest.com/pin/create/button/?url=' . $list_link . '&description=' . $list_title,
+	),
+	array(
 		'name' => 'Whatsapp',
 		'url'  => 'whatsapp://send?text=' . $list_link,
 	),

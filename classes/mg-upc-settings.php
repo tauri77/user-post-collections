@@ -251,12 +251,13 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 				'default' => array( 'twitter', 'facebook', 'whatsapp', 'telegram', 'line', 'email' ),
 				'type'    => 'multicheck',
 				'options' => array(
-					'twitter'  => __( 'Twitter', 'user-post-collections' ),
-					'facebook' => __( 'Facebook', 'user-post-collections' ),
-					'whatsapp' => __( 'Whatsapp', 'user-post-collections' ),
-					'telegram' => __( 'Telegram', 'user-post-collections' ),
-					'line'     => __( 'LiNE', 'user-post-collections' ),
-					'email'    => __( 'Email', 'user-post-collections' ),
+					'twitter'   => __( 'Twitter', 'user-post-collections' ),
+					'facebook'  => __( 'Facebook', 'user-post-collections' ),
+					'pinterest' => __( 'Pinterest', 'user-post-collections' ),
+					'whatsapp'  => __( 'Whatsapp', 'user-post-collections' ),
+					'telegram'  => __( 'Telegram', 'user-post-collections' ),
+					'line'      => __( 'LiNE', 'user-post-collections' ),
+					'email'     => __( 'Email', 'user-post-collections' ),
 				),
 			);
 
@@ -267,12 +268,13 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 				'default' => array( 'twitter', 'facebook', 'whatsapp', 'telegram', 'line', 'email' ),
 				'type'    => 'multicheck',
 				'options' => array(
-					'twitter'  => __( 'Twitter', 'user-post-collections' ),
-					'facebook' => __( 'Facebook', 'user-post-collections' ),
-					'whatsapp' => __( 'Whatsapp', 'user-post-collections' ),
-					'telegram' => __( 'Telegram', 'user-post-collections' ),
-					'line'     => __( 'LiNE', 'user-post-collections' ),
-					'email'    => __( 'Email', 'user-post-collections' ),
+					'twitter'   => __( 'Twitter', 'user-post-collections' ),
+					'facebook'  => __( 'Facebook', 'user-post-collections' ),
+					'pinterest' => __( 'Pinterest', 'user-post-collections' ),
+					'whatsapp'  => __( 'Whatsapp', 'user-post-collections' ),
+					'telegram'  => __( 'Telegram', 'user-post-collections' ),
+					'line'      => __( 'LiNE', 'user-post-collections' ),
+					'email'     => __( 'Email', 'user-post-collections' ),
 				),
 			);
 

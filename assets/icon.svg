@@ -13,7 +13,10 @@
    version="1.1"
    id="svg8"
    inkscape:version="1.0.2 (e86c870879, 2021-01-15)"
-   sodipodi:docname="icon.svg">
+   sodipodi:docname="icon.svg"
+   inkscape:export-filename="/home/debian/wp-test/plugins/user-post-collections/assets/icon-256x256.png"
+   inkscape:export-xdpi="40.959999"
+   inkscape:export-ydpi="40.959999">
   <defs
      id="defs2" />
   <sodipodi:namedview
@@ -23,9 +26,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.49497475"
-     inkscape:cx="263.31499"
-     inkscape:cy="503.69052"
+     inkscape:zoom="0.175"
+     inkscape:cx="624.25767"
+     inkscape:cy="98.164283"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -67,11 +70,13 @@
        ry="76.353722"
        rx="76.353722" />
     <circle
-       style="opacity:0.99;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.360055;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:0.99;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.325417;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path815"
-       cx="112.39276"
-       cy="102.10939"
-       r="25.8575" />
+       cx="42.809513"
+       cy="140.37416"
+       rx="21.121769"
+       ry="25.8575"
+       transform="rotate(-27.552609)" />
     <path
        style="opacity:0.99;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.424872;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 113.09567,118.38467 c -27.491671,-0.3839 -43.544174,19.08874 -43.893261,44.06773 -0.08619,6.938 1.583444,13.72135 4.778344,19.86583 -1.906999,18.69531 36.057777,15.78491 5.843227,-0.94771 -0.386354,-2.35478 -0.56898,-4.74117 -0.541935,-7.13746 0.185222,-13.27121 6.642651,-25.1196 16.778156,-33.25342 1.061517,-0.0265 2.118452,-0.0522 3.171871,-0.0771 11.284548,-0.26615 31.051368,-0.3115 42.838028,-0.26466 9.58293,0.038 -6.5069,-21.96469 -20.0875,-22.25324 z"

@@ -59,6 +59,10 @@ function ShareLink(props) {
 			url: "https://www.facebook.com/sharer/sharer.php?u=" + link + "&quote=" + title,
 		},
 		{
+			name: 'Pinterest',
+			url: "https://pinterest.com/pin/create/button/?url=" + link + "&description=" + title,
+		},
+		{
 			name: 'Whatsapp',
 			url: "whatsapp://send?text=" + link,
 		},
