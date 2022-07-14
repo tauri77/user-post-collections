@@ -75,12 +75,13 @@ if ( ! class_exists( 'User_Post_Collections' ) ) {
 			//TODO: option to use cdn
 			//$sortable_url = 'https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js';
 			$js_vars = array(
-				'root'     => esc_url_raw( rest_url() ),
-				'nonce'    => wp_create_nonce( 'wp_rest' ),
-				'user_id'  => get_current_user_id(),
-				'types'    => MG_UPC_Helper::get_instance()->get_user_creatable_list_types(),
-				'statuses' => MG_UPC_Helper::get_instance()->get_list_statuses( false ),
-				'sortable' => $sortable_url,
+				'root'         => esc_url_raw( rest_url() ),
+				'nonce'        => wp_create_nonce( 'wp_rest' ),
+				'user_id'      => get_current_user_id(),
+				'types'        => MG_UPC_Helper::get_instance()->get_user_creatable_list_types(),
+				'statuses'     => MG_UPC_Helper::get_instance()->get_list_statuses( false ),
+				'sortable'     => $sortable_url,
+				'shareButtons' => get_option( 'mg_upc_share_buttons_client', array( 'twitter', 'facebook', 'whatsapp', 'telegram', 'line', 'email' ) ),
 			);
 			wp_register_style(
 				'mg-user-post-collections-admin',

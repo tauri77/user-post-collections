@@ -11,7 +11,7 @@
  */
 add_action( 'mg_upc_single_list_content', 'mg_upc_template_single_title', 5 );
 add_action( 'mg_upc_single_list_content', 'mg_upc_template_single_author', 10 );
-//add_action( 'mg_upc_single_list_content', 'mg_upc_template_single_sharing', 10 );
+add_action( 'mg_upc_single_list_content', 'mg_upc_template_single_sharing', 15 );
 add_action( 'mg_upc_single_list_content', 'mg_upc_template_single_description', 20 );
 add_action( 'mg_upc_single_list_content', array( 'MG_UPC_Woocommerce', 'item_cart_all_button' ), 25 );
 add_action( 'mg_upc_single_list_content', 'mg_upc_template_single_items', 30 );

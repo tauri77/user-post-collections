@@ -244,6 +244,38 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 				'type'    => 'checkbox',
 			);
 
+			$settings_fields['mg_upc_general'][] = array(
+				'name'    => 'mg_upc_share_buttons',
+				'label'   => __( 'Share buttons (List Page)', 'user-post-collections' ),
+				'desc'    => __( 'Share buttons enabled on collection page.', 'user-post-collections' ),
+				'default' => array( 'twitter', 'facebook', 'whatsapp', 'telegram', 'line', 'email' ),
+				'type'    => 'multicheck',
+				'options' => array(
+					'twitter'  => __( 'Twitter', 'user-post-collections' ),
+					'facebook' => __( 'Facebook', 'user-post-collections' ),
+					'whatsapp' => __( 'Whatsapp', 'user-post-collections' ),
+					'telegram' => __( 'Telegram', 'user-post-collections' ),
+					'line'     => __( 'LiNE', 'user-post-collections' ),
+					'email'    => __( 'Email', 'user-post-collections' ),
+				),
+			);
+
+			$settings_fields['mg_upc_general'][] = array(
+				'name'    => 'mg_upc_share_buttons_client',
+				'label'   => __( 'Share buttons (Client)', 'user-post-collections' ),
+				'desc'    => __( 'Share buttons enabled on modal client.', 'user-post-collections' ),
+				'default' => array( 'twitter', 'facebook', 'whatsapp', 'telegram', 'line', 'email' ),
+				'type'    => 'multicheck',
+				'options' => array(
+					'twitter'  => __( 'Twitter', 'user-post-collections' ),
+					'facebook' => __( 'Facebook', 'user-post-collections' ),
+					'whatsapp' => __( 'Whatsapp', 'user-post-collections' ),
+					'telegram' => __( 'Telegram', 'user-post-collections' ),
+					'line'     => __( 'LiNE', 'user-post-collections' ),
+					'email'    => __( 'Email', 'user-post-collections' ),
+				),
+			);
+
 			//***************************************
 			//           ADVANCED
 			//***************************************

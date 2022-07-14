@@ -173,6 +173,13 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 	}
 
 	public function mg_upc_settings_fields( $settings_fields ) {
+
+		foreach ( $settings_fields['mg_upc_type_cart'] as $k => $config ) {
+			if ( 'available_post_types' === $config['name'] ) {
+				unset( $settings_fields['mg_upc_type_cart'][ $k ] );
+			}
+		}
+
 		$settings_fields['mg_upc_product'] = array();
 
 		$settings_fields['mg_upc_product'][] = array(
@@ -325,14 +332,6 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 				'option'  => 'client_cart_all',
 			)
 		);
-		MG_UPC_Texts::add_string(
-			'modal_client',
-			'Quantity',
-			array(
-				'default' => __( 'Quantity', 'user-post-collections' ),
-				'option'  => 'client_quantity',
-			)
-		);
 
 		MG_UPC_Texts::add_string(
 			'product',
@@ -374,14 +373,6 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 			array(
 				'default' => __( 'Add all to cart', 'user-post-collections' ),
 				'option'  => 'cart_all',
-			)
-		);
-		MG_UPC_Texts::add_string(
-			'mg_upc_list',
-			'Quantity',
-			array(
-				'default' => __( 'Quantity', 'user-post-collections' ),
-				'option'  => 'quantity',
 			)
 		);
 	}

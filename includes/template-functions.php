@@ -20,6 +20,16 @@ if ( ! function_exists( 'mg_upc_template_single_author' ) ) {
 	}
 }
 
+if ( ! function_exists( 'mg_upc_template_single_sharing' ) ) {
+
+	/**
+	 * Output the share buttons.
+	 */
+	function mg_upc_template_single_sharing() {
+		mg_upc_get_template( 'single-mg-upc/sharing.php' );
+	}
+}
+
 if ( ! function_exists( 'mg_upc_template_single_description' ) ) {
 
 	/**

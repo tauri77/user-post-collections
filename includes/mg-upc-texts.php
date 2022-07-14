@@ -21,6 +21,10 @@ class MG_UPC_Texts {
 				'default' => __( 'Created by %s', 'user-post-collections' ),
 				'option'  => 'created_by',
 			),
+			'Quantity'      => array(
+				'default' => __( 'Quantity', 'user-post-collections' ),
+				'option'  => 'quantity',
+			),
 		);
 
 		self::$texts['single'] = array(
@@ -50,6 +54,10 @@ class MG_UPC_Texts {
 			'Add Comment'                          => array(
 				'default' => __( 'Add Comment', 'user-post-collections' ),
 				'option'  => 'client_add_comment',
+			),
+			'Quantity'                             => array(
+				'default' => __( 'Quantity', 'user-post-collections' ),
+				'option'  => 'client_quantity',
 			),
 			'Edit Comment'                         => array(
 				'default' => __( 'Edit Comment', 'user-post-collections' ),

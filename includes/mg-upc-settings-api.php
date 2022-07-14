@@ -736,7 +736,7 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 				esc_attr( $args['option_name'] )
 			);
 			foreach ( $args['options'] as $key => $label ) {
-				$checked = in_array( $key, $value, true ) ? '1' : '0';
+				$checked = empty( $value ) || ! in_array( $key, $value, true ) ? '0' : '1';
 				printf(
 					'<label for="tsa-%3$s[%1$s]">' .
 					'<input type="checkbox" class="checkbox" id="tsa-%3$s[%1$s]" name="%3$s[]" value="%1$s" %2$s />' .
