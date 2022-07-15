@@ -2,6 +2,24 @@
 import { getMgUpcConfig } from './functions';
 
 async function apiRequest( type, path = '', data = {}, basePath = 'mg-upc/v1/lists') {
+	if ( typeof getMgUpcConfig().nonce === 'undefined' ) {
+		const formData = new FormData();
+		formData.append( 'action', 'mg_upc_user' );
+		const uConfig      = {
+			method: 'POST',
+			credentials: 'same-origin',
+			referrerPolicy: 'no-referrer',
+			body: formData
+		};
+		const userResponse = await fetch( getMgUpcConfig().ajaxUrl, uConfig );
+		const user_data    = await userResponse.json();
+		if ( user_data.nonce ) {
+			getMgUpcConfig().nonce = user_data.nonce;
+		}
+		if ( user_data.user_id ) {
+			getMgUpcConfig().user_id = user_data.user_id;
+		}
+	}
 	const config = {
 		method: type, // *GET, POST, PUT, DELETE, etc.
 		//mode: 'cors', // no-cors, *cors, same-origin

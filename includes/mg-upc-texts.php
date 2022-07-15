@@ -5,7 +5,7 @@ class MG_UPC_Texts {
 	public static $texts = array();
 	public static $mods  = array();
 
-	public function __construct() {
+	public static function init() {
 		self::$texts['mg_upc_list'] = array(
 			'Vote'          => array(
 				'default' => __( 'Vote', 'user-post-collections' ),
@@ -165,4 +165,3 @@ class MG_UPC_Texts {
 		return $ret;
 	}
 }
-new MG_UPC_Texts();

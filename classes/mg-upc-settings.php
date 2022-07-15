@@ -320,6 +320,18 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 				'type'    => 'checkbox',
 			);
 
+			$settings_fields['mg_upc_advanced'][] = array(
+				'name'    => 'mg_upc_ajax_load',
+				'default' => 'on',
+				'label'   => 'Ajax load',
+				'desc'    => 'To resolve potential cache issues.',
+				'type'    => 'radio',
+				'options' => array(
+					'off' => __( 'Load nonce and user info on page.', 'user-post-collections' ),
+					'on'  => __( 'Load nonce and user info with ajax.', 'user-post-collections' ),
+				),
+			);
+
 			//***************************************
 			//           TEXTS
 			//***************************************

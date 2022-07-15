@@ -154,7 +154,8 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 			add_filter( 'mg_upc_settings_sections', array( $this, 'mg_upc_settings_sections' ) );
 			add_filter( 'mg_upc_settings_fields', array( $this, 'mg_upc_settings_fields' ) );
 
-			add_action( 'mg_upc_texts_loaded', array( $this, 'woo_texts' ) );
+			//add_action( 'mg_upc_texts_loaded', array( $this, 'woo_texts' ) );
+			$this->woo_texts();
 		}
 
 		add_filter( 'mg_post_item_product_variation_for_response', array( $this, 'product_variant_item' ) );
@@ -324,6 +325,7 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 	}
 
 	public function woo_texts() {
+
 		MG_UPC_Texts::add_string(
 			'modal_client',
 			'Add all to cart',

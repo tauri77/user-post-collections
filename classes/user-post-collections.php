@@ -23,6 +23,9 @@ if ( ! class_exists( 'User_Post_Collections' ) ) {
 		protected function __construct() {
 			$this->register_hook_callbacks();
 
+			// initialize strings
+			MG_UPC_Texts::init();
+
 			$this->model = MG_List_Model::get_instance();
 
 			$this->modules = array(
@@ -36,6 +39,16 @@ if ( ! class_exists( 'User_Post_Collections' ) ) {
 				'MG_UPC_Buttons'             => MG_UPC_Buttons::get_instance(),
 				'MG_UPC_Woocommerce'         => MG_UPC_Woocommerce::get_instance(),
 			);
+
+			add_action( 'wp_ajax_nopriv_mg_upc_user', array( $this, 'ajax_user' ) );
+			add_action( 'wp_ajax_mg_upc_user', array( $this, 'ajax_user' ) );
+		}
+
+		public function ajax_user() {
+			$js_vars            = array();
+			$js_vars['nonce']   = wp_create_nonce( 'wp_rest' );
+			$js_vars['user_id'] = get_current_user_id();
+			wp_send_json( $js_vars );
 		}
 
 		/*
@@ -75,14 +88,27 @@ if ( ! class_exists( 'User_Post_Collections' ) ) {
 			//TODO: option to use cdn
 			//$sortable_url = 'https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js';
 			$js_vars = array(
-				'root'         => esc_url_raw( rest_url() ),
-				'nonce'        => wp_create_nonce( 'wp_rest' ),
-				'user_id'      => get_current_user_id(),
-				'types'        => MG_UPC_Helper::get_instance()->get_user_creatable_list_types(),
-				'statuses'     => MG_UPC_Helper::get_instance()->get_list_statuses( false ),
-				'sortable'     => $sortable_url,
-				'shareButtons' => get_option( 'mg_upc_share_buttons_client', array( 'twitter', 'facebook', 'whatsapp', 'telegram', 'line', 'email' ) ),
+				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 			);
+
+			$ajax_load = get_option( 'mg_upc_ajax_load', 'on' );
+			if ( 'off' === $ajax_load ) {
+				$js_vars['nonce']   = wp_create_nonce( 'wp_rest' );
+				$js_vars['user_id'] = get_current_user_id();
+			}
+			if ( 'all' !== $ajax_load ) {
+				$js_vars = array_merge(
+					$js_vars,
+					array(
+						'root'         => esc_url_raw( rest_url() ),
+						'types'        => MG_UPC_Helper::get_instance()->get_user_creatable_list_types(),
+						'statuses'     => MG_UPC_Helper::get_instance()->get_list_statuses( false ),
+						'sortable'     => $sortable_url,
+						'shareButtons' => get_option( 'mg_upc_share_buttons_client', array( 'twitter', 'facebook', 'whatsapp', 'telegram', 'line', 'email' ) ),
+					)
+				);
+			}
+
 			wp_register_style(
 				'mg-user-post-collections-admin',
 				plugins_url( 'css/admin.css', dirname( __FILE__ ) ),
