@@ -129,7 +129,7 @@ class MG_List_Items_Model {
 		if ( null === $items ) {
 
 			$select_count = "SELECT COUNT(*) FROM `{$this->get_table_list_items()}` ";
-			$select       = 'SELECT `list_id`, `post_id`, `votes`, `position`, `description`, `quantity`' .
+			$select       = 'SELECT `list_id`, `post_id`, `votes`, `position`, `description`, `quantity`, `addon_json`' .
 							"FROM `{$this->get_table_list_items()}` ";
 			$sql          = '';
 
@@ -434,17 +434,17 @@ class MG_List_Items_Model {
 	/**
 	 * Add an item to a list
 	 *
-	 * @param int    $list_id
-	 * @param int    $post_id
-	 * @param string $description (Optional)
-	 * @param int    $quantity (Optional)
+	 * @param int         $list_id
+	 * @param int         $post_id
+	 * @param string      $description (Optional)
+	 * @param int         $quantity (Optional)
+	 * @param null|string $addon_json
 	 *
 	 * @throws MG_UPC_Invalid_Field_Exception
 	 * @throws MG_UPC_Item_Exist_Exception
 	 * @throws MG_UPC_Item_Not_Found_Exception
-	 * @throws Exception
 	 */
-	public function add_item( $list_id, $post_id, $description = '', $quantity = 0 ) {
+	public function add_item( $list_id, $post_id, $description = '', $quantity = 0, $addon_json = null ) {
 		global $wpdb;
 		/** @global User_Post_Collections $mg_upc Global plugin object. */
 		global $mg_upc;
@@ -463,6 +463,16 @@ class MG_List_Items_Model {
 		$description = wp_strip_all_tags( $description );
 		if ( mg_upc_strlen( $description ) > 400 ) {
 			throw new MG_UPC_Invalid_Field_Exception( 'The description exceeds the maximum number of characters.' );
+		}
+
+		if ( ! is_string( $addon_json ) && null !== $addon_json ) {
+			throw new Exception( 'Invalid parameters' );
+		}
+		if ( is_string( $addon_json ) ) {
+			json_decode( $addon_json );
+			if ( json_last_error() !== JSON_ERROR_NONE ) {
+				throw new MG_UPC_Invalid_Field_Exception( 'Invalid addon_json field.' );
+			}
 		}
 
 		if ( ! $this->helper->post_exist( $post_id ) ) {
@@ -521,11 +531,12 @@ class MG_List_Items_Model {
 			'list_id'     => $list_id,
 			'position'    => $position,
 			'description' => $description,
+			'addon_json'  => $addon_json,
 			'quantity'    => $quantity,
 			'added'       => gmdate( 'Y-m-d H:i:s' ),
 		);
 
-		$format = array( '%d', '%d', '%d', '%s', '%s' );
+		$format = array( '%d', '%d', '%d', '%s', '%s', '%d', '$s' );
 
 		$ok = $wpdb->insert( $this->get_table_list_items(), $data, $format );
 
@@ -565,15 +576,8 @@ class MG_List_Items_Model {
 	 * @throws Exception
 	 */
 	public function update_item_description( $list_id, $post_id, $description = '' ) {
-		global $wpdb;
-		$post_id = (int) $post_id;
-		$list_id = (int) $list_id;
-		if ( ! $post_id || ! $list_id || ! is_string( $description ) ) {
+		if ( ! is_string( $description ) ) {
 			throw new Exception( 'Invalid parameters' );
-		}
-
-		if ( ! $this->item_exists( $list_id, $post_id ) ) {
-			throw new MG_UPC_Item_Not_Found_Exception( 'Item not found.' );
 		}
 
 		$description = wp_strip_all_tags( $description );
@@ -581,29 +585,7 @@ class MG_List_Items_Model {
 			throw new MG_UPC_Invalid_Field_Exception( 'The description exceeds the maximum number of characters.' );
 		}
 
-		if ( ! $this->helper->post_exist( $post_id ) ) {
-			throw new MG_UPC_Item_Not_Found_Exception( 'Item not found.' );
-		}
-
-		$data = array(
-			'description' => $description,
-		);
-
-		$where = array(
-			'post_id' => $post_id,
-			'list_id' => $list_id,
-		);
-
-		$format       = array( '%s' );
-		$where_format = array( '%d', '%d' );
-
-		$ok = $wpdb->update( $this->get_table_list_items(), $data, $where, $format, $where_format );
-
-		if ( $ok ) {
-			$this->cache->remove();
-
-			do_action( 'mg_upc_update_item_description', $list_id, $post_id, $description );
-		}
+		$this->update_field( $list_id, $post_id, 'description', $description );
 	}
 
 	/**
@@ -617,14 +599,51 @@ class MG_List_Items_Model {
 	 * @throws Exception
 	 */
 	public function update_item_quantity( $list_id, $post_id, $quantity ) {
+		$this->update_field( $list_id, $post_id, 'quantity', (int) $quantity );
+	}
+
+	/**
+	 * Update description for a item
+	 *
+	 * @param int    $list_id
+	 * @param int    $post_id
+	 * @param string $addon_json
+	 *
+	 * @throws MG_UPC_Invalid_Field_Exception
+	 * @throws MG_UPC_Item_Not_Found_Exception
+	 * @throws Exception
+	 */
+	public function update_item_addon_json( $list_id, $post_id, $addon_json ) {
+		if ( ! is_string( $addon_json ) && null !== $addon_json ) {
+			throw new Exception( 'Invalid parameters' );
+		}
+
+		if ( is_string( $addon_json ) ) {
+			json_decode( $addon_json );
+			if ( json_last_error() !== JSON_ERROR_NONE ) {
+				throw new MG_UPC_Invalid_Field_Exception( 'Invalid addon_json field.' );
+			}
+		}
+
+		$this->update_field( $list_id, $post_id, 'addon_json', $addon_json );
+	}
+
+	/**
+	 * @param $list_id
+	 * @param $post_id
+	 * @param $field
+	 * @param $value
+	 *
+	 * @throws MG_UPC_Item_Not_Found_Exception
+	 * @throws Exception
+	 */
+	private function update_field( $list_id, $post_id, $field, $value ) {
 		global $wpdb;
 		$post_id = (int) $post_id;
 		$list_id = (int) $list_id;
 		if ( ! $post_id || ! $list_id ) {
 			throw new Exception( 'Invalid parameters' );
 		}
-
-		$quantity = (int) $quantity;
 
 		if ( ! $this->item_exists( $list_id, $post_id ) ) {
 			throw new MG_UPC_Item_Not_Found_Exception( 'Item not found.' );
@@ -635,15 +654,18 @@ class MG_List_Items_Model {
 		}
 
 		$data = array(
-			'quantity' => $quantity,
+			$field => $value,
 		);
+		if ( is_int( $value ) ) {
+			$format = array( '%d' );
+		} else {
+			$format = array( '%s' );
+		}
 
-		$where = array(
+		$where        = array(
 			'post_id' => $post_id,
 			'list_id' => $list_id,
 		);
-
-		$format       = array( '%s' );
 		$where_format = array( '%d', '%d' );
 
 		$ok = $wpdb->update( $this->get_table_list_items(), $data, $where, $format, $where_format );
@@ -651,7 +673,7 @@ class MG_List_Items_Model {
 		if ( $ok ) {
 			$this->cache->remove();
 
-			do_action( 'mg_upc_update_item_quantity', $list_id, $post_id, $quantity );
+			do_action( 'mg_upc_update_item_' . $field, $list_id, $post_id, $value );
 		}
 	}
 

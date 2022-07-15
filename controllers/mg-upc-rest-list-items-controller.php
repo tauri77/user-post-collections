@@ -485,8 +485,8 @@ class MG_UPC_REST_List_Items_Controller {
 		}
 
 		$to_save = array(
-			'list_id'     => $list_id,
-			'post_id'     => $post_id,
+			'list_id' => $list_id,
+			'post_id' => $post_id,
 		);
 		$data    = array();
 		if (
@@ -522,10 +522,11 @@ class MG_UPC_REST_List_Items_Controller {
 
 		/**
 		 * Filter for item to save. If return WP_Error, the operation is canceled.
-		 * @param array $to_save      The item to insert
-		 * @param object $list_before The list object
+		 * @param array                 $to_save      The item to insert
+		 * @param object                $list_before The list object
+		 * @param array|WP_REST_Request $request     The list object
 		 */
-		$to_save = apply_filters( 'mg_upc_pre_add_item', $to_save, $list_before );
+		$to_save = apply_filters( 'mg_upc_pre_add_item', $to_save, $list_before, $request );
 		if ( is_wp_error( $to_save ) ) {
 			return $to_save;
 		}

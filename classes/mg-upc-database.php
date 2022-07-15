@@ -96,6 +96,9 @@ class MG_UPC_Database extends MG_UPC_Module {
 		if ( version_compare( $db_version, '0.8.21', '<' ) ) {
 			self::add_cart_quantity();
 		}
+		if ( version_compare( $db_version, '0.8.23', '<' ) ) {
+			self::add_addon_json();
+		}
 	}
 
 	/**
@@ -206,5 +209,15 @@ class MG_UPC_Database extends MG_UPC_Module {
 		$table_items = $mg_upc->model->items->get_table_list_items();
 		//phpcs:ignore
 		$wpdb->query( "ALTER TABLE {$table_items} ADD `quantity` int(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `votes`;" );
+	}
+
+	private static function add_addon_json() {
+		/** @global User_Post_Collections $mg_upc Global plugin object. */
+		global $mg_upc;
+		global $wpdb;
+
+		$table_items = $mg_upc->model->items->get_table_list_items();
+		//phpcs:ignore
+		$wpdb->query( "ALTER TABLE {$table_items} ADD `addon_json` longtext DEFAULT NULL AFTER `description`;" );
 	}
 }

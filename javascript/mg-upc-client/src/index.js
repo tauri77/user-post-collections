@@ -38,7 +38,7 @@ import List from "./components/list";
 
 
 function isEditable(list) {
-	return list.author === getMgUpcConfig().user_id;
+	return parseInt( list.author, 10 ) === parseInt( getMgUpcConfig().user_id, 10 );
 }
 
 function App() {
