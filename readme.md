@@ -44,8 +44,10 @@ The plugin is being developed in an existing database, but the structure is such
 
 ## Screenshots
 
-![Screenshot 1](screenshot-1.png?raw=true)
-![Screenshot 2](screenshot-2.png?raw=true)
-![Screenshot 3](screenshot-3.png?raw=true)
-![Screenshot 4](screenshot-4.png?raw=true)
-![Screenshot 5](screenshot-5.png?raw=true)
+![Screenshot 1](assets/screenshots/screenshot-1.png?raw=true)
+![Screenshot 2](assets/screenshots/screenshot-2.png?raw=true)
+![Screenshot 3](assets/screenshots/screenshot-3.png?raw=true)
+![Screenshot 4](assets/screenshots/screenshot-4.png?raw=true)
+![Screenshot 5](assets/screenshots/screenshot-5.png?raw=true)
+![Screenshot 6](assets/screenshots/screenshot-6.png?raw=true)
+![Screenshot 7](assets/screenshots/screenshot-7.png?raw=true)

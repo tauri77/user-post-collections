@@ -43,11 +43,13 @@ If you are a developer and you are making a theme you can register your own list
 
 == Screenshots ==
 
-1. Add button
-2. User List
-3. Editing List
-4. List
-5. Poll list page
+1. Add item button
+2. Item comment
+3. Select list
+4. Select type of list to create
+5. Edit list details
+6. Share link for the list
+7. Poll list page
 
 == Frequently Asked Questions ==
 
