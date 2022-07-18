@@ -1036,6 +1036,10 @@ class MG_UPC_REST_List_Items_Controller {
 				'type'        => 'integer',
 				'readonly'    => true,
 			),
+			'title'          => array(
+				'description' => esc_html__( 'Item title.', 'user-post-collections' ),
+				'type'        => 'string',
+			),
 			'description'    => array(
 				'description' => esc_html__( 'Item description.', 'user-post-collections' ),
 				'type'        => 'string',
@@ -1078,49 +1082,6 @@ class MG_UPC_REST_List_Items_Controller {
 			),
 			'link'           => array(
 				'description' => esc_html__( 'Link for post_id.', 'user-post-collections' ),
-				'type'        => 'string',
-				'readonly'    => true,
-			),
-			'product_type'   => array(
-				'description' => esc_html__(
-					'Product type (simple, variable, variation...).',
-					'user-post-collections'
-				),
-				'type'        => 'string',
-				'readonly'    => true,
-			),
-			'price_html'     => array(
-				'description' => esc_html__( 'Item price in html format.', 'user-post-collections' ),
-				'type'        => 'string',
-				'readonly'    => true,
-			),
-			'price'          => array(
-				'description' => esc_html__( 'Product price.', 'user-post-collections' ),
-				'type'        => 'string',
-				'readonly'    => true,
-			),
-			'sale_price'     => array(
-				'description' => esc_html__( 'Product sale price.', 'user-post-collections' ),
-				'type'        => 'string',
-				'readonly'    => true,
-			),
-			'regular_price'  => array(
-				'description' => esc_html__( 'Product regular price.', 'user-post-collections' ),
-				'type'        => 'string',
-				'readonly'    => true,
-			),
-			'price_min'      => array(
-				'description' => esc_html__( 'Product min price (variable product).', 'user-post-collections' ),
-				'type'        => 'string',
-				'readonly'    => true,
-			),
-			'price_max'      => array(
-				'description' => esc_html__( 'Product max price (variable product).', 'user-post-collections' ),
-				'type'        => 'string',
-				'readonly'    => true,
-			),
-			'price_suffix'   => array(
-				'description' => esc_html__( 'Product price suffix.', 'user-post-collections' ),
 				'type'        => 'string',
 				'readonly'    => true,
 			),

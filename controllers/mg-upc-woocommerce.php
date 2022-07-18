@@ -102,6 +102,10 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 	public function pre_init() {
 
 		if ( class_exists( 'WooCommerce' ) ) {
+
+			// Add new properties to item schema
+			add_filter( 'mg_upc_api_schema_item', array( $this, 'schema_item' ) );
+
 			//Add 'product' to allowed post types by default
 			add_filter(
 				'mg_upc_before_list_type_options_saved_set',
@@ -383,6 +387,71 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 				'option'  => 'cart_all',
 			)
 		);
+	}
+
+	public function schema_item( $schema ) {
+		$schema_plus = array(
+			'product_type'  => array(
+				'description' => esc_html__(
+					'Product type (simple, variable, variation...).',
+					'user-post-collections'
+				),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'price_html'    => array(
+				'description' => esc_html__( 'Item price in html format.', 'user-post-collections' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'price'         => array(
+				'description' => esc_html__( 'Product price.', 'user-post-collections' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'sale_price'    => array(
+				'description' => esc_html__( 'Product sale price.', 'user-post-collections' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'regular_price' => array(
+				'description' => esc_html__( 'Product regular price.', 'user-post-collections' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'price_min'     => array(
+				'description' => esc_html__( 'Product min price (variable product).', 'user-post-collections' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'price_max'     => array(
+				'description' => esc_html__( 'Product max price (variable product).', 'user-post-collections' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'price_suffix'  => array(
+				'description' => esc_html__( 'Product price suffix.', 'user-post-collections' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'is_on_sale'    => array(
+				'description' => esc_html__( 'Is product on sale?', 'user-post-collections' ),
+				'type'        => 'boolean',
+				'readonly'    => true,
+			),
+			'is_in_stock'   => array(
+				'description' => esc_html__( 'Is product in stock?', 'user-post-collections' ),
+				'type'        => 'boolean',
+				'readonly'    => true,
+			),
+			'stock_html'    => array(
+				'description' => esc_html__( 'Item stock html.', 'user-post-collections' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+		);
+
+		return array_merge( $schema, $schema_plus );
 	}
 
 	/**

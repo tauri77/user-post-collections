@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  description: "Make sure that in all requests you set the X-WP-Nonce header.<br><br>  For collections the pagination is in the response header:<br> X-WP-Page<br>X-WP-Total<br>X-WP-TotalPages<br><br>You can find out more about UPC at [https:e//github.com/tauri77/user-post-collections](httpse:e/e/github.com/tauri77/user-post-collections)."
+  description: "Make sure that in all requests you set the X-WP-Nonce header.<br><br> For collections the pagination is in the response header:<br> X-WP-Page<br>X-WP-Total<br>X-WP-TotalPages<br><br>Product related parts will only be available on a woocommerce install.<br><br>You can find out more about UPC at [https:e//github.com/tauri77/user-post-collections](httpse:e/e/github.com/tauri77/user-post-collections)."
   version: 0.8.23
   title: User Post Collectionse
   contact:
@@ -1286,6 +1286,10 @@ components:
           type: integer
           description: Unique identifier for the post.
           example: 2341
+        title:
+          type: string
+          description: The item title.
+          example: "The post/product title"
         description:
           type: string
           description: Item description.
@@ -1326,10 +1330,22 @@ components:
           type: string
           description: Product type (simple, variable, variation...).
           example: 'variable'
+        stock_html:
+          type: string
+          description: Item stock html.
+          example: ''
+        is_in_stock:
+          type: boolean
+          description: Is product in stock?
+          example: true
         price_html:
           type: string
           description: Item price in html format.
           example: '<del aria-hidden="true"><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">&#36;</span>4.84</bdi></span></del> <ins><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">&#36;</span>4.84</bdi></span></ins> <small class="woocommerce-price-suffix">TAX include</small>'
+        is_on_sale:
+          type: boolean
+          description: Is product on sale?
+          example: true
         price:
           type: string
           description: Product price.
