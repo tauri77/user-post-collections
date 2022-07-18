@@ -92,7 +92,10 @@ class MG_UPC_REST_List_Items_Controller {
 						'post_id'     => array(
 							'type'        => 'integer',
 							'required'    => true,
-							'description' => esc_html__( 'The post id for add to the list.', 'user-post-collections' ),
+							'description' => esc_html__(
+								'The post id for add to the list.',
+								'user-post-collections'
+							),
 						),
 						'description' => array(
 							'type'              => 'string',
@@ -102,8 +105,21 @@ class MG_UPC_REST_List_Items_Controller {
 							'validate_callback' => 'rest_validate_request_arg',
 							'description'       => esc_html__( 'The item comment.', 'user-post-collections' ),
 						),
+						'quantity'    => array(
+							'type'              => 'integer',
+							'description'       => esc_html__(
+								'The quantity for the post on the list.',
+								'user-post-collections'
+							),
+							'sanitize_callback' => 'absint',
+							'validate_callback' => 'rest_validate_request_arg',
+							'minimum'           => 1,
+						),
 						'context'     => array(
-							'description'       => esc_html__( 'Scope under which the request is made; determines fields present in response.', 'user-post-collections' ),
+							'description'       => esc_html__(
+								'Scope under which the request is made; determines fields present in response.',
+								'user-post-collections'
+							),
 							'type'              => 'string',
 							'default'           => 'view',
 							'sanitize_callback' => 'sanitize_key',
@@ -131,16 +147,25 @@ class MG_UPC_REST_List_Items_Controller {
 					'args'                => array(
 						'position'    => array(
 							'type'        => 'integer',
-							'description' => esc_html__( 'The position for the post on the list.', 'user-post-collections' ),
+							'description' => esc_html__(
+								'The position for the post on the list.',
+								'user-post-collections'
+							),
 						),
 						'description' => array(
 							'type'              => 'string',
-							'description'       => esc_html__( 'The description/comment for the post on the list.', 'user-post-collections' ),
+							'description'       => esc_html__(
+								'The description/comment for the post on the list.',
+								'user-post-collections'
+							),
 							'sanitize_callback' => 'sanitize_text_field',
 						),
 						'quantity'    => array(
 							'type'              => 'integer',
-							'description'       => esc_html__( 'The quantity for the post on the list.', 'user-post-collections' ),
+							'description'       => esc_html__(
+								'The quantity for the post on the list.',
+								'user-post-collections'
+							),
 							'sanitize_callback' => 'absint',
 						),
 					),
@@ -158,14 +183,20 @@ class MG_UPC_REST_List_Items_Controller {
 					'permission_callback' => array( $this, 'vote_item_permissions_check' ),
 					'args'                => array(
 						'context' => array(
-							'description'       => esc_html__( 'Scope under which the request is made; determines fields present in response.', 'user-post-collections' ),
+							'description'       => esc_html__(
+								'Scope under which the request is made; determines fields present in response.',
+								'user-post-collections'
+							),
 							'type'              => 'string',
 							'default'           => 'view',
 							'sanitize_callback' => 'sanitize_key',
 							'validate_callback' => 'rest_validate_request_arg',
 						),
 						'posts'   => array(
-							'description'       => esc_html__( 'Posts present in response, comma separated.', 'user-post-collections' ),
+							'description'       => esc_html__(
+								'Posts present in response, comma separated.',
+								'user-post-collections'
+							),
 							'type'              => 'string',
 							'default'           => '',
 							'sanitize_callback' => 'sanitize_text_field',
@@ -191,7 +222,7 @@ class MG_UPC_REST_List_Items_Controller {
 			return new WP_Error(
 				'rest_forbidden',
 				esc_html__( 'You cannot view the list.', 'user-post-collections' ),
-				array( 'status' => $this->authorization_status_code() )
+				array( 'status' => MG_UPC_List_Controller::authorization_status_code() )
 			);
 		}
 
@@ -218,7 +249,7 @@ class MG_UPC_REST_List_Items_Controller {
 				'rest_forbidden',
 				esc_html__( 'You cannot write this list.', 'user-post-collections' ),
 				array(
-					'status' => $this->authorization_status_code(),
+					'status' => MG_UPC_List_Controller::authorization_status_code(),
 				)
 			);
 		}
@@ -243,7 +274,7 @@ class MG_UPC_REST_List_Items_Controller {
 			return new WP_Error(
 				'rest_forbidden',
 				esc_html__( 'You cannot view the list.', 'user-post-collections' ),
-				array( 'status' => $this->authorization_status_code() )
+				array( 'status' => MG_UPC_List_Controller::authorization_status_code() )
 			);
 		}
 		return true;
@@ -264,7 +295,7 @@ class MG_UPC_REST_List_Items_Controller {
 				'rest_forbidden',
 				esc_html__( 'You cannot write this list.', 'user-post-collections' ),
 				array(
-					'status' => $this->authorization_status_code(),
+					'status' => MG_UPC_List_Controller::authorization_status_code(),
 				)
 			);
 		}
@@ -342,7 +373,7 @@ class MG_UPC_REST_List_Items_Controller {
 	 */
 	public function create_item_always_exist( $request ) {
 
-		$data = array();
+		$response = array( 'data' => array() );
 
 		try {
 			$list = $this->model->find_always_exist( $request['upctype'], get_current_user_id() );
@@ -355,24 +386,24 @@ class MG_UPC_REST_List_Items_Controller {
 			}
 			return $this->create_item( $request );
 		} catch ( MG_UPC_Invalid_Field_Exception $e ) {
-			$data['code']    = 'rest_invalid_field';
-			$data['message'] = $e->getMessage();
-			$data['status']  = 409;
+			$response['code']           = 'rest_invalid_field';
+			$response['message']        = $e->getMessage();
+			$response['data']['status'] = 409;
 		} catch ( MG_UPC_Required_Field_Exception $e ) {
-			$data['code']    = 'rest_required_field';
-			$data['message'] = $e->getMessage();
-			$data['status']  = 409;
+			$response['code']           = 'rest_required_field';
+			$response['message']        = $e->getMessage();
+			$response['data']['status'] = 409;
 		} catch ( Exception $e ) {
-			$data['code']    = 'rest_db_error';
-			$data['message'] = $e->getMessage();
-			$data['status']  = 500;
+			$response['code']           = 'rest_db_error';
+			$response['message']        = $e->getMessage();
+			$response['data']['status'] = 500;
 		}
 
-		$response = new WP_REST_Response();
-		$response->set_data( $data );
-		$response->set_status( $data['status'] );
+		$response_api = new WP_REST_Response();
+		$response_api->set_data( $response );
+		$response_api->set_status( $response['status'] );
 
-		return $response;
+		return $response_api;
 	}
 
 	/**
@@ -384,19 +415,17 @@ class MG_UPC_REST_List_Items_Controller {
 	 */
 	public function create_item( $request ) {
 
-		$response = new WP_REST_Response();
-
-		$data = array();
+		$response = array( 'data' => array() );
 
 		try {
-			$data = self::add_tem_to_list( (int) $request['id'], (int) $request['post_id'], $request );
-			if ( is_wp_error( $data ) ) {
-				return $data;
+			$response = self::add_tem_to_list( (int) $request['id'], (int) $request['post_id'], $request );
+			if ( is_wp_error( $response ) ) {
+				return $response;
 			}
 		} catch ( MG_UPC_Item_Exist_Exception $e ) {
-			$data['code']    = 'rest_item_exist_error';
-			$data['message'] = esc_html( $e->getMessage() );
-			$data['status']  = 409;
+			$response['code']           = 'rest_item_exist_error';
+			$response['message']        = esc_html( $e->getMessage() );
+			$response['data']['status'] = 409;
 		} catch ( Exception $e ) {
 			return new WP_Error(
 				'rest_db_error',
@@ -410,21 +439,22 @@ class MG_UPC_REST_List_Items_Controller {
 
 			$post = MG_UPC_List_Controller::get_instance()->get_post_for_add( (int) $request['post_id'], $request );
 
-			$data['post'] = array(
+			$response['post'] = array(
 				'title' => $post->post_title,
 				'link'  => get_the_permalink( $post->ID ),
 			);
 
-			$data['list'] = MG_UPC_List_Controller::get_instance()->prepare_list_for_response(
+			$response['list'] = MG_UPC_List_Controller::get_instance()->prepare_list_for_response(
 				$list_before,
 				array( 'context' => 'view' )
 			);
 		}
 
-		$response->set_data( $data );
-		$response->set_status( $data['status'] );
+		$api_response = new WP_REST_Response();
+		$api_response->set_data( $response );
+		$api_response->set_status( $response['data'] );
 
-		return $response;
+		return $api_response;
 
 	}
 
@@ -457,7 +487,7 @@ class MG_UPC_REST_List_Items_Controller {
 			return new WP_Error(
 				'rest_unable_post_add',
 				esc_html__( 'Unable to add items to this list.', 'user-post-collections' ),
-				array( 'status' => 403 )
+				array( 'status' => MG_UPC_List_Controller::authorization_status_code() )
 			);
 		}
 
@@ -466,7 +496,7 @@ class MG_UPC_REST_List_Items_Controller {
 				return new WP_Error(
 					'rest_unable_post_add_max',
 					esc_html__( 'Unable to add more items to this list.', 'user-post-collections' ),
-					array( 'status' => 403 )
+					array( 'status' => MG_UPC_List_Controller::authorization_status_code() )
 				);
 			}
 		}
@@ -480,32 +510,35 @@ class MG_UPC_REST_List_Items_Controller {
 			return new WP_Error(
 				'rest_unable_post_add',
 				esc_html__( 'Unable to add this post to list.', 'user-post-collections' ),
-				array( 'status' => 403 )
+				array( 'status' => MG_UPC_List_Controller::authorization_status_code() )
 			);
 		}
 
-		$to_save = array(
+		$to_save  = array(
 			'list_id' => $list_id,
 			'post_id' => $post_id,
 		);
-		$data    = array();
+		$response = array( 'data' => array() );
 		if (
 			is_string( $request['description'] ) &&
 			! empty( $request['description'] )
 		) {
 			if ( ! $list_type_obj->support( 'editable_item_description' ) ) {
-				$data['code']    = 'rest_item_desc_error';
-				$data['message'] = esc_html__( 'This list dont support item description', 'user-post-collections' );
-				$data['status']  = 409;
-				$data['added']   = true;
+				$response['code']           = 'rest_item_desc_error';
+				$response['message']        = esc_html__(
+					'This list dont support item description',
+					'user-post-collections'
+				);
+				$response['data']['status'] = 409;
+				$response['added']          = true;
 			} else {
-				$to_save['description'] = $request['description'];
-				$data['status']         = 201;
-				$data['added']          = true;
+				$to_save['description']     = $request['description'];
+				$response['data']['status'] = 201;
+				$response['added']          = true;
 			}
 		} else {
-			$data['status'] = 201;
-			$data['added']  = true;
+			$response['data']['status'] = 201;
+			$response['added']          = true;
 		}
 		if (
 			isset( $request['quantity'] ) &&
@@ -513,9 +546,9 @@ class MG_UPC_REST_List_Items_Controller {
 		) {
 			if ( $list_type_obj->support( 'quantity' ) && 0 <= (int) $request['quantity'] ) {
 				$to_save['quantity'] = $request['quantity'];
-				if ( ! isset( $data['code'] ) ) {
-					$data['status'] = 201;
-					$data['added']  = true;
+				if ( ! isset( $response['code'] ) ) {
+					$response['data']['status'] = 201;
+					$response['added']          = true;
 				}
 			}
 		}
@@ -538,7 +571,7 @@ class MG_UPC_REST_List_Items_Controller {
 			isset( $to_save['quantity'] ) ? $to_save['quantity'] : 0
 		);
 
-		return $data;
+		return $response;
 	}
 
 	/**
@@ -571,7 +604,7 @@ class MG_UPC_REST_List_Items_Controller {
 				return new WP_Error(
 					'rest_unable_post_add_max',
 					esc_html__( 'Unable to edit items in this list.', 'user-post-collections' ),
-					array( 'status' => 403 )
+					array( 'status' => MG_UPC_List_Controller::authorization_status_code() )
 				);
 			}
 
@@ -723,7 +756,11 @@ class MG_UPC_REST_List_Items_Controller {
 					)
 				);
 
-				$show_on_vote = MG_UPC_Helper::get_instance()->get_list_type_option( $list->type, 'show_on_vote', 'off' );
+				$show_on_vote = MG_UPC_Helper::get_instance()->get_list_type_option(
+					$list->type,
+					'show_on_vote',
+					'off'
+				);
 				if ( ! $show_on_vote || 0 !== $request['postid'] ) {
 					$data['posts'] = $actual['items'];
 				}
@@ -830,25 +867,25 @@ class MG_UPC_REST_List_Items_Controller {
 	 * @return WP_Error|WP_REST_Response
 	 */
 	public function get_items( $request ) {
-		$data = MG_UPC_List_Controller::get_instance()->get_items( $request );
+		$items = MG_UPC_List_Controller::get_instance()->get_items( $request );
 
-		if ( empty( $data ) ) {
+		if ( empty( $items ) ) {
 			return rest_ensure_response( array() );
 		}
-		if ( is_wp_error( $data ) ) {
-			return $data;
+		if ( is_wp_error( $items ) ) {
+			return $items;
 		}
 
 		$response = array();
-		foreach ( $data['items'] as $item ) {
+		foreach ( $items['items'] as $item ) {
 			$response[] = $this->prepare_response_for_collection( $item );
 		}
 
 		// Return all of our comment response data.
 		$rest_response = new WP_REST_Response( $response, 200 );
-		$rest_response->header( 'X-WP-Total', $data['total'] );
-		$rest_response->header( 'X-WP-TotalPages', $data['total_pages'] );
-		$rest_response->header( 'X-WP-Page', $data['current'] );
+		$rest_response->header( 'X-WP-Total', $items['total'] );
+		$rest_response->header( 'X-WP-TotalPages', $items['total_pages'] );
+		$rest_response->header( 'X-WP-Page', $items['current'] );
 
 		return $rest_response;
 	}
@@ -881,18 +918,6 @@ class MG_UPC_REST_List_Items_Controller {
 		}
 
 		return $data;
-	}
-
-	// Sets up the proper HTTP status code for authorization.
-	public function authorization_status_code() {
-
-		$status = 401;
-
-		if ( is_user_logged_in() ) {
-			$status = 403;
-		}
-
-		return $status;
 	}
 
 	/**
@@ -932,7 +957,10 @@ class MG_UPC_REST_List_Items_Controller {
 				'minimum'     => 1,
 			),
 			'per_page' => array(
-				'description' => esc_html__( 'Maximum number of items to be returned in result set.', 'user-post-collections' ),
+				'description' => esc_html__(
+					'Maximum number of items to be returned in result set.',
+					'user-post-collections'
+				),
 				'type'        => 'integer',
 				'default'     => (int) get_option( 'mg_upc_api_item_per_page', 12 ),
 				'minimum'     => 1,
@@ -941,7 +969,10 @@ class MG_UPC_REST_List_Items_Controller {
 		);
 
 		$query_params['order'] = array(
-			'description' => esc_html__( 'Order sort attribute ascending or descending.', 'user-post-collections' ),
+			'description' => esc_html__(
+				'Order sort attribute ascending or descending.',
+				'user-post-collections'
+			),
 			'type'        => 'string',
 			'default'     => 'desc',
 			'enum'        => array( 'asc', 'desc' ),
@@ -977,10 +1008,7 @@ class MG_UPC_REST_List_Items_Controller {
 			// The title property marks the identity of the resource.
 			'title'      => 'listItem',
 			'type'       => 'object',
-			'properties' => array(
-				'type'       => 'object',
-				'properties' => self::get_item_properties_schema(),
-			),
+			'properties' => self::get_item_properties_schema(),
 		);
 
 		return $this->schema;
@@ -997,7 +1025,7 @@ class MG_UPC_REST_List_Items_Controller {
 	public function upgrade( $db_version = 0 ) { }
 
 	public static function get_item_properties_schema() {
-		return array(
+		$item_schema = array(
 			'list_id'        => array(
 				'description' => esc_html__( 'Unique identifier for the list.', 'user-post-collections' ),
 				'type'        => 'integer',
@@ -1013,7 +1041,10 @@ class MG_UPC_REST_List_Items_Controller {
 				'type'        => 'string',
 			),
 			'quantity'       => array(
-				'description' => esc_html__( 'Quantity of items (in cart type, the quantity for the product).', 'user-post-collections' ),
+				'description' => esc_html__(
+					'Quantity of items (in cart type, the quantity for the product).',
+					'user-post-collections'
+				),
 				'type'        => 'integer',
 			),
 			'position'       => array(
@@ -1051,7 +1082,10 @@ class MG_UPC_REST_List_Items_Controller {
 				'readonly'    => true,
 			),
 			'product_type'   => array(
-				'description' => esc_html__( 'Product type (simple, variable, variation...).', 'user-post-collections' ),
+				'description' => esc_html__(
+					'Product type (simple, variable, variation...).',
+					'user-post-collections'
+				),
 				'type'        => 'string',
 				'readonly'    => true,
 			),
@@ -1091,6 +1125,8 @@ class MG_UPC_REST_List_Items_Controller {
 				'readonly'    => true,
 			),
 		);
+
+		return apply_filters( 'mg_upc_api_schema_item', $item_schema );
 	}
 
 }

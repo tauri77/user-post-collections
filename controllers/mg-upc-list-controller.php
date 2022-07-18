@@ -370,6 +370,14 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 			}
 		}
 
+		if ( ! empty( $list_data['created'] ) ) {
+			$list_data['created'] = gmdate( DATE_ISO8601, strtotime( $list_data['created'] ) );
+		}
+
+		if ( ! empty( $list_data['modified'] ) ) {
+			$list_data['modified'] = gmdate( DATE_ISO8601, strtotime( $list_data['modified'] ) );
+		}
+
 		$list_data = apply_filters( 'prepare_list_data_for_response', $list_data, $list, $config );
 
 		return $list_data;
@@ -396,7 +404,13 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 			return null;
 		}
 
-		return apply_filters( 'mg_prepare_item_for_response', $data, $config );
+		$item_response = apply_filters( 'mg_prepare_item_for_response', $data, $config );
+
+		if ( key_exists( 'addon_json', $item_response ) ) {
+			unset( $item_response['addon_json'] );
+		}
+
+		return $item_response;
 	}
 
 	/**
@@ -406,7 +420,7 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 	 * @param WP_Post $post    The post associated to the item
 	 * @param null    $config  (Only used for filter)
 	 *
-	 * @return mixed|void
+	 * @return array
 	 */
 	public function add_post_info_to_item( $data, $post, $config = null ) {
 
@@ -456,8 +470,8 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 	 */
 	public function get_post_for_add( $id, $request ) {
 		$error = new WP_Error(
-			'rest_post_invalid_id',
-			esc_html__( 'Invalid post ID.', 'user-post-collections' ),
+			'rest_post_not_found',
+			esc_html__( 'Post not found.', 'user-post-collections' ),
 			array( 'status' => 404 )
 		);
 
@@ -753,6 +767,18 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 		 * @param array $allowed_tags The allowed tags.
 		 */
 		return apply_filters( 'mg_upc_content_allowed_tags', $allowed_tags );
+	}
+
+	// Sets up the proper HTTP status code for authorization.
+	public static function authorization_status_code() {
+
+		$status = 401;
+
+		if ( is_user_logged_in() ) {
+			$status = 403;
+		}
+
+		return $status;
 	}
 
 	public function init() { }

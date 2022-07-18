@@ -23,6 +23,7 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 						'list' => array(
 							'description'       => __( 'The list id for add to cart.', 'user-post-collections' ),
 							'type'              => 'integer',
+							'required'          => true,
 							'minimum'           => 1,
 							'sanitize_callback' => 'absint',
 							'validate_callback' => 'rest_validate_request_arg',
@@ -154,7 +155,6 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 			add_filter( 'mg_upc_settings_sections', array( $this, 'mg_upc_settings_sections' ) );
 			add_filter( 'mg_upc_settings_fields', array( $this, 'mg_upc_settings_fields' ) );
 
-			//add_action( 'mg_upc_texts_loaded', array( $this, 'woo_texts' ) );
 			$this->woo_texts();
 		}
 
@@ -239,12 +239,18 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 		$settings_fields['mg_upc_product'][] = array(
 			'name'    => 'mg_upc_page_add_to_cart',
 			'label'   => __( 'Cart button on collection page', 'user-post-collections' ),
-			'desc'    => __( 'Show "Add to cart" button on collection page. (A product variation is different from a variable product)', 'user-post-collections' ),
+			'desc'    => __(
+				'Show "Add to cart" button on collection page. (A product variation is different from a variable product)',
+				'user-post-collections'
+			),
 			'default' => 'on',
 			'type'    => 'radio',
 			'options' => array(
 				'on'         => __( 'Always (that is not out of stock)', 'user-post-collections' ),
-				'novariable' => __( 'Always less in variable product (otherwise the button is used as a link to the variable product)', 'user-post-collections' ),
+				'novariable' => __(
+					'Always less in variable product (otherwise the button is used as a link to the variable product)',
+					'user-post-collections'
+				),
 				'off'        => __( 'Never', 'user-post-collections' ),
 			),
 		);
@@ -402,7 +408,7 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 				if ( $product ) {
 					if ( $product->get_image_id() ) {
 						$item['featured_media'] = $product->get_image_id();
-						$item['image']          = wp_get_attachment_image_url( $product->get_image_id() ); // or add size , 'medium'
+						$item['image']          = wp_get_attachment_image_url( $product->get_image_id() ); // or add 'medium'
 					}
 				}
 			}
@@ -705,7 +711,11 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 
 		foreach ( $children as $child ) {
 			if ( '' !== $child->get_price() ) {
-				$child_prices[] = 'incl' === $tax_display_mode ? wc_get_price_including_tax( $child ) : wc_get_price_excluding_tax( $child );
+				if ( 'incl' === $tax_display_mode ) {
+					$child_prices[] = wc_get_price_including_tax( $child );
+				} else {
+					$child_prices[] = wc_get_price_excluding_tax( $child );
+				}
 			}
 		}
 

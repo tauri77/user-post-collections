@@ -434,15 +434,16 @@ class MG_List_Items_Model {
 	/**
 	 * Add an item to a list
 	 *
-	 * @param int         $list_id
-	 * @param int         $post_id
-	 * @param string      $description (Optional)
-	 * @param int         $quantity (Optional)
+	 * @param int $list_id
+	 * @param int $post_id
+	 * @param string $description (Optional)
+	 * @param int $quantity (Optional)
 	 * @param null|string $addon_json
 	 *
 	 * @throws MG_UPC_Invalid_Field_Exception
 	 * @throws MG_UPC_Item_Exist_Exception
 	 * @throws MG_UPC_Item_Not_Found_Exception
+	 * @throws Exception
 	 */
 	public function add_item( $list_id, $post_id, $description = '', $quantity = 0, $addon_json = null ) {
 		global $wpdb;
@@ -536,7 +537,15 @@ class MG_List_Items_Model {
 			'added'       => gmdate( 'Y-m-d H:i:s' ),
 		);
 
-		$format = array( '%d', '%d', '%d', '%s', '%s', '%d', '$s' );
+		$format = array(
+			'%d',
+			'%d',
+			'%d',
+			'%s',
+			null === $addon_json ? null : '%s',
+			'%d',
+			'%s',
+		);
 
 		$ok = $wpdb->insert( $this->get_table_list_items(), $data, $format );
 
@@ -658,6 +667,8 @@ class MG_List_Items_Model {
 		);
 		if ( is_int( $value ) ) {
 			$format = array( '%d' );
+		} elseif ( null === $value ) {
+			$format = array( null );
 		} else {
 			$format = array( '%s' );
 		}

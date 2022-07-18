@@ -74,7 +74,10 @@ class MG_UPC_REST_Lists_Controller {
 							'minimum'           => 1,
 						),
 						'per_page' => array(
-							'description'       => __( 'Maximum number of items to be returned in result set.', 'user-post-collections' ),
+							'description'       => __(
+								'Maximum number of items to be returned in result set.',
+								'user-post-collections'
+							),
 							'type'              => 'integer',
 							'default'           => 10,
 							'minimum'           => 1,
@@ -91,6 +94,7 @@ class MG_UPC_REST_Lists_Controller {
 						),
 					),
 				),
+				'schema' => array( $this, 'get_list_schema' ),
 			)
 		);
 
@@ -106,7 +110,10 @@ class MG_UPC_REST_Lists_Controller {
 						'permission_callback' => array( $this, 'get_list_permissions_check_always_exist' ),
 						'args'                => array(
 							'context' => array(
-								'description'       => __( 'Scope under which the request is made; determines fields present in response.', 'user-post-collections' ),
+								'description'       => __(
+									'Scope under which the request is made; determines fields present in response.',
+									'user-post-collections'
+								),
 								'type'              => 'string',
 								'default'           => 'view',
 								'sanitize_callback' => 'sanitize_key',
@@ -129,7 +136,10 @@ class MG_UPC_REST_Lists_Controller {
 					'permission_callback' => array( $this, 'get_list_permissions_check' ),
 					'args'                => array(
 						'context' => array(
-							'description'       => __( 'Scope under which the request is made; determines fields present in response.', 'user-post-collections' ),
+							'description'       => __(
+								'Scope under which the request is made; determines fields present in response.',
+								'user-post-collections'
+							),
 							'type'              => 'string',
 							'default'           => 'view',
 							'sanitize_callback' => 'sanitize_key',
@@ -168,7 +178,7 @@ class MG_UPC_REST_Lists_Controller {
 			return new WP_Error(
 				'rest_forbidden',
 				esc_html__( 'You cannot view the list.', 'user-post-collections' ),
-				array( 'status' => $this->authorization_status_code() )
+				array( 'status' => MG_UPC_List_Controller::authorization_status_code() )
 			);
 		}
 
@@ -189,7 +199,7 @@ class MG_UPC_REST_Lists_Controller {
 			return new WP_Error(
 				'rest_forbidden',
 				esc_html__( 'You cannot view the list.', 'user-post-collections' ),
-				array( 'status' => $this->authorization_status_code() )
+				array( 'status' => MG_UPC_List_Controller::authorization_status_code() )
 			);
 		}
 
@@ -216,7 +226,7 @@ class MG_UPC_REST_Lists_Controller {
 			return new WP_Error(
 				'required_logged_in',
 				esc_html__( 'Required logged in.', 'user-post-collections' ),
-				array( 'status' => $this->authorization_status_code() )
+				array( 'status' => MG_UPC_List_Controller::authorization_status_code() )
 			);
 		}
 
@@ -252,13 +262,13 @@ class MG_UPC_REST_Lists_Controller {
 			return new WP_Error(
 				'required_logged_in',
 				esc_html__( 'Required logged in.', 'user-post-collections' ),
-				array( 'status' => $this->authorization_status_code() )
+				array( 'status' => MG_UPC_List_Controller::authorization_status_code() )
 			);
 		}
 
 		if ( ! MG_UPC_List_Controller::get_instance()->can_create( $request['type'] ) ) {
 			return new WP_Error(
-				'rest_cannot_edit_others',
+				'rest_upc_type_restriction',
 				__( 'Sorry, you are not allowed to create this list.', 'user-post-collections' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
@@ -394,7 +404,7 @@ class MG_UPC_REST_Lists_Controller {
 				return new WP_Error(
 					'rest_unable_post_add',
 					esc_html__( 'Unable to add this post to list.', 'user-post-collections' ),
-					array( 'status' => 403 )
+					array( 'status' => MG_UPC_List_Controller::authorization_status_code() )
 				);
 			}
 			try {
@@ -422,14 +432,15 @@ class MG_UPC_REST_Lists_Controller {
 
 		$response = $this->prepare_list_for_response( $list, $request );
 		$response = rest_ensure_response( $response );
-
-		$response->set_status( 201 );
-		$response->header(
-			'Location',
-			rest_url(
-				sprintf( '%s/%s/%d', $this->namespace, $this->resource_name, $new_id )
-			)
-		);
+		if ( ! is_wp_error( $response ) ) {
+			$response->set_status( 201 );
+			$response->header(
+				'Location',
+				rest_url(
+					sprintf( '%s/%s/%d', $this->namespace, $this->resource_name, $new_id )
+				)
+			);
+		}
 
 		return $response;
 	}
@@ -512,7 +523,7 @@ class MG_UPC_REST_Lists_Controller {
 		$response->set_data(
 			array(
 				'deleted'  => true,
-				'previous' => $previous->get_data(),
+				'previous' => ! is_wp_error( $previous ) ? $previous->get_data() : array(),
 			)
 		);
 
@@ -762,7 +773,7 @@ class MG_UPC_REST_Lists_Controller {
 			return new WP_Error(
 				'rest_forbidden',
 				esc_html__( 'Required logged in.', 'user-post-collections' ),
-				array( 'status' => $this->authorization_status_code() )
+				array( 'status' => MG_UPC_List_Controller::authorization_status_code() )
 			);
 		}
 
@@ -784,7 +795,9 @@ class MG_UPC_REST_Lists_Controller {
 		$data = array();
 		foreach ( $lists['results'] as $list ) {
 			$response = $this->prepare_list_for_response( $list, $request );
-			$data[]   = $this->prepare_response_for_collection( $response );
+			if ( ! is_wp_error( $response ) ) {
+				$data[] = $this->prepare_response_for_collection( $response );
+			}
 		}
 
 		// Return all of our comment response data.
@@ -836,7 +849,9 @@ class MG_UPC_REST_Lists_Controller {
 
 		foreach ( $lists['results'] as $post ) {
 			$response = $this->prepare_list_for_response( $post, $request );
-			$data[]   = $this->prepare_response_for_collection( $response );
+			if ( ! is_wp_error( $response ) ) {
+				$data[] = $this->prepare_response_for_collection( $response );
+			}
 		}
 
 		// Return all of our comment response data.
@@ -1132,12 +1147,18 @@ class MG_UPC_REST_Lists_Controller {
 							'readonly'    => true,
 						),
 						'X-WP-Page'       => array(
-							'description' => esc_html__( 'Current page on items pagination.', 'user-post-collections' ),
+							'description' => esc_html__(
+								'Current page on items pagination.',
+								'user-post-collections'
+							),
 							'type'        => 'integer',
 							'readonly'    => true,
 						),
 						'X-WP-TotalPages' => array(
-							'description' => esc_html__( 'Total page on items pagination.', 'user-post-collections' ),
+							'description' => esc_html__(
+								'Total page on items pagination.',
+								'user-post-collections'
+							),
 							'type'        => 'integer',
 							'readonly'    => true,
 						),
@@ -1155,20 +1176,9 @@ class MG_UPC_REST_Lists_Controller {
 				),
 			),
 		);
+		$this->schema = apply_filters( 'mg_upc_api_schema_list', $this->schema );
 
 		return $this->schema;
-	}
-
-	// Sets up the proper HTTP status code for authorization.
-	public function authorization_status_code() {
-
-		$status = 401;
-
-		if ( is_user_logged_in() ) {
-			$status = 403;
-		}
-
-		return $status;
 	}
 
 	/**
@@ -1191,7 +1201,10 @@ class MG_UPC_REST_Lists_Controller {
 		}
 
 		$query_params['author'] = array(
-			'description' => esc_html__( 'Author to set.', 'user-post-collections' ),
+			'description' => esc_html__(
+				'Author to set (requires user permissions).',
+				'user-post-collections'
+			),
 			'type'        => 'integer',
 			'minimum'     => 0,
 		);
@@ -1246,7 +1259,10 @@ class MG_UPC_REST_Lists_Controller {
 	public function get_collection_params() {
 		$query_params = array(
 			'context'  => array(
-				'description' => esc_html__( 'Scope under which the request is made; determines fields present in response.', 'user-post-collections' ),
+				'description' => esc_html__(
+					'Scope under which the request is made; determines fields present in response.',
+					'user-post-collections'
+				),
 				'type'        => 'string',
 			),
 			'page'     => array(
@@ -1256,14 +1272,20 @@ class MG_UPC_REST_Lists_Controller {
 				'minimum'     => 1,
 			),
 			'per_page' => array(
-				'description' => esc_html__( 'Maximum number of items to be returned in result set.', 'user-post-collections' ),
+				'description' => esc_html__(
+					'Maximum number of items to be returned in result set.',
+					'user-post-collections'
+				),
 				'type'        => 'integer',
 				'default'     => 10,
 				'minimum'     => 1,
 				'maximum'     => 100,
 			),
 			'search'   => array(
-				'description'       => esc_html__( 'Limit results to those matching a string.', 'user-post-collections' ),
+				'description'       => esc_html__(
+					'Limit results to those matching a string.',
+					'user-post-collections'
+				),
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 				'validate_callback' => 'rest_validate_request_arg',
@@ -1273,31 +1295,46 @@ class MG_UPC_REST_Lists_Controller {
 		$query_params['context']['default'] = 'view';
 
 		$query_params['after'] = array(
-			'description' => esc_html__( 'Limit response to lists created after a given ISO8601 compliant date.', 'user-post-collections' ),
+			'description' => esc_html__(
+				'Limit response to lists created after a given ISO8601 compliant date.',
+				'user-post-collections'
+			),
 			'type'        => 'string',
 			'format'      => 'date-time',
 		);
 
 		$query_params['modified_after'] = array(
-			'description' => esc_html__( 'Limit response to lists modified after a given ISO8601 compliant date.', 'user-post-collections' ),
+			'description' => esc_html__(
+				'Limit response to lists modified after a given ISO8601 compliant date.',
+				'user-post-collections'
+			),
 			'type'        => 'string',
 			'format'      => 'date-time',
 		);
 
 		$query_params['before'] = array(
-			'description' => esc_html__( 'Limit response to lists created before a given ISO8601 compliant date.', 'user-post-collections' ),
+			'description' => esc_html__(
+				'Limit response to lists created before a given ISO8601 compliant date.',
+				'user-post-collections'
+			),
 			'type'        => 'string',
 			'format'      => 'date-time',
 		);
 
 		$query_params['modified_before'] = array(
-			'description' => esc_html__( 'Limit response to lists modified before a given ISO8601 compliant date.', 'user-post-collections' ),
+			'description' => esc_html__(
+				'Limit response to lists modified before a given ISO8601 compliant date.',
+				'user-post-collections'
+			),
 			'type'        => 'string',
 			'format'      => 'date-time',
 		);
 
 		$query_params['author'] = array(
-			'description' => esc_html__( 'Limit result set to lists assigned to specific authors.', 'user-post-collections' ),
+			'description' => esc_html__(
+				'Limit result set to lists assigned to specific authors.',
+				'user-post-collections'
+			),
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'integer',
@@ -1305,7 +1342,10 @@ class MG_UPC_REST_Lists_Controller {
 		);
 
 		$query_params['include'] = array(
-			'description' => esc_html__( 'Limit result set to lists with specific IDs.', 'user-post-collections' ),
+			'description' => esc_html__(
+				'Limit result set to lists with specific IDs.',
+				'user-post-collections'
+			),
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'integer',
@@ -1313,19 +1353,28 @@ class MG_UPC_REST_Lists_Controller {
 		);
 
 		$query_params['offset'] = array(
-			'description' => esc_html__( 'Offset the result set by a specific number of items.', 'user-post-collections' ),
+			'description' => esc_html__(
+				'Offset the result set by a specific number of items.',
+				'user-post-collections'
+			),
 			'type'        => 'integer',
 		);
 
 		$query_params['order'] = array(
-			'description' => esc_html__( 'Order sort attribute ascending or descending.', 'user-post-collections' ),
+			'description' => esc_html__(
+				'Order sort attribute ascending or descending.',
+				'user-post-collections'
+			),
 			'type'        => 'string',
 			'default'     => 'desc',
 			'enum'        => array( 'asc', 'desc' ),
 		);
 
 		$query_params['orderby'] = array(
-			'description' => esc_html__( 'Sort collection by attribute.', 'user-post-collections' ),
+			'description' => esc_html__(
+				'Sort collection by attribute.',
+				'user-post-collections'
+			),
 			'type'        => 'string',
 			'default'     => 'date',
 			'enum'        => array(
@@ -1339,7 +1388,10 @@ class MG_UPC_REST_Lists_Controller {
 		);
 
 		$query_params['slug'] = array(
-			'description'       => esc_html__( 'Limit result set to lists with one or more specific slugs.', 'user-post-collections' ),
+			'description'       => esc_html__(
+				'Limit result set to lists with one or more specific slugs.',
+				'user-post-collections'
+			),
 			'type'              => 'array',
 			'items'             => array(
 				'type' => 'string',
@@ -1349,7 +1401,10 @@ class MG_UPC_REST_Lists_Controller {
 
 		$query_params['status'] = array(
 			'default'     => 'publish',
-			'description' => esc_html__( 'Limit result set to lists assigned one or more statuses.', 'user-post-collections' ),
+			'description' => esc_html__(
+				'Limit result set to lists assigned one or more statuses.',
+				'user-post-collections'
+			),
 			'type'        => 'array',
 			'items'       => array(
 				'enum' => array_merge( $this->model->valid_status(), array( 'any' ) ),
@@ -1358,7 +1413,10 @@ class MG_UPC_REST_Lists_Controller {
 		);
 
 		$query_params['types'] = array(
-			'description'       => esc_html__( 'Limit result set to lists assigned one or more types.', 'user-post-collections' ),
+			'description'       => esc_html__(
+				'Limit result set to lists assigned one or more types.',
+				'user-post-collections'
+			),
 			'type'              => 'array',
 			'items'             => array(
 				'enum' => array_merge( $this->model->valid_types(), array( 'any' ) ),

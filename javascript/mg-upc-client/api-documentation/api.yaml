@@ -1,0 +1,1471 @@
+openapi: 3.0.0
+info:
+  description: "Make sure that in all requests you set the X-WP-Nonce header.<br><br>  For collections the pagination is in the response header:<br> X-WP-Page<br>X-WP-Total<br>X-WP-TotalPages<br><br>You can find out more about UPC at [https:e//github.com/tauri77/user-post-collections](httpse:e/e/github.com/tauri77/user-post-collections)."
+  version: 0.8.23
+  title: User Post Collectionse
+  contact:
+    email: mauriciogaletto@gmail.com
+  license:
+    name: GPLv3
+    url: https://www.gnu.org/licenses/gpl-3.0.html
+tags:
+  - name: lists
+    description: User posts list collection
+  - name: list
+    description: A user posts list
+  - name: itemList
+    description: An item on a list
+  - name: misc
+    description: Other actions
+paths:
+  /lists:
+    post:
+      tags:
+        - list
+      summary: Add a new list
+      description: ""
+      operationId: addList
+      parameters:
+        - name: author
+          in: query
+          description: Author to set (requires user permissions).
+          required: false
+          schema:
+            type: integer
+            description: Author to set.
+        - name: title
+          in: query
+          description: List title.
+          required: true
+          schema:
+            type: string
+            description: List title.
+        - name: content
+          in: query
+          description: List text description.
+          required: false
+          schema:
+            type: string
+            description: List text description.
+        - name: type
+          in: query
+          description: List type.
+          required: true
+          schema:
+            type: string
+            description: List type.
+            enum:
+              - simple
+              - numbered
+              - vote
+              - favorites
+              - bookmarks
+              - cart
+        - name: adding
+          in: query
+          description: Create list, and add a post (postID).
+          required: false
+          schema:
+            type: integer
+            description: Create list, and add a post (postID).
+        - name: status
+          in: query
+          description: List status.
+          required: true
+          schema:
+            type: string
+            description: List status.
+            enum:
+              - publish
+              - private
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/List"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError400"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError401"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError403"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError409"
+        "500":
+          description: Unknow Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError500"
+    get:
+      tags:
+        - lists
+      summary: Finds Lists by status, author, etc.
+      description: Multiple filters values can be provided
+      operationId: discoverLists
+      parameters:
+        - name: context
+          in: query
+          description: Scope under which the request is made; determines fields present in response.
+          required: false
+          schema:
+            type: string
+            description: Scope under which the request is made; determines fields present in response.
+        - name: page
+          in: query
+          description: Current page of the collection.
+          required: false
+          schema:
+            type: integer
+            description: Current page of the collection.
+        - name: per_page
+          in: query
+          description: Maximum number of items to be returned in result set.
+          required: false
+          schema:
+            type: integer
+            description: Maximum number of items to be returned in result set.
+        - name: search
+          in: query
+          description: Limit results to those matching a string.
+          required: false
+          schema:
+            type: string
+            description: Limit results to those matching a string.
+        - name: after
+          in: query
+          description: Limit response to lists created after a given ISO8601 compliant date.
+          required: false
+          schema:
+            type: string
+            format: date-time
+            description: Limit response to lists created after a given ISO8601 compliant date.
+        - name: modified_after
+          in: query
+          description: Limit response to lists modified after a given ISO8601 compliant date.
+          required: false
+          schema:
+            type: string
+            format: date-time
+            description: Limit response to lists modified after a given ISO8601 compliant date.
+        - name: before
+          in: query
+          description: Limit response to lists created before a given ISO8601 compliant date.
+          required: false
+          schema:
+            type: string
+            format: date-time
+            description: Limit response to lists created before a given ISO8601 compliant date.
+        - name: modified_before
+          in: query
+          description: Limit response to lists modified before a given ISO8601 compliant date.
+          required: false
+          schema:
+            type: string
+            format: date-time
+            description: Limit response to lists modified before a given ISO8601 compliant date.
+        - name: author
+          in: query
+          description: Limit result set to lists assigned to specific authors.
+          required: false
+          schema:
+            type: array
+            items:
+              type: integer
+            description: Limit result set to lists assigned to specific authors.
+        - name: include
+          in: query
+          description: Limit result set to lists with specific IDs.
+          required: false
+          schema:
+            type: array
+            items:
+              type: integer
+            description: Limit result set to lists with specific IDs.
+        - name: offset
+          in: query
+          description: Offset the result set by a specific number of items.
+          required: false
+          schema:
+            type: integer
+            description: Offset the result set by a specific number of items.
+        - name: order
+          in: query
+          description: Order sort attribute ascending or descending.
+          required: false
+          schema:
+            type: string
+            description: Order sort attribute ascending or descending.
+            enum:
+              - asc
+              - desc
+        - name: orderby
+          in: query
+          description: Sort collection by attribute.
+          required: false
+          schema:
+            type: string
+            description: Sort collection by attribute.
+            enum:
+              - author
+              - date
+              - id
+              - modified
+              - slug
+              - title
+        - name: slug
+          in: query
+          description: Limit result set to lists with one or more specific slugs.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+            description: Limit result set to lists with one or more specific slugs.
+        - name: status
+          in: query
+          description: Limit result set to lists assigned one or more statuses.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - publish
+                - private
+                - any
+            description: Limit result set to lists assigned one or more statuses.
+        - name: types
+          in: query
+          description: Limit result set to lists assigned one or more types.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - simple
+                - numbered
+                - vote
+                - favorites
+                - bookmarks
+                - cart
+                - any
+            description: Limit result set to lists assigned one or more types.
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/List"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError400"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError401"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError403"
+        "500":
+          description: Unknow Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError500"
+  /lists/My:
+    get:
+      tags:
+        - lists
+      summary: Get the user lists
+      description: Return the user list (without items).
+      operationId: myList
+      parameters:
+        - name: page
+          in: query
+          description: Current page of the collection.
+          required: false
+          schema:
+            type: integer
+            description: Current page of the collection.
+        - name: per_page
+          in: query
+          description: Maximum number of items to be returned in result set.
+          required: false
+          schema:
+            type: integer
+            description: Maximum number of items to be returned in result set.
+        - name: adding
+          in: query
+          description: Show only list that can add this post.
+          required: false
+          schema:
+            type: integer
+            description: Show only list that can add this post.
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/List"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError400"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError401"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError403"
+        "500":
+          description: Unknow Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError500"
+  "/lists/{listId}":
+    get:
+      tags:
+        - list
+      summary: Find list by ID
+      description: Returns a single list
+      operationId: getList
+      parameters:
+        - name: listId
+          in: path
+          description: List ID requested
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: context
+          in: query
+          description: Scope under which the request is made; determines fields present in response.
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/List"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError400"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError401"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError403"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError404"
+        "500":
+          description: Unknow Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError500"
+    post:
+      tags:
+        - list
+      summary: Updates a list.
+      description: "Response with edited list (without items)."
+      operationId: updateList
+      parameters:
+        - name: listId
+          in: path
+          description: ID of list that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: author
+          in: query
+          description: Author to set.
+          required: false
+          schema:
+            type: integer
+            description: Author to set.
+        - name: title
+          in: query
+          description: List title.
+          required: false
+          schema:
+            type: string
+            description: List title.
+        - name: content
+          in: query
+          description: List text description.
+          required: false
+          schema:
+            type: string
+            description: List text description.
+        - name: status
+          in: query
+          description: List status.
+          required: false
+          schema:
+            type: string
+            description: List status.
+            enum:
+              - publish
+              - private
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/List"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError400"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError401"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError403"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError404"
+        "500":
+          description: Unknow Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError500"
+    delete:
+      tags:
+        - list
+      summary: Delete a list
+      description: "Return deleted list as 'previous' property (without items)."
+      operationId: deleteList
+      parameters:
+        - name: listId
+          in: path
+          description: List ID to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deleted:
+                    type: boolean
+                  previus:
+                    $ref: "#/components/schemas/List"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError401"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError403"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError404"
+        "500":
+          description: Unknow Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError500"
+  "/lists/bookmarks":
+    get:
+      tags:
+        - list
+      summary: Get user Bookmarks
+      description: Returns a single list (The user bookmark).
+      operationId: getUserBookmarks
+      parameters:
+        - name: context
+          in: query
+          description: Scope under which the request is made; determines fields present in response.
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/List"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError400"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError401"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError403"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError404"
+        "500":
+          description: Unknow Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError500"
+  "/lists/favorites":
+    get:
+      tags:
+        - list
+      summary: Get user Favorites
+      description: Returns a single list (The user favorites).
+      operationId: getUserFavorites
+      parameters:
+        - name: context
+          in: query
+          description: Scope under which the request is made; determines fields present in response.
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/List"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError400"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError401"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError403"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError404"
+        "500":
+          description: Unknow Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError500"
+  "/lists/{listId}/items":
+    get:
+      tags:
+        - itemList
+      summary: Get items list
+      description: "Usually for page > 1, the get for list return first page as property 'items'."
+      operationId: getListItems
+      parameters:
+        - name: listId
+          in: path
+          description: ID of list to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: page
+          in: query
+          description: Current page of the collection.
+          required: false
+          schema:
+            type: integer
+            description: Current page of the collection.
+        - name: per_page
+          in: query
+          description: Maximum number of items to be returned in result set.
+          required: false
+          schema:
+            type: integer
+            description: Maximum number of items to be returned in result set.
+        - name: order
+          in: query
+          description: Order sort attribute ascending or descending.
+          required: false
+          schema:
+            type: string
+            description: Order sort attribute ascending or descending.
+            enum:
+              - asc
+              - desc
+        - name: orderby
+          in: query
+          description: Sort collection by attribute.
+          required: false
+          schema:
+            type: string
+            description: Sort collection by attribute.
+            enum:
+              - ''
+              - votes
+              - position
+              - post_id
+              - added
+      responses:
+        "200":
+          description: Item added
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ListItem"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError400"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError401"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError403"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError404"
+        "500":
+          description: Unknow Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError500"
+    post:
+      tags:
+        - itemList
+      summary: Create an item
+      description: ""
+      operationId: AddItemToList
+      parameters:
+        - name: listId
+          in: path
+          description: ID of list that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: post_id
+          in: query
+          description: The post id for add to the list.
+          required: true
+          schema:
+            type: integer
+            description: The post id for add to the list.
+        - name: description
+          in: query
+          description: The item comment.
+          required: false
+          schema:
+            type: string
+            description: The item comment.
+        - name: quantity
+          in: query
+          description: The quantity for the post on the list.
+          required: false
+          schema:
+            type: integer
+            description: The quantity for the post on the list.
+        - name: context
+          in: query
+          description: Scope under which the request is made; determines fields present in response.
+          required: false
+          schema:
+            type: string
+            description: Scope under which the request is made; determines fields present in response.
+      responses:
+        "200":
+          description: The items
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  added:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      status:
+                        type: integer
+                        example: 201
+                  post:
+                    type: object
+                    properties:
+                      title:
+                        type: string
+                        example: "A post title"
+                      link:
+                        type: string
+                        example: "https://example.com/the-post"
+                  list:
+                    $ref: "#/components/schemas/List"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError400"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError401"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError403"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError404"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError409"
+        "500":
+          description: Unknow Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError500"
+  "/lists/{listId}/items/{postId}":
+    delete:
+      tags:
+        - itemList
+      summary: Delete items list
+      description: ""
+      operationId: deleteListItem
+      parameters:
+        - name: listId
+          in: path
+          description: The list ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: postId
+          in: path
+          description: The post ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Item deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deleted:
+                    type: boolean
+                    example: true
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError401"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError403"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError404"
+        "500":
+          description: Unknow Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError500"
+    post:
+      tags:
+        - itemList
+      summary: Update an item list
+      description: "If you change the position the other items in the list will also be updated. The new version of the item is returned as the -item- property."
+      operationId: updateListItem
+      parameters:
+        - name: listId
+          in: path
+          description: The list ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: postId
+          in: path
+          description: The post ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: position
+          in: query
+          description: The position for the post on the list.
+          required: false
+          schema:
+            type: integer
+            description: The position for the post on the list.
+        - name: description
+          in: query
+          description: The description/comment for the post on the list.
+          required: false
+          schema:
+            type: string
+            description: The description/comment for the post on the list.
+        - name: quantity
+          in: query
+          description: The quantity for the post on the list.
+          required: false
+          schema:
+            type: integer
+            description: The quantity for the post on the list.
+      responses:
+        "200":
+          description: The items
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  updated:
+                    type: boolean
+                  item:
+                    $ref: "#/components/schemas/ListItem"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError400"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError401"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError403"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError404"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError409"
+        "500":
+          description: Unknow Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError500"
+  "/lists/{listId}/items/{postId}/vote":
+    post:
+      tags:
+        - itemList
+      summary: Vote to an item list
+      description: "It is required that the list has support for votes"
+      operationId: voteListItem
+      parameters:
+        - name: listId
+          in: path
+          description: The list ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: postId
+          in: path
+          description: The post ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: context
+          in: query
+          description: Scope under which the request is made; determines fields present in response.
+          required: false
+          example: "web"
+          schema:
+            type: string
+            description: Scope under which the request is made; determines fields present in response.
+        - name: posts
+          in: query
+          description: Posts present in response, comma separated.
+          required: false
+          example: "55,58,56"
+          schema:
+            type: string
+            description: Posts present in response, comma separated.
+      responses:
+        "200":
+          description: The items
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  vote:
+                    type: boolean
+                    example: true
+                  vote_counter:
+                    type: integer
+                    example: 3
+                  posts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        post_id:
+                          type: integer
+                          example: 2352
+                        votes:
+                          type: integer
+                          example: 2
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError400"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError401"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError403"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError404"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError409"
+        "500":
+          description: Unknow Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError500"
+  /cart:
+    post:
+      tags:
+        - misc
+      summary: Add all items to cart (woocommerce)
+      description: ""
+      operationId: listToCart
+      parameters:
+        - name: list
+          in: query
+          description: The list id for add to cart.
+          required: true
+          schema:
+            type: integer
+            description: The list id for add to cart.
+      responses:
+        "200":
+          description: List added
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cart_hash:
+                    type: string
+                    example: "64efa61dcfee4aaf4a4be2c4471487e0"
+                  msg:
+                    type: string
+                    example: "10 x “Sunglasses”, “Hoodie with Zipper”, “Vneck Tshirt” y “Hoodie” added."
+                  err:
+                    type: string
+                    example: "Product \"Beanie\" with quantity equal to zero was not added.\nProduct \"Belt\" with quantity equal to zero was not added."
+                  fragments:
+                    type: object
+                    properties:
+                      fragmentQuery1:
+                        type: string
+                        example: "<span>Code for fragment1</span>"
+                      fragmentQuery2:
+                        type: string
+                        example: "<span>Code for fragment2</span>"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError400"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError401"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError403"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError404"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError409"
+        "500":
+          description: Unknow Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError500"
+externalDocs:
+  description: Find out more about UPC
+  url: https://github.com/tauri77/user-post-collections
+servers:
+  - url: https://your-real-site.com/wp-json/mg-upc/v1
+components:
+  requestBodies:
+    List:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/List"
+      description: List object that needs to be added to the store
+      required: true
+  schemas:
+    List:
+      type: object
+      required:
+        - title
+        - type
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the list.
+          example: 231
+        title:
+          type: string
+          description: List title.
+          example: "My List"
+        content:
+          type: string
+          description: The content for the object.
+          example: "This is my list description"
+        author:
+          type: integer
+          description: List author ID.
+          example: 31
+        type:
+          type: string
+          description: The list type.
+          example: "simple"
+        status:
+          type: string
+          description: The list status.
+          example: "private"
+        count:
+          type: integer
+          description: Item counter on the list.
+          example: 23
+        created:
+          type: string
+          format: date-time
+          description: Create datetime.
+          example: "2022-07-14T05:30:47+0000"
+        modified:
+          type: string
+          format: date-time
+          description: Last modified datetime.
+          example: "2002-10-10T07:00:00Z"
+        slug:
+          type: string
+          description: List unique slug.
+          example: "my-list-by-username"
+        user_login:
+          type: string
+          description: List author login.
+          example: "UserName"
+        user_img:
+          type: string
+          description: List author image.
+          example: "https://1.gravatar.com/avatar/7d525a15927ea8d42f26ad9f9fcdf7db?s=96&d=mm&r=g"
+        user_link:
+          type: string
+          description: List author link.
+          example: ""
+        vote_counter:
+          type: integer
+          description: Votes counter on the list.
+          example: 22
+        items_page:
+          type: object
+          properties:
+            X-WP-Total:
+              type: integer
+              description: Total items on list.
+              example: 53
+            X-WP-Page:
+              type: integer
+              description: Current page on items pagination.
+              example: 1
+            X-WP-TotalPages:
+              type: integer
+              description: Total page on items pagination.
+              example: 3
+          description: Pagination for items on the list.
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ListItem"
+    ListItem:
+      type: object
+      properties:
+        list_id:
+          type: integer
+          description: Unique identifier for the list.
+          example: 231
+        post_id:
+          type: integer
+          description: Unique identifier for the post.
+          example: 2341
+        description:
+          type: string
+          description: Item description.
+          example: "The item comment"
+        quantity:
+          type: integer
+          description: Quantity of items (in cart type, the quantity for the product).
+          example: 2
+        position:
+          type: integer
+          description: Item position.
+          example: 0
+        votes:
+          type: integer
+          description: Item votes.
+          example: 5
+        post_type:
+          type: string
+          description: Post type for post_id.
+          example: 'product'
+        excerpt:
+          type: string
+          description: Excerpt for post_id.
+          example: 'Cool product for you'
+        featured_media:
+          type: integer
+          description: Featured Media for post_id.
+          example: 5342
+        image:
+          type: string
+          description: Image for post_id.
+          example: 'https://example.com/wp-admin/wp-content/image.jpg'
+        link:
+          type: string
+          description: Link for post_id.
+          example: 'https://example.com/the-post-link'
+        product_type:
+          type: string
+          description: Product type (simple, variable, variation...).
+          example: 'variable'
+        price_html:
+          type: string
+          description: Item price in html format.
+          example: '<del aria-hidden="true"><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">&#36;</span>4.84</bdi></span></del> <ins><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">&#36;</span>4.84</bdi></span></ins> <small class="woocommerce-price-suffix">TAX include</small>'
+        price:
+          type: string
+          description: Product price.
+          example: undefined(real)
+        sale_price:
+          type: string
+          description: Product sale price.
+          example: "$4.84"
+        regular_price:
+          type: string
+          description: Product regular price.
+          example: "$4.84"
+        price_min:
+          type: string
+          description: Product min price (variable product).
+          example: "$5.86"
+        price_max:
+          type: string
+          description: Product max price (variable product).
+          example: "$20.50"
+        price_suffix:
+          type: string
+          description: Product price suffix.
+          example: "TAX include"
+    ApiError:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            status:
+              type: integer
+              format: int32
+    ApiError400:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "rest_invalid_param"
+        message:
+          type: string
+          example: "Invalid parameter(s): content"
+        data:
+          type: object
+          properties:
+            status:
+              type: integer
+              format: int32
+              example: 400
+            params:
+              type: object
+              properties:
+                content:
+                  type: string
+                  example: "content must be at most 500 characters long."
+    ApiError401:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "required_logged_in"
+        message:
+          type: string
+          example: "Required logged in."
+        data:
+          type: object
+          properties:
+            status:
+              type: integer
+              format: int32
+              example: 401
+    ApiError403:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "rest_cookie_invalid_nonce"
+        message:
+          type: string
+          example: "Cookie nonce is invalid."
+        data:
+          type: object
+          properties:
+            status:
+              type: integer
+              format: int32
+              example: 403
+    ApiError404:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "rest_(list|item|post)_not_found"
+        message:
+          type: string
+          example: "(List|Item|Post) not found."
+        data:
+          type: object
+          properties:
+            status:
+              type: integer
+              format: int32
+              example: 404
+    ApiError409:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "rest_invalid_field"
+        message:
+          type: string
+          example: "Invalid field."
+        data:
+          type: object
+          properties:
+            status:
+              type: integer
+              format: int32
+              example: 409
+    ApiError500:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "rest_db_error"
+        message:
+          type: string
+          example: "Unable to connect to DB."
+        data:
+          type: object
+          properties:
+            status:
+              type: integer
+              format: int32
+              example: 500
