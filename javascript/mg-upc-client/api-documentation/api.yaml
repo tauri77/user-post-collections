@@ -118,7 +118,7 @@ paths:
     get:
       tags:
         - lists
-      summary: Finds Lists by status, author, etc.
+      summary: Find Lists by status, author, etc.
       description: Multiple filters values can be provided
       operationId: discoverLists
       parameters:
