@@ -902,12 +902,12 @@ class MG_List_Model {
 					$list_id
 				)
 			);
-			if ( $votes_count > 0 ) {
+			if ( is_int( $votes_count ) || is_numeric( $votes_count ) ) {
 				$wpdb->query(
 					$wpdb->prepare(
 						// phpcs:ignore
 						"UPDATE `{$this->get_table_list()}` SET `vote_counter` = %d WHERE `ID` = %d",
-						$votes_count,
+						absint( $votes_count ),
 						$list_id
 					)
 				);
