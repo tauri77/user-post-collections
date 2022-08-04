@@ -6,6 +6,7 @@ Description: Allows users to create their post collections.
 Version:     0.8.23
 Author:      Mauricio Galetto
 Author URI:  http://galetto.info/
+Text Domain: user-post-collections
 */
 
 if ( ! defined( 'ABSPATH' ) ) {

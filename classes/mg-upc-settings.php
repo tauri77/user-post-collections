@@ -682,7 +682,7 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 								add_settings_error(
 									$option,
 									sanitize_title( $option ) . '_ERR',
-									'At least one status must be enabled'
+									esc_html__( 'At least one status must be enabled', 'user-post-collections' )
 								);
 								return $original_value;
 							}

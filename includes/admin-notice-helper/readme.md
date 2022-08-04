@@ -17,9 +17,9 @@ Call the `add_notice()` function anywhere in your code after WordPress fires the
 ```php
 function my_example() {
 	if( $success ) {
-		add_notice( 'Successful' );
+		mg_upc_add_notice( 'Successful' );
 	} else {
-		add_notice( 'Failure', 'error' );
+		mg_upc_add_notice( 'Failure', 'error' );
 	}
 }
 add_action( 'save_posts', 'my_example' );

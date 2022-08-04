@@ -31,7 +31,7 @@ if ( ! class_exists( 'MG_UPC_Cron' ) ) {
 					if ( set_transient( 'mg_upc_maintenance_timed_job', true, 60 * 60 * 6 ) ) {
 						$ret = $GLOBALS['mg_upc']->model->maintenance();
 						if ( $ret['votes'] ) {
-							add_notice( '[Cron User Post Collections] Old votes removes:' . $ret['votes'] );
+							mg_upc_add_notice( '[Cron User Post Collections] Old votes removes:' . $ret['votes'] );
 						}
 					}
 				}

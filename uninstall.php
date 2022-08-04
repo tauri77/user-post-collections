@@ -74,6 +74,7 @@ function mg_upc_clear_blog() {
 		'mg_upc_page_add_to_cart',
 		'mg_upc_modal_show_price',
 		'mg_upc_modal_show_stock',
+		'mg_upc_anh_notices',
 	);
 	foreach ( $options as $option ) {
 		delete_option( $option );

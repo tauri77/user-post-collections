@@ -7,6 +7,8 @@ Version:     0.2
 Author:      Ian Dunn
 Author URI:  http://iandunn.name
 License:     GPLv2
+
+Change names for uninstall delete notices options
 */
 
 /*
@@ -30,9 +32,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	die( 'Access denied.' );
 }
 
-if ( ! class_exists( 'Admin_Notice_Helper' ) ) {
+if ( ! class_exists( 'MG_UPC_Admin_Notice_Helper' ) ) {
 
-	class Admin_Notice_Helper {
+	class MG_UPC_Admin_Notice_Helper {
 		// Declare variables and constants
 		protected static $instance;
 		protected $notices;
@@ -63,7 +65,7 @@ if ( ! class_exists( 'Admin_Notice_Helper' ) ) {
 		 */
 		public static function get_singleton() {
 			if ( ! isset( self::$instance ) ) {
-				self::$instance = new Admin_Notice_Helper();
+				self::$instance = new MG_UPC_Admin_Notice_Helper();
 			}
 
 			return self::$instance;
@@ -77,7 +79,7 @@ if ( ! class_exists( 'Admin_Notice_Helper' ) ) {
 				'update' => array(),
 				'error'  => array(),
 			);
-			$this->notices              = array_merge( $default_notices, get_option( 'anh_notices', array() ) );
+			$this->notices              = array_merge( $default_notices, get_option( 'mg_upc_anh_notices', array() ) );
 			$this->notices_were_updated = false;
 		}
 
@@ -117,16 +119,16 @@ if ( ! class_exists( 'Admin_Notice_Helper' ) ) {
 		 */
 		public function shutdown() {
 			if ( $this->notices_were_updated ) {
-				update_option( 'anh_notices', $this->notices );
+				update_option( 'mg_upc_anh_notices', $this->notices );
 			}
 		}
 	} // end Admin_Notice_Helper
 
-	Admin_Notice_Helper::get_singleton(); // Create the instance immediately to make sure hook callbacks are registered in time
+	MG_UPC_Admin_Notice_Helper::get_singleton(); // Create the instance immediately to make sure hook callbacks are registered in time
 
-	if ( ! function_exists( 'add_notice' ) ) {
-		function add_notice( $message, $type = 'update' ) {
-			Admin_Notice_Helper::get_singleton()->enqueue( $message, $type );
+	if ( ! function_exists( 'mg_upc_add_notice' ) ) {
+		function mg_upc_add_notice( $message, $type = 'update' ) {
+			MG_UPC_Admin_Notice_Helper::get_singleton()->enqueue( $message, $type );
 		}
 	}
 }
