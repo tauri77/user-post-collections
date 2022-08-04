@@ -1,7 +1,5 @@
 # User Post Collections
 
-Work in progress. Do not use in production!
-
 This plugin allows users to create lists of different types (simple, numbered, cart and poll) and share them.
 The items of these lists are the posts of the types to configure (Ex: posts, pages, products, other CPT, etc)
 Create classic lists like Favorites, Bookmarks, Wish List. Or poll lists like "Which one should I buy?", or shopping cart lists of every month, etc.
@@ -44,10 +42,10 @@ The plugin is being developed in an existing database, but the structure is such
 
 ## Screenshots
 
-![Screenshot 1](assets/screenshots/screenshot-1.png?raw=true)
-![Screenshot 2](assets/screenshots/screenshot-2.png?raw=true)
-![Screenshot 3](assets/screenshots/screenshot-3.png?raw=true)
-![Screenshot 4](assets/screenshots/screenshot-4.png?raw=true)
-![Screenshot 5](assets/screenshots/screenshot-5.png?raw=true)
-![Screenshot 6](assets/screenshots/screenshot-6.png?raw=true)
-![Screenshot 7](assets/screenshots/screenshot-7.png?raw=true)
+![Screenshot 1](.wordpress-org/screenshot-1.png?raw=true)
+![Screenshot 2](.wordpress-org/screenshot-2.png?raw=true)
+![Screenshot 3](.wordpress-org/screenshot-3.png?raw=true)
+![Screenshot 4](.wordpress-org/screenshot-4.png?raw=true)
+![Screenshot 5](.wordpress-org/screenshot-5.png?raw=true)
+![Screenshot 6](.wordpress-org/screenshot-6.png?raw=true)
+![Screenshot 7](.wordpress-org/screenshot-7.png?raw=true)

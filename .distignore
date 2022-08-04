@@ -1,0 +1,9 @@
+/.wordpress-org
+/.git
+/.github
+/.idea
+/javascript/mg-upc-client/node_modules
+/TODO.txt
+
+.distignore
+.gitignore

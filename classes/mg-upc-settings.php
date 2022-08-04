@@ -783,7 +783,7 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 					$settings_fields[ $prefix . $list_type->name ][] = array(
 						'name'    => 'max_votes_per_ip',
 						'label'   => __( 'Max votes per IP', 'user-post-collections' ),
-						'desc'    => __( 'Set to zero to apply no limits. Nake sure IP storage is enabled in the advanced settings section.', 'user-post-collections' ),
+						'desc'    => __( 'Set to zero to apply no limits. Make sure IP storage is enabled in the advanced settings section.', 'user-post-collections' ),
 						'default' => 5,
 						'min'     => 0,
 						'type'    => 'number',

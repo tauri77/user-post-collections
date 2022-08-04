@@ -182,7 +182,7 @@ class MG_UPC_List_Type implements ArrayAccess {
 			'plural_label'          => '',
 			'description'           => '',
 			'default_status'        => 'private',
-			'sticky'                => false,
+			'sticky'                => 0,
 			'default_content'       => '',
 			'default_title'         => false,
 			'default_orderby'       => 'added',

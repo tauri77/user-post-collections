@@ -1,8 +1,24 @@
+#mg-upc-admin-app {
+	margin: 1em 2em 1em 1em;
+}
+#mg-upc-admin-app h2 {
+	font-size: 2em;
+}
+#mg-upc-admin-app h2 > a{
+	font-size: 2em;
+}
 #mg-upc-admin-app button{
 	min-height: 40px;
+	background: #2271b1;
+	color: #fff;
+	border-color: #2271b1;
+	border-radius: 3px;
+	border: none;
+	padding: 0.7em 1em;
 }
 .mg-upc-dg-back {
 	text-decoration: none;
+	padding: 0.5em;
 }
 .mg-upc-dg-filter {
 	display: flex;
