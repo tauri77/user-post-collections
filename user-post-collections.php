@@ -3,7 +3,7 @@
 Plugin Name: User post collections
 Plugin URI:  https://galetto.info/user-post-collections
 Description: Allows users to create their post collections.
-Version:     0.8.24
+Version:     0.8.25
 Author:      Mauricio Galetto
 Author URI:  http://galetto.info/
 Text Domain: user-post-collections
