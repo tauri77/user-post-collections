@@ -446,10 +446,12 @@ class MG_List_Votes_Model {
 		if ( get_option( 'mg_upc_store_vote_ip', 'on' ) === 'on' ) {
 			if (
 				array_key_exists( 'REMOTE_ADDR', $_SERVER ) &&
-				is_string( $_SERVER['REMOTE_ADDR'] ) &&
-				filter_var( $_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP )
+				is_string( $_SERVER['REMOTE_ADDR'] )
 			) {
-				$ip = apply_filters( 'mg_upc_vote_ip', $_SERVER['REMOTE_ADDR'] );
+				$sanitized_header = sanitize_text_field( $_SERVER['REMOTE_ADDR'] );
+				if ( filter_var( $sanitized_header, FILTER_VALIDATE_IP ) ) {
+					$ip = apply_filters( 'mg_upc_vote_ip', $sanitized_header );
+				}
 			}
 		} elseif ( get_option( 'mg_upc_store_vote_ip', 'on' ) === 'unsafe' ) {
 			$ip = apply_filters( 'mg_upc_vote_ip', $this->get_unsafe_client_ip() );
@@ -509,8 +511,9 @@ class MG_List_Votes_Model {
 				 * trusted for authenticity, but we don't need to for this purpose.
 				 */
 				// This code was extracted from the core file: /wp-admin/includes/class-wp-community-events.php
-				$address_chain = explode( ',', $_SERVER[ $header ] );
-				$client_ip     = trim( $address_chain[0] );
+				$sanitized_header = sanitize_text_field( $_SERVER[ $header ] );
+				$address_chain    = explode( ',', $sanitized_header );
+				$client_ip        = trim( $address_chain[0] );
 				// Adding validate IP...
 				if ( filter_var( $client_ip, FILTER_VALIDATE_IP ) ) {
 					return $client_ip;
