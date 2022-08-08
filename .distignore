@@ -3,7 +3,17 @@
 /.github
 /.idea
 /javascript/mg-upc-client/node_modules
+/javascript/mg-upc-client/api-documentation
+/javascript/mg-upc-client/src
+/javascript/mg-upc-client/css
+/javascript/mg-upc-client/src-admin
+/javascript/mg-upc-client/.babelrc
+/javascript/mg-upc-client/package.json
+/javascript/mg-upc-client/package-lock.json
+/javascript/mg-upc-client/webpack.config.js
 /TODO.txt
+/readme.md
+/docs
 
 .distignore
 .gitignore

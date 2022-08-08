@@ -67,5 +67,8 @@ Yes, you can read the api documentation by visiting [https://tauri77.github.io/u
 
 == Changelog ==
 
+= 0.8.24 =
+* Validate client IP
+
 = 0.8.23 =
 * First version of the plugin
