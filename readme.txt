@@ -67,6 +67,9 @@ Yes, you can read the api documentation by visiting [https://tauri77.github.io/u
 
 == Changelog ==
 
+= 0.8.26 =
+* Remove unsafe IP option and use rest_is_ip_address
+
 = 0.8.25 =
 * Sanitize client IP
 

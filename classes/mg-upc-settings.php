@@ -309,7 +309,6 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 				'options' => array(
 					'off'    => __( 'Non store', 'user-post-collections' ),
 					'on'     => __( 'Store IP', 'user-post-collections' ),
-					'unsafe' => __( 'Store unsafe IP (This does NOT guarantee that the returned address is valid or accurate, and it can be easily spoofed.)', 'user-post-collections' ),
 				),
 			);
 			$settings_fields['mg_upc_advanced'][] = array(

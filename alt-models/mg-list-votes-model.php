@@ -443,19 +443,15 @@ class MG_List_Votes_Model {
 
 	public function get_ip_to_storage() {
 		$ip = '';
-		if ( get_option( 'mg_upc_store_vote_ip', 'on' ) === 'on' ) {
-			if (
-				array_key_exists( 'REMOTE_ADDR', $_SERVER ) &&
-				is_string( $_SERVER['REMOTE_ADDR'] )
-			) {
-				$sanitized_header = sanitize_text_field( $_SERVER['REMOTE_ADDR'] );
-				if ( filter_var( $sanitized_header, FILTER_VALIDATE_IP ) ) {
-					$ip = apply_filters( 'mg_upc_vote_ip', $sanitized_header );
-				}
-			}
-		} elseif ( get_option( 'mg_upc_store_vote_ip', 'on' ) === 'unsafe' ) {
-			$ip = apply_filters( 'mg_upc_vote_ip', $this->get_unsafe_client_ip() );
+		if (
+			get_option( 'mg_upc_store_vote_ip', 'on' ) === 'on' &&
+			! empty( $_SERVER['REMOTE_ADDR'] ) &&
+			is_string( $_SERVER['REMOTE_ADDR'] ) &&
+			rest_is_ip_address( $_SERVER['REMOTE_ADDR'] ) !== false
+		) {
+			$ip = sanitize_text_field( $_SERVER['REMOTE_ADDR'] );
 		}
+		$ip = apply_filters( 'mg_upc_vote_ip', $ip );
 
 		if ( ! empty( $ip ) ) {
 			if ( get_option( 'mg_upc_store_vote_anonymize_ip', 'on' ) === 'on' ) {
@@ -464,66 +460,6 @@ class MG_List_Votes_Model {
 		}
 		return $ip;
 	}
-
-	/**
-	 * Extracted from WP_Community_Events class
-	 *
-	 * Determines the user's actual IP address and attempts to partially
-	 * anonymize an IP address by converting it to a network ID.
-	 *
-	 * Geolocating the network ID usually returns a similar location as the
-	 * actual IP, but provides some privacy for the user.
-	 *
-	 * $_SERVER['REMOTE_ADDR'] cannot be used in all cases, such as when the user
-	 * is making their request through a proxy, or when the web server is behind
-	 * a proxy. In those cases, $_SERVER['REMOTE_ADDR'] is set to the proxy address rather
-	 * than the user's actual address.
-	 *
-	 * Modified from https://stackoverflow.com/a/2031935/450127, MIT license.
-	 * Modified from https://github.com/geertw/php-ip-anonymizer, MIT license.
-	 *
-	 * SECURITY WARNING: This function is _NOT_ intended to be used in
-	 * circumstances where the authenticity of the IP address matters. This does
-	 * _NOT_ guarantee that the returned address is valid or accurate, and it can
-	 * be easily spoofed.
-	 *
-	 *
-	 * @return string|false The anonymized address on success; the given address
-	 *                      or false on failure.
-	 */
-	public static function get_unsafe_client_ip() {
-		// In order of preference, with the best ones for this purpose first.
-		$address_headers = array(
-			'HTTP_CLIENT_IP',
-			'HTTP_X_FORWARDED_FOR',
-			'HTTP_X_FORWARDED',
-			'HTTP_X_CLUSTER_CLIENT_IP',
-			'HTTP_FORWARDED_FOR',
-			'HTTP_FORWARDED',
-			'REMOTE_ADDR',
-		);
-
-		foreach ( $address_headers as $header ) {
-			if ( array_key_exists( $header, $_SERVER ) && is_string( $_SERVER[ $header ] ) ) {
-				/*
-				 * HTTP_X_FORWARDED_FOR can contain a chain of comma-separated
-				 * addresses. The first one is the original client. It can't be
-				 * trusted for authenticity, but we don't need to for this purpose.
-				 */
-				// This code was extracted from the core file: /wp-admin/includes/class-wp-community-events.php
-				$sanitized_header = sanitize_text_field( $_SERVER[ $header ] );
-				$address_chain    = explode( ',', $sanitized_header );
-				$client_ip        = trim( $address_chain[0] );
-				// Adding validate IP...
-				if ( filter_var( $client_ip, FILTER_VALIDATE_IP ) ) {
-					return $client_ip;
-				}
-			}
-		}
-
-		return false;
-	}
-
 
 	/**
 	 * Remove old votes for a list type
