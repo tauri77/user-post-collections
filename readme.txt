@@ -5,7 +5,7 @@ License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl.txt
 Tags: User lists, Post Collections, Woocommerce Wishlist
 Tested up to: 6.0
-Stable tag: 0.8.23
+Stable tag: 0.8.26
 Requires PHP: 7.0
 
 This plugin allows users to create lists of different types (simple, numbered, cart and poll) and share them.
