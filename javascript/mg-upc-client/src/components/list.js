@@ -40,7 +40,7 @@ function List( props ) {
 			let s2     = false;
 			if ( list && listSupport( list, 'sortable' ) ) {
 				const run = () => {
-					if ( state.listPage < state.listTotalPages ) {
+					if ( nextRef.current && state.listPage < state.listTotalPages ) {
 						s1 = Sortable.create(
 							nextRef.current,
 							{
@@ -51,7 +51,7 @@ function List( props ) {
 							}
 						);
 					}
-					if ( state.listPage > 1 ) {
+					if ( nextRef.current && state.listPage > 1 ) {
 						s2 = Sortable.create(
 							prevRef.current,
 							{

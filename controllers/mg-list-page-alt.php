@@ -480,7 +480,7 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 					if ( false === strpos( $val, '?' ) ) {
 						return home_url( '/' . trim( $val, '/' ) . '/' . rawurlencode( $slug ) );
 					}
-					return home_url( '/' . add_query_arg( array( 'list' => $slug ), $val ) );
+					return home_url( '/' . add_query_arg( array( 'list' => rawurlencode( $slug ) ), $val ) );
 				}
 			}
 		}
