@@ -476,7 +476,11 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 			if ( self::$page_id > 0 ) {
 				$val = get_page_link( self::$page_id );
 				if ( ! empty( $val ) ) {
-					return home_url( '/' . trim( wp_make_link_relative( $val ), '/' ) . '/' . rawurlencode( $slug ) );
+					$val = wp_make_link_relative( $val );
+					if ( false === strpos( $val, '?' ) ) {
+						return home_url( '/' . trim( $val, '/' ) . '/' . rawurlencode( $slug ) );
+					}
+					return home_url( '/' . add_query_arg( array( 'list' => $slug ), $val ) );
 				}
 			}
 		}

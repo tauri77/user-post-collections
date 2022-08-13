@@ -75,6 +75,12 @@ function mg_upc_clear_blog() {
 		'mg_upc_modal_show_price',
 		'mg_upc_modal_show_stock',
 		'mg_upc_anh_notices',
+		'mg_upc_api_item_per_page',
+		'mg_upc_item_per_page',
+		'mg_upc_post_stats',
+		'mg_upc_share_buttons',
+		'mg_upc_share_buttons_client',
+		'mg_upc_ajax_load',
 	);
 	foreach ( $options as $option ) {
 		delete_option( $option );

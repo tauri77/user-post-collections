@@ -150,7 +150,6 @@ class MG_UPC_Database extends MG_UPC_Module {
 			post_id bigint(20) UNSIGNED NOT NULL,
 			position bigint(20) UNSIGNED NOT NULL DEFAULT 0,
 			votes bigint(20) UNSIGNED NOT NULL DEFAULT 0,
-			quantity int(11) UNSIGNED NOT NULL DEFAULT 0,
 		 	added datetime NOT NULL DEFAULT current_timestamp(),
 			description varchar(400) NOT NULL DEFAULT '',
   			KEY list_post (list_id, post_id),
