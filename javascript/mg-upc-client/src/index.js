@@ -14,7 +14,9 @@ import {
 	resetState,
 	setError,
 	setListPage,
-	setPage, setMessage
+	setPage,
+	setMessage,
+	removeItem
 } from "./store/actions";
 import { ContextProvider, AppContext } from './contexts/app-context';
 import translate from "./helpers/translate";
@@ -73,12 +75,20 @@ function App() {
 			window.showMyLists   = function () {
 				showMy();
 			};
-			window.addItemToList = function ( post_id, list_id = false ) {
+			window.addItemToList = function ( post_id, list_id = false, after = 'view' ) {
 				dispatch( resetState() );
 				if ( ! list_id ) {
 					showForAdd( post_id );
+				} else {
+					dispatch( addItem( list_id, post_id, after ) );
+					dialog.current.show();
 				}
 			};
+			window.removeItemFromList = function( post_id, list_id, after = 'view' ) {
+				dispatch( resetState() );
+				dispatch( removeItem( post_id, list_id, after ) );
+				dialog.current.show();
+			}
 			window.mgUpcAddListToCart = addListToCart;
 		},
 		[ dialog.current, dispatch ]
@@ -201,7 +211,7 @@ function App() {
 				{ (actualView === 'listOfList' || actualView === 'adding') && (
 					<>
 						<div className={"mg-upc-dg-top-action"}>
-							{ ( typesForCreate.length > 0 ) && (<button
+							{ ( typesForCreate.length > 0 ) && ! state.error && (<button
 								className="mg-list-new"
 								onClick={handleNewList}>
 								<span className={"mg-upc-icon upc-font-add"}></span><span>{ translate( 'Create List' ) }</span>
@@ -249,3 +259,38 @@ window.addEventListener(
 	false
 );
 window.mgUpcApiClient = mgUpcApiClient; //public api for thirty party plugins/themes
+
+
+//******************************
+//****    Themes Helpers    ****
+//******************************/
+
+window.mgUpcListeners = function() {
+	jQuery( '.mg-upc-post-add' ).on(
+		'click',
+		function () {
+			if ( jQuery( this ).data( 'post-id' ) > 0 ) {
+				window.addItemToList(
+					jQuery( this ).data( 'post-id' ),
+					( jQuery( this ).data( 'upc-list' ) + '' ).length > 0 ? jQuery( this ).data( 'upc-list' ) : false
+				);
+			}
+			return false;
+		}
+	);
+
+	jQuery( '.mg-upc-post-remove' ).on(
+		'click',
+		function () {
+			if ( jQuery( this ).data( 'post-id' ) > 0 && typeof jQuery( this ).data( 'upc-list' ) !== 'undefined' ) {
+				window.removeItemFromList(
+					jQuery( this ).data( 'post-id' ),
+					( jQuery( this ).data( 'upc-list' ) + '' ).length > 0 ? jQuery( this ).data( 'upc-list' ) : false
+				);
+			}
+			return false;
+		}
+	);
+}
+
+window.mgUpcListeners();

@@ -207,20 +207,36 @@ export const loadListItems = createAsyncThunk(
 export const removeItem = createAsyncThunk(
 	REMOVE_LIST_ITEM,
 	async function (post_id, thunkAPI) {
-		const state = thunkAPI.getState();
-		return await apiClient.quit( state.list.ID, post_id ).then( ( response ) => {
-			if ( 1 === state.list.items.length ) {
-				const page  = state.listPage;
-				const total = state.listTotalPages;
-				if ( page < total ) {
-					thunkAPI.dispatch( loadListItems( { page: page } ) );
-				} else if ( page === total ) {
-					thunkAPI.dispatch( loadListItems( { page: Math.max( 1, page - 1 ) } ) );
+		const state   = thunkAPI.getState();
+		var list_id = thunkAPI.extra.length > 0 ? thunkAPI.extra[0] : state.list.ID;
+		const context = thunkAPI.extra.length > 1 ? thunkAPI.extra[1] : 'view';
+		return await apiClient.quit(
+			list_id,
+			post_id,
+			{ context: context }
+		).then(
+			( response ) => {
+				if ( response.data && response.data.list_id ) {
+					list_id = list_id; //For named lists
 				}
-				return false;
+				if ( ! state.list || ! state.list.ID ) {
+					thunkAPI.dispatch( setList( { ID: list_id } ) );
+				} else if ( 1 === state.list.items.length ) {
+					thunkAPI.dispatch( loadListItems( { page: page } ) );
+					if ( state.list && context === 'view' ) {
+						const page  = state.listPage;
+						const total = state.listTotalPages;
+						if ( page < total ) {
+							thunkAPI.dispatch( loadListItems( { page: page } ) );
+						} else if ( page === total ) {
+							thunkAPI.dispatch( loadListItems( { page: Math.max( 1, page - 1 ) } ) );
+						}
+					}
+					return false;
+				}
+				return post_id;
 			}
-			return post_id;
-		} );
+		);
 	}
 );
 
@@ -230,7 +246,11 @@ export const addItem = createAsyncThunk(
 		let item = thunkAPI.extra[0];
 		let ret  = false;
 		try {
-			await apiClient.add( list_id, item, { context: 'view' } ).then( ( response ) => {
+			await apiClient.add(
+				list_id,
+				item,
+				{ context: thunkAPI.extra.length > 1 ? thunkAPI.extra[1] : 'view' }
+			).then( ( response ) => {
 				ret = response.data;
 			} );
 		} catch ( reason ) {

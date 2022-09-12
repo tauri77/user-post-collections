@@ -72,6 +72,19 @@ class MG_UPC_REST_List_Items_Controller {
 					'schema' => array( $this, 'get_item_schema' ),
 				)
 			);
+
+			register_rest_route(
+				$this->namespace,
+				'/' . $this->resource_name . '/(?P<upctype>' . $sticky_type . ')/items/(?P<postid>[\d]+)',
+				array(
+					array(
+						'methods'             => WP_REST_Server::DELETABLE,
+						'callback'            => array( $this, 'delete_item_always_exist' ),
+						'permission_callback' => array( $this, 'write_item_permissions_check_always_exist' ),
+					),
+					'schema' => array( $this, 'get_item_schema' ),
+				)
+			);
 		}
 
 		register_rest_route(
@@ -335,20 +348,40 @@ class MG_UPC_REST_List_Items_Controller {
 			return $existing_list;
 		}
 
+		return $this->delete_item_from_id( (int) $request['id'], (int) $request['postid']);
+	}
+
+	/**
+	 * Remove item from a list ID
+	 *
+	 * @param int $list_id
+	 * @param int $post_id
+	 *
+	 * @return WP_Error|WP_REST_Response
+	 */
+	private function delete_item_from_id( $list_id, $post_id ) {
 		try {
-			if ( ! $this->model->items->item_exists( (int) $request['id'], (int) $request['postid'] ) ) {
+			if ( ! $this->model->items->item_exists( (int) $list_id, (int) $post_id ) ) {
 				return new WP_Error(
 					'rest_item_not_found',
 					esc_html__( 'Item not found.', 'user-post-collections' ),
-					array( 'status' => 404 )
+					array(
+						'status'  => 404,
+						'list_id' => (int) $list_id,
+						'post_id' => (int) $post_id,
+					)
 				);
 			}
-			$this->model->items->remove_item( (int) $request['id'], (int) $request['postid'] );
+			$this->model->items->remove_item( (int) $list_id, (int) $post_id );
 		} catch ( Exception $e ) {
 			return new WP_Error(
 				'rest_item_error',
 				esc_html__( 'Unknown error.', 'user-post-collections' ),
-				array( 'status' => 500 )
+				array(
+					'status'  => 500,
+					'list_id' => (int) $list_id,
+					'post_id' => (int) $post_id,
+				)
 			);
 		}
 
@@ -356,6 +389,8 @@ class MG_UPC_REST_List_Items_Controller {
 		$response->set_data(
 			array(
 				'deleted' => true,
+				'list_id' => (int) $list_id,
+				'post_id' => (int) $post_id,
 			)
 		);
 
@@ -407,6 +442,44 @@ class MG_UPC_REST_List_Items_Controller {
 	}
 
 	/**
+	 * Delete an item from an 'always exist' list
+	 *
+	 * @param WP_REST_Request $request Current request.
+	 *
+	 * @return WP_Error|WP_REST_Response
+	 *
+	 * @noinspection PhpUnused (Rest API callback)
+	 */
+	public function delete_item_always_exist( $request ) {
+
+		$response = array( 'data' => array() );
+
+		try {
+			$list = $this->model->find_always_exist( $request['upctype'], get_current_user_id() );
+
+			if ( null === $list ) {
+				return new WP_Error(
+					'rest_item_not_found',
+					esc_html__( 'Item not found.', 'user-post-collections' ),
+					array( 'status' => 404 )
+				);
+			} else {
+				return $this->delete_item_from_id( (int) $list->ID, (int) $request['postid']   );
+			}
+		} catch ( MG_UPC_Invalid_Field_Exception $e ) {
+			$response['code']           = 'rest_invalid_field';
+			$response['message']        = $e->getMessage();
+			$response['data']['status'] = 409;
+		}
+
+		$response_api = new WP_REST_Response();
+		$response_api->set_data( $response );
+		$response_api->set_status( $response['status'] );
+
+		return $response_api;
+	}
+
+	/**
 	 * Create an item
 	 *
 	 * @param WP_REST_Request $request Current request.
@@ -426,6 +499,10 @@ class MG_UPC_REST_List_Items_Controller {
 			$response['code']           = 'rest_item_exist_error';
 			$response['message']        = esc_html( $e->getMessage() );
 			$response['data']['status'] = 409;
+
+			if ( 'check' === $request['context'] ) {
+				$response['check'] = 'OK';
+			}
 		} catch ( Exception $e ) {
 			return new WP_Error(
 				'rest_db_error',
@@ -550,6 +627,14 @@ class MG_UPC_REST_List_Items_Controller {
 					$response['data']['status'] = 201;
 					$response['added']          = true;
 				}
+			}
+		}
+
+		if ( isset( $request['context'] ) && 'check' === $request['context'] ) {
+			if ( ! empty( $response['added'] ) ) {
+				$response['check'] = 'OK';
+			} else {
+				$response['check'] = 'ERR';
 			}
 		}
 

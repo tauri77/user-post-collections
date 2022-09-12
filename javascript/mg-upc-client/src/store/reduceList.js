@@ -88,7 +88,7 @@ export default function reduceList (state, action) {
 			return getCloned( { items: newStateItems } );
 
 		case REMOVE_LIST_ITEM:
-			if ( 1 === state.items.length || false === payload ) {
+			if ( ! state.items || 1 === state.items.length || false === payload ) {
 				return state;
 			}
 			newState      = getCloned();

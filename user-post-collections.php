@@ -3,7 +3,7 @@
 Plugin Name: User post collections
 Plugin URI:  https://galetto.info/user-post-collections
 Description: Allows users to create their post collections.
-Version:     0.8.29
+Version:     0.8.30
 Author:      Mauricio Galetto
 Author URI:  https://galetto.info/
 Text Domain: user-post-collections
@@ -66,6 +66,7 @@ if ( mg_upc_requirements_met() ) {
 	require_once __DIR__ . '/includes/mg-upc-helper.php';
 	require_once __DIR__ . '/includes/mg-upc-texts.php';
 	require_once __DIR__ . '/includes/mg-upc-settings-api.php';
+	require_once __DIR__ . '/includes/themes-helper.php';
 
 	require_once __DIR__ . '/classes/Exceptions/mg-upc-item-exist-exception.php';
 	require_once __DIR__ . '/classes/Exceptions/mg-upc-invalid-field-exception.php';

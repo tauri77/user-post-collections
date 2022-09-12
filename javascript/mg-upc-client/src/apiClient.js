@@ -106,8 +106,8 @@ let apiClient = {
 			}
 		);
 	},
-	quit: function (listID, itemID) {
-		return apiRequest( 'DELETE', '/' + listID + '/items/' + itemID, {} ).then(
+	quit: function (listID, itemID, args={}) {
+		return apiRequest( 'DELETE', '/' + listID + '/items/' + itemID + objectToGetParams( args ), {} ).then(
 			function(response) {
 				checkResponseError( response );
 				return response;

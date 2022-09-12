@@ -161,10 +161,16 @@ export function reducer (state, action) {
 
 			return newState;
 
+		case REMOVE_LIST_ITEM + '/loading':
+			newState = getCloned( { status: 'loading' } );
+			if ( typeof payload === 'object' && payload.list_id ) {
+				newState.list = { ID : payload.list_id };
+			}
+			return newState;
+
 		case SET_LIST_OF_LIST + '/loading':
 		case SET_LIST_ITEMS + '/loading':
 		case UPDATE_LIST_ITEM + '/loading':
-		case REMOVE_LIST_ITEM + '/loading':
 		case ADD_LIST_ITEM + '/loading':
 		case MOVE_LIST_ITEM_NEXT + '/loading':
 		case MOVE_LIST_ITEM_PREV + '/loading':
