@@ -5,7 +5,7 @@ License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl.txt
 Tags: User lists, Post Collections, Woocommerce Wishlist
 Tested up to: 6.1
-Stable tag: 0.8.31
+Stable tag: 0.8.32
 Requires PHP: 7.0
 
 This plugin allows users to create lists of different types (simple, numbered, cart and poll) and share them.
@@ -66,6 +66,9 @@ Yes, all list types can be disabled from the plugin settings.
 Yes, you can read the api documentation by visiting [https://tauri77.github.io/user-post-collections/api.html](https://tauri77.github.io/user-post-collections/api.html)
 
 == Changelog ==
+
+= 0.8.32 =
+* Added show list helper
 
 = 0.8.31 =
 * Fix "Edit Comment" button

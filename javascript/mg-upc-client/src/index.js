@@ -75,6 +75,11 @@ function App() {
 			window.showMyLists   = function () {
 				showMy();
 			};
+			window.mgUpcShowList = function ( list_id, title= '' ) {
+				dispatch( resetState() );
+				dispatch( setList( { ID: list_id, title: ( title ? title : '') } ) );
+				dialog.current.show();
+			};
 			window.addItemToList = function ( post_id, list_id = false, after = 'view' ) {
 				dispatch( resetState() );
 				if ( ! list_id ) {
@@ -88,7 +93,7 @@ function App() {
 				dispatch( resetState() );
 				dispatch( removeItem( post_id, list_id, after ) );
 				dialog.current.show();
-			}
+			};
 			window.mgUpcAddListToCart = addListToCart;
 		},
 		[ dialog.current, dispatch ]
@@ -286,6 +291,19 @@ window.mgUpcListeners = function() {
 				window.removeItemFromList(
 					jQuery( this ).data( 'post-id' ),
 					( jQuery( this ).data( 'upc-list' ) + '' ).length > 0 ? jQuery( this ).data( 'upc-list' ) : false
+				);
+			}
+			return false;
+		}
+	);
+
+	jQuery( '.mg-upc-show-list' ).on(
+		'click',
+		function () {
+			if ( typeof jQuery( this ).data( 'upc-list' ) !== 'undefined' ) {
+				window.mgUpcShowList(
+					jQuery( this ).data( 'upc-list' ),
+					( jQuery( this ).data( 'upc-title' ) + '' ).length > 0 ? jQuery( this ).data( 'upc-title' ) : false
 				);
 			}
 			return false;
