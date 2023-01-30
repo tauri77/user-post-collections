@@ -38,6 +38,10 @@ function ListItemAdding(props) {
 		props.onSaveItemDescription( description );
 	};
 
+	const hasDescription = () => {
+		return typeof description == 'string' && description.length > 0;
+	}
+
 	return (<>
 		<span><br />Adding item:</span>
 		<div className="mg-upc-dg-item mg-upc-dg-item-adding" data-post_id={props.item.post_id} >
@@ -47,8 +51,8 @@ function ListItemAdding(props) {
 				<a href={props.item?.link}>{props.item?.title}</a>
 				{ ! editingDesc && (<p>{ props.item?.description }</p>) }
 				{ ! editingDesc && (<button onClick={ switchToEditing }>
-					{ description === '' && (<span>{ translate( 'Add Comment' ) }</span>) }
-					{ description !== '' && (<span>{ translate( 'Edit Comment' ) }</span>) }
+					{ hasDescription() && (<span>{ translate( 'Edit Comment' ) }</span>) }
+					{ ! hasDescription() && (<span>{ translate( 'Add Comment' ) }</span>) }
 				</button>) }
 				<input
 					ref={ inputDescRef }

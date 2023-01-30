@@ -493,6 +493,12 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 				'default' => '',
 				'type'    => 'text',
 			);
+			$settings_fields['mg_upc_texts'][] = array(
+				'name'    => 'client_add_to_title',
+				'label'   => __( 'Add to... (client js title)', 'user-post-collections' ),
+				'default' => '',
+				'type'    => 'text',
+			);
 
 			//***************************************
 			//           Each List Type

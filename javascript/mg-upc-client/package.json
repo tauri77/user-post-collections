@@ -20,7 +20,6 @@
     "css-loader": "^6.7.1",
     "file-loader": "^6.2.0",
     "mini-css-extract-plugin": "^2.6.1",
-    "node-sass": "^7.0.1",
     "sass-loader": "^12.6.0",
     "style-loader": "^3.3.1",
     "url-loader": "^4.1.1",
@@ -30,6 +29,7 @@
   "dependencies": {
     "@babel/runtime": "^7.18.3",
     "a11y-dialog": "^7.4.0",
+    "node-sass": "^8.0.0",
     "preact": "^10.10.2",
     "prop-types": "^15.8.1",
     "sortablejs": "^1.15.0"

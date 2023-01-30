@@ -348,7 +348,7 @@ class MG_UPC_REST_List_Items_Controller {
 			return $existing_list;
 		}
 
-		return $this->delete_item_from_id( (int) $request['id'], (int) $request['postid']);
+		return $this->delete_item_from_id( (int) $request['id'], (int) $request['postid'] );
 	}
 
 	/**
@@ -436,7 +436,7 @@ class MG_UPC_REST_List_Items_Controller {
 
 		$response_api = new WP_REST_Response();
 		$response_api->set_data( $response );
-		$response_api->set_status( $response['status'] );
+		$response_api->set_status( $response['data']['status'] );
 
 		return $response_api;
 	}
@@ -464,7 +464,7 @@ class MG_UPC_REST_List_Items_Controller {
 					array( 'status' => 404 )
 				);
 			} else {
-				return $this->delete_item_from_id( (int) $list->ID, (int) $request['postid']   );
+				return $this->delete_item_from_id( (int) $list->ID, (int) $request['postid'] );
 			}
 		} catch ( MG_UPC_Invalid_Field_Exception $e ) {
 			$response['code']           = 'rest_invalid_field';
@@ -474,7 +474,7 @@ class MG_UPC_REST_List_Items_Controller {
 
 		$response_api = new WP_REST_Response();
 		$response_api->set_data( $response );
-		$response_api->set_status( $response['status'] );
+		$response_api->set_status( $response['data']['status'] );
 
 		return $response_api;
 	}

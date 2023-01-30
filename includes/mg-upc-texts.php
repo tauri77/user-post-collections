@@ -115,6 +115,10 @@ class MG_UPC_Texts {
 				'default' => __( 'Unknown List Type...', 'user-post-collections' ),
 				'option'  => 'client_unknown_type',
 			),
+			'Add to...'                            => array(
+				'default' => __( 'Add to...', 'user-post-collections' ),
+				'option'  => 'client_add_to_title',
+			),
 		);
 
 		do_action( 'mg_upc_texts_loaded' );

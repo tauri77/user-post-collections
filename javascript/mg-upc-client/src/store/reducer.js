@@ -25,6 +25,7 @@ import reduceList from './reduceList';
 import reduceListOfList from './reduceListOfLists';
 import { initialState } from '../contexts/app-context';
 import { cloneObj } from "../helpers/functions";
+import translate from "../helpers/translate";
 
 export function reducer (state, action) {
 	const { type, payload } = action;
@@ -102,7 +103,7 @@ export function reducer (state, action) {
 			newState            = getCloned();
 			newState.addingPost = payload;
 			if ( payload ) {
-				newState.title = "Add to...";
+				newState.title = translate( "Add to..." );
 			}
 			return newState;
 
