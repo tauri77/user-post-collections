@@ -210,7 +210,7 @@ function mg_upc_is_list_type_viewable( $list_type ) {
  */
 function mg_upc_is_list_status_viewable( $list_status ) {
 	if ( is_scalar( $list_status ) ) {
-		$list_status = get_post_status_object( $list_status );
+		$list_status = MG_UPC_Helper::get_instance()->get_list_status( $list_status );
 		if ( ! $list_status ) {
 			return false;
 		}
@@ -243,7 +243,7 @@ function mg_upc_is_list_status_viewable( $list_status ) {
  * Lists are considered publicly viewable if both the list status and post type
  * are viewable.
  *
- * @param array|stdClass|null $list Optional. Post ID or post object. Defaults to global $post.
+ * @param array|stdClass|MG_UPC_List|null $list Optional. Post ID or post object. Defaults to global $post.
  * @return bool Whether the post is publicly viewable.
  */
 function mg_upc_is_list_publicly_viewable( $list = null ) {

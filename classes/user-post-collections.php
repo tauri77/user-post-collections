@@ -34,10 +34,12 @@ if ( ! class_exists( 'User_Post_Collections' ) ) {
 				'MG_UPC_Cron'                => MG_UPC_Cron::get_instance(),
 				'MG_UPC_List_Controller'     => MG_UPC_List_Controller::get_instance(),
 				'MG_UPC_List_Page'           => MG_UPC_List_Page::get_instance(),
+				'MG_UPC_List_Page_Settings'  => MG_UPC_List_Page_Settings::get_instance(),
 				'MG_UPC_Database'            => MG_UPC_Database::get_instance(),
 				'MG_UPC_Rest_API'            => MG_UPC_Rest_API::get_instance(),
 				'MG_UPC_Buttons'             => MG_UPC_Buttons::get_instance(),
 				'MG_UPC_Woocommerce'         => MG_UPC_Woocommerce::get_instance(),
+				'MG_UPC_Shortcode'           => MG_UPC_Shortcode::get_instance(),
 			);
 
 			add_action( 'wp_ajax_nopriv_mg_upc_user', array( $this, 'ajax_user' ) );
@@ -249,6 +251,10 @@ if ( ! class_exists( 'User_Post_Collections' ) ) {
 		public function init() {
 			foreach ( $this->modules as $module ) {
 				$module->init();
+			}
+			if ( get_option( 'mg_upc_flush_rewrite', '0' ) === '1' ) {
+				update_option( 'mg_upc_flush_rewrite', '0' );
+				flush_rewrite_rules();
 			}
 		}
 

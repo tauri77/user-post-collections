@@ -118,7 +118,7 @@ function App() {
 	function handleSelectList(list) {
 		dispatch( setEditing( false ) );
 		if ( state.addingPost ) {
-			dispatch( addItem( list.ID, state.addingPost ) );
+			dispatch( addItem( list.ID, state.addingPost, 'view' ) );
 			return;
 		}
 		dispatch( setList( list ) );

@@ -39,6 +39,12 @@ add_action( 'mg_upc_single_product_buttons', 'mg_upc_single_product_button', 10 
 //WC Loop
 add_action( 'mg_upc_loop_product_buttons', 'mg_upc_loop_product_button', 10 );
 
+/**
+ * Empty Collection
+ *
+ * @see mg_upc_template_no_items_found()
+ */
+add_action( 'mg_upc_no_items_found', 'mg_upc_template_no_items_found', 10 );
 
 /**
  * Content Wrappers.
@@ -48,3 +54,31 @@ add_action( 'mg_upc_loop_product_buttons', 'mg_upc_loop_product_button', 10 );
  */
 add_action( 'mg_upc_before_main_content', 'mg_upc_output_content_wrapper', 10 );
 add_action( 'mg_upc_after_main_content', 'mg_upc_output_content_wrapper_end', 10 );
+
+
+/**
+ * List content.
+ *
+ * @see mg_upc_template_loop_single_thumbs()
+ * @see mg_upc_template_loop_single_info_start()
+ * @see mg_upc_template_loop_single_title()
+ * @see mg_upc_template_loop_single_author()
+ * @see mg_upc_template_loop_single_meta()
+ * @see mg_upc_template_loop_single_description()
+ * @see mg_upc_template_loop_single_info_end()
+ */
+add_action( 'mg_upc_loop_single_list_content', 'mg_upc_template_loop_single_thumbs', 10 );
+add_action( 'mg_upc_loop_single_list_content', 'mg_upc_template_loop_single_info_start', 15 );
+add_action( 'mg_upc_loop_single_list_content', 'mg_upc_template_loop_single_title', 20 );
+add_action( 'mg_upc_loop_single_list_content', 'mg_upc_template_loop_single_author', 30 );
+add_action( 'mg_upc_loop_single_list_content', 'mg_upc_template_loop_single_meta', 40 );
+add_action( 'mg_upc_loop_single_list_content', 'mg_upc_template_loop_single_description', 50 );
+add_action( 'mg_upc_loop_single_list_content', 'mg_upc_template_loop_single_info_end', 60 );
+add_action( 'mg_upc_after_archive_content', 'mg_upc_template_archive_pagination', 10 );
+
+/**
+ * Empty List Collections
+ *
+ * @see mg_upc_template_loop_empty()
+ */
+add_action( 'mg_upc_loop_empty', 'mg_upc_template_loop_empty', 10 );

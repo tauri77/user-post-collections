@@ -485,9 +485,8 @@ class MG_UPC_REST_Lists_Controller {
 		}
 
 		$response = $this->prepare_list_for_response( $list, $request );
-		$response = rest_ensure_response( $response );
 
-		return $response;
+		return rest_ensure_response( $response );
 	}
 
 	/**
@@ -669,6 +668,13 @@ class MG_UPC_REST_Lists_Controller {
 	 */
 	public function get_lists( $request ) {
 
+		if ( isset( $request['status'] ) && ! is_array( $request['status'] ) ) {
+			$request['status'] = array( $request['status'] );
+		}
+		if ( isset( $request['types'] ) && ! is_array( $request['types'] ) ) {
+			$request['types'] = array( $request['types'] );
+		}
+
 		$args = array(
 			'limit'   => $request['per_page'],
 			'page'    => $request['page'],
@@ -696,14 +702,7 @@ class MG_UPC_REST_Lists_Controller {
 			}
 		}
 
-		if ( isset( $request['status'] ) && ! is_array( $request['status'] ) ) {
-			$request['status'] = array( $request['status'] );
-		}
-		if ( isset( $request['type'] ) && ! is_array( $request['type'] ) ) {
-			$request['type'] = array( $request['type'] );
-		}
-
-		//limit to searcheable list types and statuses
+		//limit to searchable list types and statuses
 		if ( ! empty( $args['search'] ) ) {
 			$searchable_list_type   = MG_UPC_Helper::get_instance()->get_searchable_list_types();
 			$searchable_list_status = MG_UPC_Helper::get_instance()->get_searchable_list_statuses();
@@ -712,10 +711,11 @@ class MG_UPC_REST_Lists_Controller {
 			} else {
 				$request['status'] = $searchable_list_status;
 			}
-			if ( isset( $request['type'] ) && ! in_array( 'any', $request['type'], true ) ) {
-				$request['type'] = array_intersect( $request['type'], $searchable_list_type );
+			//TODO: not filter for admin?
+			if ( isset( $request['types'] ) && ! in_array( 'any', $request['types'], true ) ) {
+				$args['type'] = array_intersect( $request['types'], $searchable_list_type );
 			} else {
-				$request['type'] = $searchable_list_type;
+				$args['type'] = $searchable_list_type;
 			}
 		}
 
@@ -727,23 +727,35 @@ class MG_UPC_REST_Lists_Controller {
 				in_array( 'any', $request['status'], true )
 			) {
 				if ( empty( $args['author'] ) || get_current_user_id() !== $args['author'] ) {
-					if (
-						! empty( $args['type'] ) &&
-						! in_array( 'any', $args['type'], true )
-					) {
-						$list_types_to_access = $args['type'];
+					$only_public_status = false;
+					//valid list types with the private statuses filter
+					$list_types_filter = MG_UPC_Helper::get_instance()->get_list_types_can_private_read( $args['type'] );
+					/*
+					 * This disables listing mixed list types <-> private and public read status
+					 * Example:
+					 *    If the current user has permissions to view public and private bookmarks,
+					 *    but only has permissions to view favorites with public status.
+					 *    A query with:
+					 *         - status=published,private and
+					 *         - list_type=bookmark,favorites
+					 *    Will be processed as:
+					 *         - status=published,private and
+					 *         - list_type=bookmark
+					 *    In the future it should be processed like:
+					 *         (type=bookmark AND status IN (published, private)) OR
+					 *         (type=favorite AND status = published )
+					 *
+					 *    (*) If current user only can read public lists for both types, will be processed as:
+					 *         - status=published
+					 *         - list_type=bookmark,favorites
+					 **/
+					//TODO: mixed query
+					if ( ! empty( $list_types_filter ) ) {
+						$args['type'] = $list_types_filter; // Only types that user can read with private status
 					} else {
-						$list_types_to_access = array_keys( MG_UPC_Helper::get_instance()->get_list_types() );
+						$only_public_status = true; // Don't find private statuses
 					}
-					$ok_access_list_types = array(); //list type with permission ok
-					foreach ( $list_types_to_access as $list_type ) {
-						if ( MG_UPC_List_Controller::get_instance()->can_read_private_type( $list_type ) ) {
-							$ok_access_list_types[] = $list_type;
-						}
-					}
-					if ( ! empty( $ok_access_list_types ) ) {
-						$args['type'] = $ok_access_list_types;
-					} else {
+					if ( $only_public_status ) {
 						//only public access
 						$request['status'] = MG_UPC_Helper::get_instance()->get_public_list_statuses();
 						if ( ! empty( $args['search'] ) ) {
@@ -755,6 +767,7 @@ class MG_UPC_REST_Lists_Controller {
 			}
 			$args['status'] = $request['status'];
 		}
+
 		return $this->process_lists( $args, $request );
 	}
 
@@ -920,7 +933,7 @@ class MG_UPC_REST_Lists_Controller {
 	}
 
 	/**
-	 * Get an specified collection
+	 * Get a specified collection
 	 *
 	 * @param int             $id      List id
 	 * @param WP_REST_Request $request Current request.
@@ -1012,7 +1025,7 @@ class MG_UPC_REST_Lists_Controller {
 	 *
 	 * This is copied from WP_REST_Controller class in the WP REST API v2 plugin.
 	 *
-	 * @param array|WP_REST_Response $response Response object, is is array this not change.
+	 * @param array|WP_REST_Response $response Response object, if is array this not change.
 	 *
 	 * @return array Response data, ready for insertion into collection data.
 	 */

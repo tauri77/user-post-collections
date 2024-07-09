@@ -2,7 +2,7 @@
 /**
  * Single Collection Items Pagination
  *
- * This template can be overridden by copying it to yourtheme/mg-upc/single-mg-upc/pagination.php.
+ * This template can be overridden by copying it to yourtheme/mg-upc/loop/pagination.php.
  *
  */
 

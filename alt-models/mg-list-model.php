@@ -138,8 +138,9 @@ class MG_List_Model {
 		global $wpdb;
 
 		$defaults = array(
-			'limit' => 20,
-			'page'  => 1,
+			'limit'  => 20,
+			'page'   => 1,
+			'fields' => array(),
 		);
 		$args     = array_merge( $defaults, $args );
 
@@ -152,25 +153,65 @@ class MG_List_Model {
 		$where   = array();
 		$prepare = array();
 
+		$select_valid = array(
+			'ID',
+			'slug',
+			'title',
+			'content',
+			'author',
+			'type',
+			'status',
+			'count',
+			'views',
+			'vote_counter',
+			'created',
+			'modified',
+		);
+
 		//compare only support with array=false
 		$filters = array(
 			'ID'              => array(
 				'type'  => 'int',
 				'array' => true,
 			),
+			'not_ID'          => array(
+				'type'      => 'int',
+				'array'     => true,
+				'db_column' => 'ID',
+				'compare'   => 'NOT IN',
+			),
 			'slug'            => array(
 				'type'  => 'string',
 				'array' => true,
 			),
+			'not_slug'        => array(
+				'type'      => 'string',
+				'array'     => true,
+				'db_column' => 'slug',
+				'compare'   => 'NOT IN',
+			),
 			'author'          => array(
 				'type'  => 'int',
 				'array' => true,
+			),
+			'not_author'      => array(
+				'type'      => 'int',
+				'array'     => true,
+				'db_column' => 'author',
+				'compare'   => 'NOT IN',
 			),
 			'type'            => array(
 				'type'  => 'string',
 				'array' => true,
 				'valid' => $this->valid_types( true ),
 				'any'   => 'any',
+			),
+			'not_type'        => array(
+				'type'      => 'string',
+				'array'     => true,
+				'db_column' => 'type',
+				'valid'     => $this->valid_types( true ),
+				'compare'   => 'NOT IN',
 			),
 			'status'          => array(
 				'type'  => 'string',
@@ -202,14 +243,69 @@ class MG_List_Model {
 				'compare'   => '<',
 				'db_column' => 'modified',
 			),
+			'year'            => array(
+				'type'      => 'date_function',
+				'db_func'   => 'YEAR',
+				'array'     => true,
+				'db_column' => 'created',
+			),
+			'day'             => array(
+				'type'      => 'date_function',
+				'db_func'   => 'DAYOFMONTH',
+				'array'     => true,
+				'db_column' => 'created',
+				'valid'     => range( 1, 31 ),
+			),
+			'hour'            => array(
+				'type'      => 'date_function',
+				'db_func'   => 'HOUR',
+				'array'     => true,
+				'db_column' => 'created',
+				'valid'     => range( 0, 23 ),
+			),
+			'minute'          => array(
+				'type'      => 'date_function',
+				'db_func'   => 'MINUTE',
+				'array'     => true,
+				'db_column' => 'created',
+				'valid'     => range( 0, 59 ),
+			),
+			'second'          => array(
+				'type'      => 'date_function',
+				'db_func'   => 'SECOND',
+				'array'     => true,
+				'db_column' => 'created',
+				'valid'     => range( 0, 59 ),
+			),
+			'weekday'         => array(
+				'type'      => 'date_function',
+				'db_func'   => 'WEEKDAY',
+				'array'     => true,
+				'db_column' => 'created',
+				'valid'     => range( 0, 6 ),
+			),
+			'weekofyear'      => array(
+				'type'      => 'date_function',
+				'db_func'   => 'WEEKOFYEAR',
+				'array'     => true,
+				'db_column' => 'created',
+				'valid'     => range( 0, 53 ),
+			),
+			'month'           => array(
+				'type'      => 'date_function',
+				'db_func'   => 'MONTH',
+				'array'     => true,
+				'db_column' => 'created',
+				'valid'     => range( 1, 12 ),
+			),
 		);
 
 		//int filters
 		foreach ( $filters as $prop => $filter ) {
 
 			if ( ! empty( $args[ $prop ] ) ) {
-				$db_column    = isset( $filter['db_column'] ) ? $filter['db_column'] : $prop;
-				$compare      = isset( $filter['compare'] ) ? $filter['compare'] : '=';
+				$db_column    = $filter['db_column'] ?? $prop;
+				$compare      = $filter['compare'] ?? '=';
 				$single_value = null;
 
 				if ( $filter['array'] ) {
@@ -239,8 +335,11 @@ class MG_List_Model {
 
 						$where_values = array();
 						foreach ( $args[ $prop ] as $value ) {
-							if ( 'int' === $filter['type'] ) {
-								if ( ! empty( $filter['valid'] ) && ! in_array( (int) $value, $filter['valid'], true ) ) {
+							if ( 'int' === $filter['type'] || 'date_function' === $filter['type'] ) {
+								if (
+									! empty( $filter['valid'] ) &&
+									! in_array( (int) $value, $filter['valid'], true )
+								) {
 									throw new MG_UPC_Invalid_Field_Exception(
 										'Invalid field ' . $prop . '.',
 										0,
@@ -276,7 +375,16 @@ class MG_List_Model {
 							}
 						}
 
-						$where[] = '( `' . $db_column . '` IN (' . implode( ',', $where_values ) . '))';
+						if ( ! in_array( $compare, array( 'IN', 'NOT IN' ), true ) ) {
+							$compare = 'IN';
+						}
+
+						if ( ! empty( $filter['db_func'] ) ) {
+							$where[] = '( ' . $filter['db_func'] . '(`' . $db_column . '`) IN ' .
+										' (' . implode( ',', $where_values ) . '))';
+						} else {
+							$where[] = '( `' . $db_column . '` ' . $compare . ' (' . implode( ',', $where_values ) . '))';
+						}
 
 						continue; //end count( $args[ $prop ] ) > 1
 					} elseif ( 1 === count( $args[ $prop ] ) ) {
@@ -290,11 +398,16 @@ class MG_List_Model {
 
 				//single value
 				if ( isset( $single_value ) ) {
-					if ( 'int' === $filter['type'] ) {
-						$where[]   = '`' . $db_column . '` ' . $compare . ' %d';
-						$prepare[] = (int) $single_value;
+					if ( 'IN' === $compare ) {
+						$compare = '=';
+					} elseif ( 'NOT IN' === $compare ) {
+						$compare = '!=';
+					}
+					$where_value = '%s';
+					if ( 'int' === $filter['type'] || 'date_function' === $filter['type'] ) {
+						$where_value = '%d';
+						$prepare[]   = (int) $single_value;
 					} elseif ( 'string' === $filter['type'] ) {
-						$where[]   = '`' . $db_column . '` ' . $compare . ' %s';
 						$prepare[] = $single_value;
 					} elseif ( 'datetime' === $filter['type'] ) {
 						$datetime = strtotime( $single_value );
@@ -306,8 +419,12 @@ class MG_List_Model {
 								$prop
 							);
 						}
-						$where[]   = '`' . $db_column . '` ' . $compare . ' %s';
 						$prepare[] = gmdate( 'Y-m-d H:i:s', $datetime );
+					}
+					if ( ! empty( $filter['db_func'] ) ) {
+						$where[] = $filter['db_func'] . '(`' . $db_column . '`) ' . $compare . ' ' . $where_value;
+					} else {
+						$where[] = '`' . $db_column . '` ' . $compare . ' ' . $where_value;
 					}
 				}
 			}
@@ -321,8 +438,15 @@ class MG_List_Model {
 		}
 
 		$select_count = 'SELECT COUNT(*) FROM `' . $this->get_table_list() . '` ';
-		$select       = 'SELECT * FROM `' . $this->get_table_list() . '` ';
-		$sql          = '';
+
+		$select_fields = array_intersect( $select_valid, $args['fields'] );
+		if ( empty( $select_fields ) ) {
+			$select = 'SELECT * FROM `' . $this->get_table_list() . '` ';
+		} else {
+			$select = 'SELECT ' . implode( ',', $select_fields ) . ' FROM `' . $this->get_table_list() . '` ';
+		}
+
+		$sql = '';
 
 		if ( ! empty( $where ) ) {
 			$sql .= ' WHERE ' . implode( ' AND ', $where );
@@ -330,7 +454,7 @@ class MG_List_Model {
 
 		$args['page'] = max( intval( $args['page'] ), 1 );
 
-		if ( $args['limit'] > 1 ) { //for find one not run count query and not set order
+		if ( $args['limit'] > 1 ) { //for find one not run count query and not set order. What?? FIXME
 			$sql_pin_query = '';
 			if ( false !== $args['pined'] ) {
 				$sql_pin_query = $this->get_pins_query();
@@ -346,18 +470,19 @@ class MG_List_Model {
 						'count',
 						'created',
 						'modified',
+						'title',
 					),
 					true
 				)
 			) {
 				$sql_pin_query = $sql_pin_query ? $sql_pin_query . ', ' : '';
 				$sql          .= ' ORDER BY ' . $sql_pin_query . $args['orderby'];
-				if ( isset( $args['order'] ) && 'desc' === $args['order'] ) {
+				if ( isset( $args['order'] ) && 'desc' === strtolower( $args['order'] ) ) {
 					$sql .= ' DESC';
 				} else {
 					$sql .= ' ASC';
 				}
-			} elseif ( false !== $sql_pin_query ) {
+			} elseif ( ! empty( $sql_pin_query ) ) {
 				$sql .= ' ORDER BY ' . $sql_pin_query;
 			}
 
@@ -374,17 +499,15 @@ class MG_List_Model {
 			if ( isset( $args['offset'] ) ) {
 				$sql      .= ' LIMIT %d, %d';
 				$prepare[] = max( 0, (int) $args['offset'] );
-				$prepare[] = $args['limit'];
 			} elseif ( $args['page'] > 1 ) {
 				$offset = $args['limit'] * ( $args['page'] - 1 );
 
 				$sql      .= ' LIMIT %d, %d';
 				$prepare[] = $offset;
-				$prepare[] = $args['limit'];
 			} else {
-				$sql      .= ' LIMIT %d';
-				$prepare[] = $args['limit'];
+				$sql .= ' LIMIT %d';
 			}
+			$prepare[] = $args['limit'];
 		}
 		$results = $wpdb->get_results(
 			// phpcs:ignore
@@ -462,7 +585,7 @@ class MG_List_Model {
 			}
 		}
 		$user = get_user_by( 'id', $args['author'] );
-		if ( false === $user->ID ) {
+		if ( false === $user ) {
 			throw new MG_UPC_Invalid_Field_Exception( 'Invalid author.', 0, null, 'author' );
 		}
 		$data['author'] = (int) $args['author'];
@@ -574,7 +697,7 @@ class MG_List_Model {
 
 		if ( ! empty( $args['author'] ) ) {
 			$user = get_user_by( 'id', $args['author'] );
-			if ( false === $user->ID ) {
+			if ( false === $user ) {
 				throw new MG_UPC_Invalid_Field_Exception( 'Invalid author.', 0, null, 'author' );
 			}
 			$data_format[]  = '%d';

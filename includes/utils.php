@@ -97,7 +97,7 @@ function mg_upc_get_template( $template_name, $args = array(), $template_path = 
 
 	if ( $filter_template !== $template ) {
 		if ( ! file_exists( $filter_template ) ) {
-			error_log(
+			mg_upc_error_log(
 				sprintf(
 					/* translators: %s template */
 					__( '%s does not exist.', 'user-post-collections' ),
@@ -118,7 +118,7 @@ function mg_upc_get_template( $template_name, $args = array(), $template_path = 
 
 	if ( ! empty( $args ) && is_array( $args ) ) {
 		if ( isset( $args['action_args'] ) ) {
-			error_log(
+			mg_upc_error_log(
 				__( 'action_args should not be overwritten when calling wc_get_template.', 'user-post-collections' )
 			);
 			unset( $args['action_args'] );
@@ -134,7 +134,6 @@ function mg_upc_get_template( $template_name, $args = array(), $template_path = 
 		$action_args['args']
 	);
 
-	/** @noinspection PhpIncludeInspection */
 	include $action_args['located'];
 
 	do_action(
@@ -198,13 +197,50 @@ function mg_upc_locate_template( $template_name, $template_path = '', $default_p
 /**
  * Display the classes for the product div.
  *
- * @param string|array   $class      One or more classes to add to the class list.
- * @param array          $list       list.
+ * @param string|array          $class      One or more classes to add to the class list.
+ * @param array|MG_UPC_List     $list       list.
  */
 function mg_upc_class( $class = '', $list = null ) {
 	$list_class = array( $class );
-	if ( is_array( $list ) && isset( $list['type'] ) && 'vote' === $list['type'] ) {
+	$list       = MG_UPC_List::get_instance( $list );
+	if ( false !== $list && 'vote' === $list['type'] ) {
 		$list_class[] = 'mg-upc-vote';
 	}
 	echo 'class="' . esc_attr( implode( ' ', $list_class ) ) . '"';
+}
+
+
+/**
+ * Sanitize username for query
+ *
+ * @param $username
+ *
+ * @return string
+ */
+function mg_upc_sanitize_username( $username ) {
+	if ( strpos( $username, '/' ) !== false ) {
+		$username = explode( '/', $username );
+		if ( $username[ count( $username ) - 1 ] ) {
+			$username = $username[ count( $username ) - 1 ]; // No trailing slash.
+		} else {
+			$username = $username[ count( $username ) - 2 ]; // There was a trailing slash.
+		}
+	}
+
+	return sanitize_title_for_query( $username );
+}
+
+
+/**
+ * Custom error logging function.
+ *
+ * This function checks if WP_DEBUG is defined and true, and if so, logs the provided message
+ * using PHP's error_log function.
+ *
+ * @param string $message The message to log.
+ */
+function mg_upc_error_log( $message ) {
+	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		error_log( $message );
+	}
 }

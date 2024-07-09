@@ -24,7 +24,13 @@ class MG_List_Votes_Model {
 			'mg_upc_vote',
 			function( $list_id, $post_id ) {
 				$user_id = get_current_user_id();
-				$this->add_vote( $list_id, $post_id, $user_id );
+				try {
+					$this->add_vote( $list_id, $post_id, $user_id );
+				} catch ( MG_UPC_Invalid_Field_Exception $e ) {
+					mg_upc_error_log( 'Error, inavlid field: ' . $e->getMessage() );
+				} catch ( MG_UPC_Item_Not_Found_Exception $e ) {
+					mg_upc_error_log( 'Error, item not found: ' . $e->getMessage() );
+				}
 			},
 			10,
 			2
@@ -113,11 +119,11 @@ class MG_List_Votes_Model {
 	/**
 	 * List User Votes
 	 *
-	 * @param bool   $filters
-	 * @param int    $page            Set to 0 for only run count query
-	 * @param int    $votes_per_page
-	 * @param string $orderby
-	 * @param string $order
+	 * @param bool|array    $filters
+	 * @param int           $page            Set to 0 for only run count query
+	 * @param int           $votes_per_page
+	 * @param string        $orderby
+	 * @param string        $order
 	 *
 	 * @return array
 	 *
@@ -137,12 +143,14 @@ class MG_List_Votes_Model {
 
 		$order = strtolower( $order );
 
-		$int_filters = array( 'list_id', 'post_id', 'user_id' );
-		foreach ( $int_filters as $prop ) {
-			if ( ! empty( $filters[ $prop ] ) ) {
-				$filters[ $prop ] = (int) $filters[ $prop ];
-				if ( ! $filters[ $prop ] ) {
-					throw new MG_UPC_Invalid_Field_Exception( 'Invalid filter value.' );
+		if ( false !== $filters ) {
+			$int_filters = array( 'list_id', 'post_id', 'user_id' );
+			foreach ( $int_filters as $prop ) {
+				if ( ! empty( $filters[ $prop ] ) ) {
+					$filters[ $prop ] = (int) $filters[ $prop ];
+					if ( ! $filters[ $prop ] ) {
+						throw new MG_UPC_Invalid_Field_Exception( 'Invalid filter value.' );
+					}
 				}
 			}
 		}
@@ -162,16 +170,18 @@ class MG_List_Votes_Model {
 			$where   = array();
 			$prepare = array();
 
-			foreach ( $int_filters as $prop ) {
-				if ( ! empty( $filters[ $prop ] ) ) {
-					$where[]   = '`' . $prop . '` = %d';
-					$prepare[] = $filters[ $prop ];
+			if ( false !== $filters ) {
+				foreach ( $int_filters as $prop ) {
+					if ( ! empty( $filters[ $prop ] ) ) {
+						$where[]   = '`' . $prop . '` = %d';
+						$prepare[] = $filters[ $prop ];
+					}
 				}
-			}
 
-			if ( ! empty( $filters['ip'] ) ) {
-				$where[]   = '`ip` = %s';
-				$prepare[] = $filters['ip'];
+				if ( ! empty( $filters['ip'] ) ) {
+					$where[]   = '`ip` = %s';
+					$prepare[] = $filters['ip'];
+				}
 			}
 
 			if ( ! empty( $where ) ) {
@@ -190,7 +200,7 @@ class MG_List_Votes_Model {
 					return array(
 						'votes'       => array(),
 						'total'       => $total,
-						'total_pages' => $votes_per_page > 0 ? ceil( $total / $votes_per_page ) : 1,
+						'total_pages' => ceil( $total / $votes_per_page ),
 						'current'     => 0,
 					);
 				}
@@ -198,7 +208,7 @@ class MG_List_Votes_Model {
 
 			if ( ! empty( $orderby ) ) {
 				$sql .= ' ORDER BY ' . $orderby;
-				if ( isset( $order ) && 'desc' === $order ) {
+				if ( 'desc' === $order ) {
 					$sql .= ' DESC';
 				} else {
 					$sql .= ' ASC';
@@ -212,11 +222,10 @@ class MG_List_Votes_Model {
 
 					$sql      .= ' LIMIT %d, %d';
 					$prepare[] = (int) $offset;
-					$prepare[] = (int) $votes_per_page;
 				} else {
-					$sql      .= ' LIMIT %d';
-					$prepare[] = (int) $votes_per_page;
+					$sql .= ' LIMIT %d';
 				}
+				$prepare[] = (int) $votes_per_page;
 			}
 
 			$results = $wpdb->get_results(
@@ -291,7 +300,7 @@ class MG_List_Votes_Model {
 	}
 
 	/**
-	 * Get the vote of an user for a list
+	 * Get the vote of a user for a list
 	 *
 	 * @param int $list_id
 	 * @param int $user_id
@@ -322,7 +331,7 @@ class MG_List_Votes_Model {
 	}
 
 	/**
-	 * Count votes of an user for a list
+	 * Count votes of a user for a list
 	 *
 	 * @param int          $list_id The list ID
 	 * @param int          $user_id (Optional) The user ID

@@ -26,7 +26,7 @@ class MG_UPC_Helper {
 	 */
 	public function get_list_type( $type_name, $include_disabled = false ) {
 		$types = $this->get_list_types( $include_disabled );
-		return array_key_exists( $type_name, $types ) ? $types[ $type_name ] : false;
+		return is_string( $type_name ) && array_key_exists( $type_name, $types ) ? $types[ $type_name ] : false;
 	}
 
 	/**
@@ -359,6 +359,32 @@ class MG_UPC_Helper {
 		}
 
 		return $default;
+	}
+
+	/**
+	 * Get list types that the user can read privates
+	 *
+	 * @param array $list_types List type
+	 *
+	 * @return string[] The private list types that user can read
+	 */
+	public function get_list_types_can_private_read( $list_types ) {
+		if (
+			! empty( $list_types ) &&
+			! in_array( 'any', $list_types, true )
+		) {
+			$list_types_to_access = $list_types;
+		} else {
+			$list_types_to_access = array_keys( $this->get_list_types() );
+		}
+		$ok_access_list_types = array(); //list type with permission ok
+		foreach ( $list_types_to_access as $list_type ) {
+			if ( MG_UPC_List_Controller::get_instance()->can_read_private_type( $list_type ) ) {
+				$ok_access_list_types[] = $list_type;
+			}
+		}
+
+		return $ok_access_list_types;
 	}
 
 	/**

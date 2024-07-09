@@ -98,7 +98,7 @@ class MG_List_Items_Model {
 	}
 
 	/**
-	 * List list items
+	 * List the list items
 	 *
 	 * @param array $args Array with filters and configuration
 	 *
@@ -181,11 +181,10 @@ class MG_List_Items_Model {
 
 					$sql      .= ' LIMIT %d, %d';
 					$prepare[] = (int) $offset;
-					$prepare[] = (int) $args['items_per_page'];
 				} else {
-					$sql      .= ' LIMIT %d';
-					$prepare[] = (int) $args['items_per_page'];
+					$sql .= ' LIMIT %d';
 				}
+				$prepare[] = (int) $args['items_per_page'];
 			}
 
 			$results = $wpdb->get_results(
@@ -387,7 +386,7 @@ class MG_List_Items_Model {
 	}
 
 	/**
-	 * Get an list item
+	 * Get item
 	 *
 	 * @param int $list_id
 	 * @param int $post_id

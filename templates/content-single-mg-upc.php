@@ -25,9 +25,9 @@ if ( post_password_required() ) {
 	return;
 }
 ?>
-<div id="mg-upc-<?php echo esc_attr( $mg_upc_list['ID'] ); ?>"
-	data-id="<?php echo esc_attr( $mg_upc_list['ID'] ); ?>"
-	<?php mg_upc_class( 'page-inner mg-upc-page-inner', $mg_upc_list ); ?>>
+<div id="mg-upc-<?php mg_upc_the_ID(); ?>"
+	data-id="<?php mg_upc_the_ID(); ?>"
+	<?php mg_upc_class( 'page-inner mg-upc-page-inner' ); ?>>
 
 	<?php
 	/**
@@ -39,7 +39,7 @@ if ( post_password_required() ) {
 	<div class="mg-upc-list entry-mg-upc-list">
 		<?php
 		/**
-		 * Hook: mg_upc_single_list_summary.
+		 * Hook: mg_upc_single_list_content.
 		 *
 		 * @hooked mg_upc_template_single_title - 5
 		 * @hooked mg_upc_template_single_author - 10

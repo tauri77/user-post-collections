@@ -595,7 +595,12 @@ class MG_UPC_REST_List_Items_Controller {
 			'list_id' => $list_id,
 			'post_id' => $post_id,
 		);
-		$response = array( 'data' => array() );
+		$response = array(
+			'data'  => array(
+				'status' => 201,
+			),
+			'added' => true,
+		);
 		if (
 			is_string( $request['description'] ) &&
 			! empty( $request['description'] )
@@ -607,15 +612,9 @@ class MG_UPC_REST_List_Items_Controller {
 					'user-post-collections'
 				);
 				$response['data']['status'] = 409;
-				$response['added']          = true;
 			} else {
-				$to_save['description']     = $request['description'];
-				$response['data']['status'] = 201;
-				$response['added']          = true;
+				$to_save['description'] = $request['description'];
 			}
-		} else {
-			$response['data']['status'] = 201;
-			$response['added']          = true;
 		}
 		if (
 			isset( $request['quantity'] ) &&
@@ -623,19 +622,11 @@ class MG_UPC_REST_List_Items_Controller {
 		) {
 			if ( $list_type_obj->support( 'quantity' ) && 0 <= (int) $request['quantity'] ) {
 				$to_save['quantity'] = $request['quantity'];
-				if ( ! isset( $response['code'] ) ) {
-					$response['data']['status'] = 201;
-					$response['added']          = true;
-				}
 			}
 		}
 
 		if ( isset( $request['context'] ) && 'check' === $request['context'] ) {
-			if ( ! empty( $response['added'] ) ) {
-				$response['check'] = 'OK';
-			} else {
-				$response['check'] = 'ERR';
-			}
+			$response['check'] = ! empty( $response['added'] ) ? 'OK' : 'ERR';
 		}
 
 		/**
@@ -652,8 +643,8 @@ class MG_UPC_REST_List_Items_Controller {
 		$model->items->add_item(
 			$to_save['list_id'],
 			$to_save['post_id'],
-			isset( $to_save['description'] ) ? $to_save['description'] : '',
-			isset( $to_save['quantity'] ) ? $to_save['quantity'] : 0
+			$to_save['description'] ?? '',
+			$to_save['quantity'] ?? 0
 		);
 
 		return $response;

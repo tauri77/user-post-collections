@@ -57,6 +57,13 @@ function ListItem(props) {
 		props.onSaveItemDescription( description );
 	};
 
+	const handleKeyDown = (event) => {
+		if (event.key === 'Enter') {
+			setEditingDescription( false );
+			props.onSaveItemDescription( description );
+		}
+	}
+
 	const getPercent = () => {
 
 		const total = parseInt( props.list.vote_counter, 10 );
@@ -103,6 +110,7 @@ function ListItem(props) {
 					type="text"
 					value={ description }
 					onChange={ handleDesc }
+					onKeyDown={ handleKeyDown }
 					maxLength={400}
 				/>
 				{ props.editable && editingDesc && (

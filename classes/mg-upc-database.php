@@ -47,19 +47,15 @@ class MG_UPC_Database extends MG_UPC_Module {
 		global $mg_upc;
 		/** @global MG_UPC_List_Type[] $mg_upc_list_types Global array with list types. */
 		global $mg_upc_list_types;
+		$list_types_to_delete = array();
 		if ( null === $reassign ) {
-			$list_types_to_delete = array();
 			foreach ( $mg_upc_list_types as $list_type ) {
 				if ( $list_type->delete_with_user() ) {
 					$list_types_to_delete[] = $list_type->name;
-				} else {
-					$list_types_to_delete[] = $list_type->name;
 				}
 			}
-			$mg_upc->model->deleted_all_from_user( $id, $list_types_to_delete );
 		} else {
 			//search for reassign or delete list ( always_exists list types that already has the reassign user)
-			$list_types_to_delete   = array();
 			$list_types_to_reassign = array();
 			foreach ( $mg_upc_list_types as $list_type ) {
 				if ( $list_type->support( 'always_exists' ) ) {
@@ -70,15 +66,15 @@ class MG_UPC_Database extends MG_UPC_Module {
 							$list_types_to_delete[] = $list_type->name;
 						}
 					} catch ( MG_UPC_Invalid_Field_Exception $e ) {
-						error_log( 'MG_UPC: Error on delete list of removed user.' );
+						mg_upc_error_log( 'MG_UPC: Error on delete list of removed user.' );
 					}
 				} else {
 					$list_types_to_reassign[] = $list_type->name;
 				}
 			}
 			$mg_upc->model->reassign_all_from_user( $id, $reassign, $list_types_to_reassign );
-			$mg_upc->model->deleted_all_from_user( $id, $list_types_to_delete );
 		}
+		$mg_upc->model->deleted_all_from_user( $id, $list_types_to_delete );
 	}
 
 	/**
@@ -112,18 +108,18 @@ class MG_UPC_Database extends MG_UPC_Module {
 		$charset_collate = '';
 
 		if ( ! empty( $wpdb->charset ) ) {
-			$charset_collate = "DEFAULT CHARACTER SET {$wpdb->charset} ";
+			$charset_collate = "DEFAULT CHARACTER SET $wpdb->charset ";
 		}
 
 		if ( ! empty( $wpdb->collate ) ) {
-			$charset_collate .= "COLLATE {$wpdb->collate}";
+			$charset_collate .= "COLLATE $wpdb->collate";
 		}
 
 		$table_lists = $mg_upc->model->get_table_list();
 		$table_items = $mg_upc->model->items->get_table_list_items();
 
 		$sql = "
-        CREATE TABLE {$table_lists} (
+        CREATE TABLE $table_lists (
 				ID bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 				author bigint(20) DEFAULT NULL,
 				title mediumtext NOT NULL,
@@ -140,12 +136,12 @@ class MG_UPC_Database extends MG_UPC_Module {
             KEY slug (slug),
 			KEY type_status_created (type,status,created,ID),
 			KEY author_type (author,type)
-        ) {$charset_collate} ENGINE=InnoDB;";
+        ) $charset_collate ENGINE=InnoDB;";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $sql );
 
-		$sql = "CREATE TABLE {$table_items} (
+		$sql = "CREATE TABLE $table_items (
 			list_id bigint(20) UNSIGNED NOT NULL,
 			post_id bigint(20) UNSIGNED NOT NULL,
 			position bigint(20) UNSIGNED NOT NULL DEFAULT 0,
@@ -156,7 +152,7 @@ class MG_UPC_Database extends MG_UPC_Module {
   			KEY post_id (post_id),
   			KEY list_position (list_id,position),
   			KEY list_votes (list_id,votes)
-        ) {$charset_collate} ENGINE=InnoDB;";
+        ) $charset_collate ENGINE=InnoDB;";
 
 		dbDelta( $sql );
 	}
@@ -174,17 +170,17 @@ class MG_UPC_Database extends MG_UPC_Module {
 		$charset_collate = '';
 
 		if ( ! empty( $wpdb->charset ) ) {
-			$charset_collate = "DEFAULT CHARACTER SET {$wpdb->charset} ";
+			$charset_collate = "DEFAULT CHARACTER SET $wpdb->charset ";
 		}
 
 		if ( ! empty( $wpdb->collate ) ) {
-			$charset_collate .= "COLLATE {$wpdb->collate}";
+			$charset_collate .= "COLLATE $wpdb->collate";
 		}
 
 		$table_votes = $mg_upc->model->votes->get_table_list_votes();
 
 		$sql = "
-        CREATE TABLE {$table_votes} (
+        CREATE TABLE $table_votes (
 			list_id bigint(20) UNSIGNED NOT NULL,
 			post_id bigint(20) UNSIGNED NOT NULL,
 			user_id bigint(20) UNSIGNED NOT NULL,
@@ -194,7 +190,7 @@ class MG_UPC_Database extends MG_UPC_Module {
   			KEY user_id (user_id),
   			KEY post_id (post_id),
   			KEY list_post (list_id, post_id)
-        ) {$charset_collate} ENGINE=InnoDB;";
+        ) $charset_collate ENGINE=InnoDB;";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $sql );
@@ -207,7 +203,7 @@ class MG_UPC_Database extends MG_UPC_Module {
 
 		$table_items = $mg_upc->model->items->get_table_list_items();
 		//phpcs:ignore
-		$wpdb->query( "ALTER TABLE {$table_items} ADD `quantity` int(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `votes`;" );
+		$wpdb->query( "ALTER TABLE $table_items ADD `quantity` int(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `votes`;" );
 	}
 
 	private static function add_addon_json() {
@@ -217,6 +213,6 @@ class MG_UPC_Database extends MG_UPC_Module {
 
 		$table_items = $mg_upc->model->items->get_table_list_items();
 		//phpcs:ignore
-		$wpdb->query( "ALTER TABLE {$table_items} ADD `addon_json` longtext DEFAULT NULL AFTER `description`;" );
+		$wpdb->query( "ALTER TABLE $table_items ADD `addon_json` longtext DEFAULT NULL AFTER `description`;" );
 	}
 }

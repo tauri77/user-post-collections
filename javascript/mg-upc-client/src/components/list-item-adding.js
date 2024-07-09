@@ -42,6 +42,13 @@ function ListItemAdding(props) {
 		return typeof description == 'string' && description.length > 0;
 	}
 
+	const handleKeyDown = (event) => {
+		if (event.key === 'Enter') {
+			setEditingDescription( false );
+			props.onSaveItemDescription( description );
+		}
+	}
+
 	return (<>
 		<span><br />Adding item:</span>
 		<div className="mg-upc-dg-item mg-upc-dg-item-adding" data-post_id={props.item.post_id} >
@@ -60,6 +67,7 @@ function ListItemAdding(props) {
 					type="text"
 					value={ description }
 					onChange={ handleDesc }
+					onKeyDown={ handleKeyDown }
 					maxLength={400}
 				/>
 				{ editingDesc && (<button className={"mg-upc-dg-btn-item-desc-cancel"} onClick={ onCancel }>

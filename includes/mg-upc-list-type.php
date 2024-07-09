@@ -96,7 +96,7 @@ class MG_UPC_List_Type implements ArrayAccess {
 	private $supported_features;
 
 	/**
-	 * The features that can be enable/disable by user.
+	 * The features that can be enabled/disabled by user.
 	 *
 	 * @var array|bool $supports
 	 */
@@ -263,6 +263,13 @@ class MG_UPC_List_Type implements ArrayAccess {
 		}
 
 		foreach ( $args as $property_name => $property_value ) {
+			if ( ! property_exists( $this, $property_name ) ) {
+				_doing_it_wrong(
+					'MG_UPC_List_Type->set_props',
+					'Property not found: ' . esc_html( $property_name ),
+					'1.0'
+				);
+			}
 			$this->$property_name = $property_value;
 		}
 
@@ -505,18 +512,22 @@ class MG_UPC_List_Type implements ArrayAccess {
 
 
 
-	public function offsetSet( $offset, $valor ) {
+	#[ReturnTypeWillChange]
+	public function offsetSet( $offset, $value ) {
 		//No set as array...
 	}
 
+	#[ReturnTypeWillChange]
 	public function offsetExists( $offset ) {
 		return isset( $this->$offset );
 	}
 
+	#[ReturnTypeWillChange]
 	public function offsetUnset( $offset ) {
 		unset( $this->$offset );
 	}
 
+	#[ReturnTypeWillChange]
 	public function offsetGet( $offset ) {
 
 		$supports = array(
@@ -536,7 +547,7 @@ class MG_UPC_List_Type implements ArrayAccess {
 			return $this->support( $offset );
 		}
 
-		return isset( $this->$offset ) ? $this->$offset : null;
+		return $this->$offset ?? null;
 	}
 
 }

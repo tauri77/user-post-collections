@@ -102,6 +102,7 @@ export default function reduceList (state, action) {
 					}
 				);
 			}
+			newState.count = newState.count - 1;
 			if ( typeSupport( state.type, 'vote' ) ) {
 				const removedItem = state.items.find( x => x.post_id == payload );
 				if (removedItem) {

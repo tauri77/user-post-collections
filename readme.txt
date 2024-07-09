@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/donate/?hosted_button_id=XNASRT5UB7KBN
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl.txt
 Tags: User lists, Post Collections, Woocommerce Wishlist
-Tested up to: 6.1
+Tested up to: 6.5.4
 Stable tag: 0.8.32
 Requires PHP: 7.0
 
@@ -29,7 +29,7 @@ The plugin comes with 6 types of lists:
 
 All list types can be disabled.
 
-If you are a developer and you are making a theme you can register your own list types.
+If you are a developer, and you are making a theme you can register your own list types.
 
 ### Features
 
@@ -66,6 +66,10 @@ Yes, all list types can be disabled from the plugin settings.
 Yes, you can read the api documentation by visiting [https://tauri77.github.io/user-post-collections/api.html](https://tauri77.github.io/user-post-collections/api.html)
 
 == Changelog ==
+
+= 0.9.0 =
+* Added archive option
+* Added shortcode [user_posts_collections]
 
 = 0.8.32 =
 * Added show list helper

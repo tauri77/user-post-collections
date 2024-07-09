@@ -296,7 +296,7 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 				'label'   => __( 'Single title', 'user-post-collections' ),
 				// translators: not change %title%, %author%, %sitename%
 				'desc'    => __( 'You can use %title%, %author%, %sitename%.', 'user-post-collections' ),
-				'default' => '%title% by %author% | User List | %sitename%',
+				'default' => '%title% by %author% | User Lists | %sitename%',
 				'type'    => 'text',
 			);
 
@@ -307,8 +307,8 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 				'desc'    => '',
 				'type'    => 'radio',
 				'options' => array(
-					'off'    => __( 'Non store', 'user-post-collections' ),
-					'on'     => __( 'Store IP', 'user-post-collections' ),
+					'off' => __( 'Non store', 'user-post-collections' ),
+					'on'  => __( 'Store IP', 'user-post-collections' ),
 				),
 			);
 			$settings_fields['mg_upc_advanced'][] = array(
@@ -615,7 +615,7 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 								add_settings_error(
 									'mg_up_roles',
 									'mg_up_roles' . $list_type->name . '_err',
-									"Invalid role {$role_slug}"
+									"Invalid role $role_slug"
 								);
 								continue;
 							}
@@ -997,10 +997,10 @@ if ( ! class_exists( 'MG_UPC_Settings' ) ) {
 		/**
 		 * Sanitize number option
 		 *
-		 * @param $value
-		 * @param $option
-		 * @param $original_value
-		 * @param $config
+		 * @param mixed     $value
+		 * @param string    $option
+		 * @param int|float $original_value
+		 * @param array     $config
 		 *
 		 * @return int|float
 		 *

@@ -10,4 +10,4 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-the_title( '<h1 class="mg-upc-title entry-title">', '</h1>' );
+mg_upc_the_title( '<h1 class="mg-upc-title entry-title">', '</h1>' );

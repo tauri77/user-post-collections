@@ -124,6 +124,9 @@ function List( props ) {
 			save.status  = data.status;
 			if ( state.addingPost?.post_id ) {
 				save.adding = state.addingPost.post_id;
+				if ( state.addingPost?.description ) {
+					save.description = state.addingPost.description;
+				}
 			}
 			dispatch( createList( save ) );
 		} else {

@@ -78,11 +78,12 @@ const asyncDispatchs = ( dispatch, getState ) => {
 	};
 }
 
-export const  initialState = {
+export const initialState = {
 	list: false,
 	listOfList: false,
 	addingPost: null,
 	status: 'idle', //'idle' | 'loading' | 'succeeded' | 'failed'
+	loadingCount: 0,
 	error: null,
 	message: null,
 	errorCode: null,

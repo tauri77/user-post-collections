@@ -3,7 +3,7 @@
 Plugin Name: User post collections
 Plugin URI:  https://galetto.info/user-post-collections
 Description: Allows users to create their post collections.
-Version:     0.8.32
+Version:     0.9.0
 Author:      Mauricio Galetto
 Author URI:  https://galetto.info/
 Text Domain: user-post-collections
@@ -23,6 +23,12 @@ define( 'MG_UPC_REQUIRED_WP_VERSION', '4.9.6' );   // because of wp_privacy_anon
 
 /** @global User_Post_Collections|null $mg_upc */
 $GLOBALS['mg_upc'] = null;
+
+/** @global MG_UPC_Query|null  $mg_upc_the_query The main upc query*/
+$GLOBALS['mg_upc_the_query'] = null;
+
+/** @global MG_UPC_Query|null  $mg_upc_query The upc query for loop*/
+$GLOBALS['mg_upc_query'] = null;
 
 /**
  * Checks if the system requirements are met
@@ -58,6 +64,7 @@ function mg_upc_requirements_error() {
 if ( mg_upc_requirements_met() ) {
 
 	require_once __DIR__ . '/includes/utils.php';
+	require_once __DIR__ . '/includes/mg-upc-list.php';
 	require_once __DIR__ . '/includes/template-functions.php';
 	require_once __DIR__ . '/includes/template-hooks.php';
 	require_once __DIR__ . '/includes/mg-upc-cache.php';
@@ -74,12 +81,14 @@ if ( mg_upc_requirements_met() ) {
 	require_once __DIR__ . '/classes/Exceptions/mg-upc-required-field-exception.php';
 
 	require_once __DIR__ . '/classes/mg-upc-module.php';
+	require_once __DIR__ . '/classes/mg-upc-query.php';
 
 	require_once __DIR__ . '/alt-models/mg-list-model.php';
 	require_once __DIR__ . '/alt-models/mg-list-items-model.php';
 	require_once __DIR__ . '/alt-models/mg-list-votes-model.php';
 
 	require_once __DIR__ . '/controllers/mg-list-page-alt.php';
+	require_once __DIR__ . '/classes/mg-list-page-alt-settings.php';
 	require_once __DIR__ . '/controllers/mg-upc-list-controller.php';
 	require_once __DIR__ . '/controllers/mg-upc-rest-list-controller.php';
 	require_once __DIR__ . '/controllers/mg-upc-rest-list-items-controller.php';
@@ -92,6 +101,7 @@ if ( mg_upc_requirements_met() ) {
 	require_once __DIR__ . '/includes/admin-notice-helper/admin-notice-helper.php';
 	require_once __DIR__ . '/classes/mg-upc-settings.php';
 	require_once __DIR__ . '/classes/mg-upc-rest-api.php';
+	require_once __DIR__ . '/includes/mg-upc-shortcode.php';
 
 	require_once __DIR__ . '/classes/mg-upc-database.php';
 

@@ -72,7 +72,7 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 		if ( isset( $config['adding'] ) ) {
 			//check user can edit list types
 			$unable_to_edit = array();
-			foreach ( $my_list_types as $k => $name_type ) {
+			foreach ( $my_list_types as $name_type ) {
 				$_type = $helper->get_list_type( $name_type );
 				if ( ! current_user_can( $_type->get_cap()->edit_posts ) ) {
 					$unable_to_edit[] = $name_type;
@@ -168,7 +168,7 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 	 * Get a list
 	 *
 	 * @param int|WP_REST_Request|array $config_or_request If is int type, then use as list_id
-	 *                                                     If array, used keys: 'id'(required), 'exclude_not_found_error'
+	 *                                                     If is array, used keys: 'id'(required), 'exclude_not_found_error'
 	 *                                                     If is WP_REST_Request, then params equivalents to as array
 	 *
 	 * @return object|WP_Error
@@ -208,7 +208,7 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 	 * Get a list for response
 	 *
 	 * @param int|WP_REST_Request|array $config_or_request If is int type, then use as list_id
-	 *                                                     If array, used keys: 'id'(required), 'context', 'items_page', 'items_per_page'
+	 *                                                     If is array, used keys: 'id'(required), 'context', 'items_page', 'items_per_page'
 	 *                                                     If is WP_REST_Request, then params equivalents to as array
 	 *
 	 * @return array|WP_Error
@@ -234,7 +234,7 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 	 * Get list items
 	 *
 	 * @param array|int|WP_REST_Request $config_or_request If is int type, then use as list_id
-	 *                                                     If array, used keys: 'id'(required), 'page', 'per_page', 'orderby', 'order'
+	 *                                                     If is array, used keys: 'id'(required), 'page', 'per_page', 'orderby', 'order'
 	 *                                                     If is WP_REST_Request, then params equivalents to as array
 	 *
 	 * @return array|WP_Error
@@ -371,16 +371,14 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 		}
 
 		if ( ! empty( $list_data['created'] ) ) {
-			$list_data['created'] = gmdate( DATE_ISO8601, strtotime( $list_data['created'] ) );
+			$list_data['created'] = gmdate( DateTime::ATOM, strtotime( $list_data['created'] ) );
 		}
 
 		if ( ! empty( $list_data['modified'] ) ) {
-			$list_data['modified'] = gmdate( DATE_ISO8601, strtotime( $list_data['modified'] ) );
+			$list_data['modified'] = gmdate( DateTime::ATOM, strtotime( $list_data['modified'] ) );
 		}
 
-		$list_data = apply_filters( 'prepare_list_data_for_response', $list_data, $list, $config );
-
-		return $list_data;
+		return apply_filters( 'prepare_list_data_for_response', $list_data, $list, $config );
 	}
 
 	/**
@@ -437,7 +435,7 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 			$excerpt         = apply_filters( 'the_excerpt', $excerpt );
 			$data['excerpt'] = post_password_required( $post ) ? '' : $excerpt;
 
-			$data['featured_media'] = '' . get_post_thumbnail_id( $post->ID ); //to string for max int on other plataforms
+			$data['featured_media'] = '' . get_post_thumbnail_id( $post->ID ); //to string for max int on other platforms
 			$data['image']          = get_the_post_thumbnail_url( $post->ID ); // or add size , 'medium'
 
 			$data = apply_filters( "mg_post_item_{$post->post_type}_for_response", $data, $config );
@@ -615,7 +613,7 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 	}
 
 	/**
-	 * Check if the user can read an specified list
+	 * Check if the user can read a specified list
 	 *
 	 * @param int $list_id
 	 *
@@ -633,7 +631,7 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 	}
 
 	/**
-	 * Check if the user can read private an specified list type
+	 * Check if the user can read private a specified list type
 	 *
 	 * @param string $list_type
 	 *
@@ -651,7 +649,7 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 	}
 
 	/**
-	 * Check if the user can edit an specified list
+	 * Check if the user can edit a specified list
 	 *
 	 * @param int $list_id
 	 *
@@ -668,7 +666,7 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 	}
 
 	/**
-	 * Check if the user can delete an specified list
+	 * Check if the user can delete a specified list
 	 *
 	 * @param int $list_id
 	 *

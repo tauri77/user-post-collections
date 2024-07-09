@@ -30,7 +30,7 @@ function ListEdit( props ) {
 			setType( props.list.type );
 			setStatus( props.list.status );
 		},
-		[ props.list ]
+		[ props.list.title, props.list.content, props.list.type, props.list.type ]
 	);
 
 	useEffect(

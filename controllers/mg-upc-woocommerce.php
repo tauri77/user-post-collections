@@ -4,7 +4,7 @@
 class MG_UPC_Woocommerce extends MG_UPC_Module {
 
 	public function __construct() {
-		//before added list types on init with priority 10.. and WooCommerce already defined
+		//before added list types on init with priority 10... and WooCommerce already defined
 		add_action( 'init', array( $this, 'pre_init' ), 5 );
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
@@ -97,7 +97,7 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 
 
 	/**
-	 * Before added list types on init with priority 10.. and WooCommerce already defined
+	 * Before added list types on init with priority 10... and WooCommerce already defined
 	 */
 	public function pre_init() {
 
@@ -483,9 +483,7 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 			}
 		}
 
-		$item = $this->add_product_properties( $item, wc_get_product( $item['post_id'] ) );
-
-		return $item;
+		return $this->add_product_properties( $item, wc_get_product( $item['post_id'] ) );
 	}
 
 	/**
@@ -892,7 +890,7 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 	public static function item_cart_button() {
 		global $mg_upc_item;
 
-		if ( ! function_exists( 'wc_get_product' ) || false === $mg_upc_item['is_in_stock'] ) {
+		if ( ! function_exists( 'wc_get_product' ) || empty( $mg_upc_item['is_in_stock'] ) ) {
 			return;
 		}
 		$option = get_option( 'mg_upc_page_add_to_cart', 'on' );
@@ -978,7 +976,7 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 				2
 			);
 
-			//This not managed with version! Woo can install after that UPC..
+			//This not managed with version! Woo can install after that UPC...
 			$activated = get_option( 'mg_upc_woo_activated', array() );
 			if ( ! in_array( 'cart_type', $activated, true ) ) {
 				$cart_type = MG_UPC_Helper::get_instance()->get_list_type( 'cart' );

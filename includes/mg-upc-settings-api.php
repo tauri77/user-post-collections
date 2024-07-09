@@ -172,7 +172,7 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 		public function set_fields( $fields ) {
 			$this->settings_fields = $fields;
 
-			foreach ( $this->settings_fields as $section => $field ) {
+			foreach ( $this->settings_fields as $field ) {
 				foreach ( $field as $option ) {
 					$this->set_flags_from_field( $option );
 				}
@@ -222,7 +222,7 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 		 */
 		public function admin_init() {
 			//register settings sections
-			foreach ( $this->settings_sections as $section_id => $section ) {
+			foreach ( $this->settings_sections as $section ) {
 				// For save as array of sections (field as key)
 				if ( true === $section['as_array'] ) {
 					if ( false === get_option( $section['id'] ) ) {
@@ -277,9 +277,9 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 		protected function setup_option( $section, $option ) {
 
 			$name        = $option['name'];
-			$type        = isset( $option['type'] ) ? $option['type'] : 'text';
-			$label       = isset( $option['label'] ) ? $option['label'] : '';
-			$callback    = isset( $option['callback'] ) ? $option['callback'] : array( $this, 'callback_' . $type );
+			$type        = $option['type'] ?? 'text';
+			$label       = $option['label'] ?? '';
+			$callback    = $option['callback'] ?? array( $this, 'callback_' . $type );
 			$option_name = $name;
 
 			if ( true === $this->settings_sections[ $section ]['as_array'] ) {
@@ -330,30 +330,30 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 		public function get_field_render_args( $section_id, $option, $label, $option_input_name, $option_id, $type, $value = null ) {
 
 			if ( false === $label ) {
-				$label = isset( $option['label'] ) ? $option['label'] : '';
+				$label = $option['label'] ?? '';
 			}
 			if ( false === $type ) {
-				$type = isset( $option['type'] ) ? $option['type'] : 'text';
+				$type = $option['type'] ?? 'text';
 			}
 
 			$args = array(
 				'id'                => $option_id,
-				'class'             => isset( $option['class'] ) ? $option['class'] : '',
+				'class'             => $option['class'] ?? '',
 				'label_for'         => $option_input_name,
-				'desc'              => isset( $option['desc'] ) ? $option['desc'] : '',
+				'desc'              => $option['desc'] ?? '',
 				'name'              => $label,
 				'section'           => $section_id,
-				'size'              => isset( $option['size'] ) ? $option['size'] : null,
-				'options'           => isset( $option['options'] ) ? $option['options'] : '',
-				'std'               => isset( $option['default'] ) ? $option['default'] : '',
-				'sanitize_callback' => isset( $option['sanitize_callback'] ) ? $option['sanitize_callback'] : '',
+				'size'              => $option['size'] ?? null,
+				'options'           => $option['options'] ?? '',
+				'std'               => $option['default'] ?? '',
+				'sanitize_callback' => $option['sanitize_callback'] ?? '',
 				'type'              => $type,
-				'placeholder'       => isset( $option['placeholder'] ) ? $option['placeholder'] : '',
-				'min'               => isset( $option['min'] ) ? $option['min'] : '',
-				'max'               => isset( $option['max'] ) ? $option['max'] : '',
-				'step'              => isset( $option['step'] ) ? $option['step'] : '',
+				'placeholder'       => $option['placeholder'] ?? '',
+				'min'               => $option['min'] ?? '',
+				'max'               => $option['max'] ?? '',
+				'step'              => $option['step'] ?? '',
 				'option_name'       => $option_input_name,
-				'readonly'          => isset( $option['can_edit'] ) ? ! $option['can_edit'] : false, //only supports for text, number and checkbox
+				'readonly'          => isset( $option['can_edit'] ) && ! $option['can_edit'], //only supports for text, number and checkbox
 			);
 
 			if ( 'array' === $type && isset( $option['item_fields'] ) ) {
@@ -524,8 +524,8 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 						$item[ $item_option['name'] ]
 					);
 
-					$type            = isset( $item_option['type'] ) ? $item_option['type'] : 'text';
-					$callback_render = isset( $item_option['callback'] ) ? $item_option['callback'] : array(
+					$type            = $item_option['type'] ?? 'text';
+					$callback_render = $item_option['callback'] ?? array(
 						$this,
 						'callback_' . $type,
 					);
@@ -599,8 +599,8 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 					);
 					$item_option_args['readonly'] = false;
 
-					$type            = isset( $item_option['type'] ) ? $item_option['type'] : 'text';
-					$callback_render = isset( $item_option['callback'] ) ? $item_option['callback'] : array(
+					$type            = $item_option['type'] ?? 'text';
+					$callback_render = $item_option['callback'] ?? array(
 						$this,
 						'callback_' . $type,
 					);
@@ -623,9 +623,9 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 		 * @param array $args settings field args
 		 */
 		public function callback_text( $args ) {
-			$args['value'] = isset( $args['value'] ) ? $args['value'] : $this->get_option( $args['id'], $args['section'], $args['std'] );
+			$args['value'] = $args['value'] ?? $this->get_option( $args['id'], $args['section'], $args['std'] );
 			$args['size']  = isset( $args['size'] ) && is_scalar( $args['size'] ) ? $args['size'] : 'regular';
-			$args['type']  = isset( $args['type'] ) ? $args['type'] : 'text';
+			$args['type']  = $args['type'] ?? 'text';
 
 			printf(
 				'<input type="%1$s" class="%2$s-text" id="%4$s" name="%4$s" value="%3$s"',
@@ -660,9 +660,9 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 		 * @param array $args settings field args
 		 */
 		public function callback_number( $args ) {
-			$value = isset( $args['value'] ) ? $args['value'] : $this->get_option( $args['id'], $args['section'], $args['std'] );
+			$value = $args['value'] ?? $this->get_option( $args['id'], $args['section'], $args['std'] );
 			$size  = isset( $args['size'] ) && is_scalar( $args['size'] ) ? $args['size'] : 'regular';
-			$type  = isset( $args['type'] ) ? $args['type'] : 'number';
+			$type  = $args['type'] ?? 'number';
 
 			printf(
 				'<input type="%1$s" class="%2$s-number" id="%4$s" name="%4$s" value="%3$s"',
@@ -697,7 +697,7 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 		 */
 		public function callback_checkbox( $args ) {
 
-			$value = isset( $args['value'] ) ? $args['value'] : $this->get_option( $args['id'], $args['section'], $args['std'] );
+			$value = $args['value'] ?? $this->get_option( $args['id'], $args['section'], $args['std'] );
 
 			echo '<fieldset>';
 			printf(
@@ -729,7 +729,7 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 		 * @param array $args settings field args
 		 */
 		public function callback_multicheck( $args ) {
-			$value = isset( $args['value'] ) ? $args['value'] : $this->get_option( $args['id'], $args['section'], $args['std'] );
+			$value = $args['value'] ?? $this->get_option( $args['id'], $args['section'], $args['std'] );
 			echo '<fieldset>';
 			printf(
 				'<input type="hidden" name="%s" value="" />',
@@ -759,7 +759,7 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 		 */
 		public function callback_radio( $args ) {
 
-			$value = isset( $args['value'] ) ? $args['value'] : $this->get_option( $args['id'], $args['section'], $args['std'] );
+			$value = $args['value'] ?? $this->get_option( $args['id'], $args['section'], $args['std'] );
 			echo '<fieldset>';
 
 			foreach ( $args['options'] as $key => $label ) {
@@ -784,7 +784,7 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 		 * @param array $args settings field args
 		 */
 		public function callback_select( $args ) {
-			$value = isset( $args['value'] ) ? $args['value'] : $this->get_option( $args['id'], $args['section'], $args['std'] );
+			$value = $args['value'] ?? $this->get_option( $args['id'], $args['section'], $args['std'] );
 			$size  = isset( $args['size'] ) && is_scalar( $args['size'] ) ? $args['size'] : 'regular';
 
 			printf(
@@ -812,7 +812,7 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 		 * @param array $args settings field args
 		 */
 		public function callback_textarea( $args ) {
-			$value = isset( $args['value'] ) ? $args['value'] : $this->get_option( $args['id'], $args['section'], $args['std'] );
+			$value = $args['value'] ?? $this->get_option( $args['id'], $args['section'], $args['std'] );
 			$size  = isset( $args['size'] ) && is_scalar( $args['size'] ) ? $args['size'] : 'regular';
 
 			printf(
@@ -848,7 +848,7 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 		 */
 		public function callback_wysiwyg( $args ) {
 
-			$value = isset( $args['value'] ) ? $args['value'] : $this->get_option( $args['id'], $args['section'], $args['std'] );
+			$value = $args['value'] ?? $this->get_option( $args['id'], $args['section'], $args['std'] );
 			$size  = isset( $args['size'] ) && is_scalar( $args['size'] ) ? $args['size'] : '500px';
 
 			echo '<div style="max-width: ' . esc_attr( $size ) . ';">';
@@ -876,9 +876,9 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 		 * @param array $args settings field args
 		 */
 		public function callback_file( $args ) {
-			$value = isset( $args['value'] ) ? $args['value'] : $this->get_option( $args['id'], $args['section'], $args['std'] );
+			$value = $args['value'] ?? $this->get_option( $args['id'], $args['section'], $args['std'] );
 			$size  = isset( $args['size'] ) && is_scalar( $args['size'] ) ? $args['size'] : 'regular';
-			$label = isset( $args['options']['button_label'] ) ? $args['options']['button_label'] : __( 'Choose File' );
+			$label = $args['options']['button_label'] ?? __( 'Choose File' );
 
 			printf(
 				'<input type="text" class="%1$s-text wpsa-url" id="%3$s" name="%3$s" value="%2$s"',
@@ -903,7 +903,7 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 		 */
 		public function callback_password( $args ) {
 
-			$value = isset( $args['value'] ) ? $args['value'] : $this->get_option( $args['id'], $args['section'], $args['std'] );
+			$value = $args['value'] ?? $this->get_option( $args['id'], $args['section'], $args['std'] );
 			$size  = isset( $args['size'] ) && is_scalar( $args['size'] ) ? $args['size'] : 'regular';
 
 			printf(
@@ -927,7 +927,7 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 		 */
 		public function callback_color( $args ) {
 
-			$value = isset( $args['value'] ) ? $args['value'] : $this->get_option( $args['id'], $args['section'], $args['std'] );
+			$value = $args['value'] ?? $this->get_option( $args['id'], $args['section'], $args['std'] );
 			$size  = isset( $args['size'] ) && is_scalar( $args['size'] ) ? $args['size'] : 'regular';
 
 			printf(
@@ -952,7 +952,7 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 		 */
 		public function callback_date( $args ) {
 
-			$value = isset( $args['value'] ) ? $args['value'] : $this->get_option( $args['id'], $args['section'], $args['std'] );
+			$value = $args['value'] ?? $this->get_option( $args['id'], $args['section'], $args['std'] );
 			$size  = isset( $args['size'] ) && is_scalar( $args['size'] ) ? $args['size'] : 'regular';
 
 			printf(
@@ -983,7 +983,7 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 		 * @param array $args settings field args
 		 */
 		public function callback_datetime( $args ) {
-			$value = isset( $args['value'] ) ? $args['value'] : $this->get_option( $args['id'], $args['section'], $args['std'] );
+			$value = $args['value'] ?? $this->get_option( $args['id'], $args['section'], $args['std'] );
 			$size  = isset( $args['size'] ) && is_scalar( $args['size'] ) ? $args['size'] : 'regular';
 
 			printf(
@@ -1018,7 +1018,7 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 		public function callback_pages( $args ) {
 
 			$dropdown_args = array(
-				'selected' => isset( $args['value'] ) ? $args['value'] : $this->get_option( $args['id'], $args['section'], $args['std'] ),
+				'selected' => $args['value'] ?? $this->get_option( $args['id'], $args['section'], $args['std'] ),
 				'name'     => $args['option_name'],
 				'id'       => $args['option_name'],
 				'echo'     => 1,
@@ -1045,7 +1045,7 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 				foreach ( $wp_value as $option_slug => $option_value ) {
 					$sanitize_callback = $this->get_sanitize_callback( $wp_option, $option_slug );
 					if ( $sanitize_callback ) {
-						$wp_value[ $option_slug ] = call_user_func( $sanitize_callback, $wp_value[ $option_slug ] );
+						$wp_value[ $option_slug ] = call_user_func( $sanitize_callback, $option_value );
 					}
 				}
 			} else {
@@ -1170,7 +1170,7 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 			foreach ( $option_array_config['item_fields'] as $field ) {
 				if ( isset( $field['unique'] ) && $field['unique'] ) {
 					$no_repeat = array();
-					foreach ( $wp_value as $index_arr => $option_value ) {
+					foreach ( $wp_value as $option_value ) {
 						if ( in_array( $option_value[ $field['name'] ], $no_repeat, true ) ) {
 							add_settings_error(
 								$wp_option,
@@ -1265,7 +1265,7 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 						$function_params = array(
 							$option_value,
 							$option_array['name'] . '[' . $array_idx . '][' . $item_option_slug . ']',
-							isset( $old_value[ $item_option_slug ] ) ? $old_value[ $item_option_slug ] : '',
+							$old_value[ $item_option_slug ] ?? '',
 							$sub_option,
 						);
 
@@ -1428,7 +1428,7 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 		/**
 		 * Show the section settings forms
 		 *
-		 * This function displays every sections in a different form
+		 * This function displays every section in a different form
 		 */
 		public function show_forms() {
 			?>

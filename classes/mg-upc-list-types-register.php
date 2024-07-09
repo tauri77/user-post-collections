@@ -104,10 +104,10 @@ class MG_UPC_List_Types_Register extends MG_UPC_Module {
 				'always_exists', //this create an end point with bookmarks instead the ID
 				'show_in_settings',
 			),
-			'default_supports'   => array(
+			'supports'           => array(
 				'editable_item_description',
 				'show_in_my_lists',
-				'always_exists', //this create an end point with bookmarks instead the ID
+				'always_exists',
 				'show_in_settings',
 			),
 		);

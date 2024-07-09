@@ -284,12 +284,11 @@
 
 @keyframes mg-upc-alert {
   0% {
-    transform: scaleY(0);
+    transform: scaleY(0) translateY(-19px);
     margin-bottom: -19px;
   }
   100% {
-    transform: scaleY(1);
-    margin-bottom: 0;
+    transform: scaleY(1) translateY(0);
   }
 }
 
@@ -358,6 +357,8 @@
   overflow: hidden;
   z-index: 1; /* Necessary for overflow: hidden to work correctly in Safari */
   vertical-align: middle;
+
+  display: inline-block;
 }
 
 .mg-upc-btn-loading::before,

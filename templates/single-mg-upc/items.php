@@ -5,7 +5,7 @@
  * This template can be overridden by copying it to yourtheme/mg-upc/single-mg-upc/items.php.
  *
  */
-
+/** @global MG_UPC_List $mg_upc_list */
 global $mg_upc_list;
 
 if ( ! empty( $mg_upc_list['items'] ) ) {

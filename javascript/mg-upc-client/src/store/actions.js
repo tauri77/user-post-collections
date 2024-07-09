@@ -217,12 +217,11 @@ export const removeItem = createAsyncThunk(
 		).then(
 			( response ) => {
 				if ( response.data && response.data.list_id ) {
-					list_id = list_id; //For named lists
+					list_id = response.data.list_id; //For named lists
 				}
 				if ( ! state.list || ! state.list.ID ) {
 					thunkAPI.dispatch( setList( { ID: list_id } ) );
 				} else if ( 1 === state.list.items.length ) {
-					thunkAPI.dispatch( loadListItems( { page: page } ) );
 					if ( state.list && context === 'view' ) {
 						const page  = state.listPage;
 						const total = state.listTotalPages;
@@ -231,8 +230,13 @@ export const removeItem = createAsyncThunk(
 						} else if ( page === total ) {
 							thunkAPI.dispatch( loadListItems( { page: Math.max( 1, page - 1 ) } ) );
 						}
+						return false;
 					}
-					return false;
+				} else if ( state.list && context === 'view' ) {
+					const onlyOneRest = state.listTotalPages === state.listPage + 1 && state.list.count % state.list.items.length === 1;
+					if ( onlyOneRest ) {
+						thunkAPI.dispatch( loadListItems( { page: state.listPage } ) );
+					}
 				}
 				return post_id;
 			}

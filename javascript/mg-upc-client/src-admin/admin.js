@@ -361,7 +361,7 @@ function App() {
 			</div>
 		</div></>);
 }
-
-render( ( <ContextProvider><App/> </ContextProvider> ), document.getElementById( 'mg-upc-admin-app' ) );
-
-setTimeout( window.showMainLists, 1000 );
+if ( document.getElementById( 'mg-upc-admin-app' ) ) {
+	render( ( <ContextProvider><App/> </ContextProvider> ), document.getElementById( 'mg-upc-admin-app' ) );
+	setTimeout( window.showMainLists, 1000 );
+}

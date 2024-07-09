@@ -43,7 +43,7 @@ export function reducer (state, action) {
 		return newState;
 	}
 
-	const getCloned = ( override = false) => {
+	const getCloned = ( override = null ) => {
 		if ( ! newState ) {
 			newState = cloneObj( state );
 		}
@@ -56,6 +56,19 @@ export function reducer (state, action) {
 		}
 
 		return newState;
+	}
+
+	const setLoadingCount = ( state, operator = 0, endStatus ='succeeded' ) => {
+		if ( operator !== 0 ) {
+			state.loadingCount = state.loadingCount + operator;
+		}
+		if ( state.loadingCount < 1 ) {
+			state.loadingCount = 0;
+			state.status       = endStatus;
+		} else {
+			state.status = 'loading';
+		}
+		return state;
 	}
 
 	let list       = reduceList( state.list, action );
@@ -129,8 +142,8 @@ export function reducer (state, action) {
 			}
 			if ( payload.message ) {
 				// If some message, something was wrong.. Ex: list no support description
+				newState 		= setLoadingCount( newState, -1, 'failed' );
 				newState.error  = payload.message;
-				newState.status = 'failed';
 			}
 			newState.addingPost = false;
 			break;
@@ -148,8 +161,7 @@ export function reducer (state, action) {
 			return getCloned( {listTotalPages: payload} );
 
 		case SET_LIST + '/loading':
-			newState            = getCloned();
-			newState.status     = 'loading';
+			newState 			= setLoadingCount( getCloned(), 1 );
 			newState.listOfList = false;
 			if ( typeof payload === 'object' ) {
 				newState.list = payload;
@@ -163,7 +175,7 @@ export function reducer (state, action) {
 			return newState;
 
 		case REMOVE_LIST_ITEM + '/loading':
-			newState = getCloned( { status: 'loading' } );
+			newState = setLoadingCount( getCloned(), 1 );
 			if ( typeof payload === 'object' && payload.list_id ) {
 				newState.list = { ID : payload.list_id };
 			}
@@ -178,10 +190,10 @@ export function reducer (state, action) {
 		case UPDATE_LIST + '/loading':
 		case CREATE_LIST + '/loading':
 		case ADD_LIST_TO_CART + '/loading':
-			return getCloned( {status: 'loading'} );
+			return setLoadingCount( getCloned(), 1 );
 
 		case ADD_LIST_ITEM + '/succeeded':
-			newState            = getCloned();
+			newState            = setLoadingCount( getCloned(), -1 );
 			newState.addingPost = false;
 			newState.status     = 'succeeded'
 			newState.error      = false;
@@ -190,13 +202,14 @@ export function reducer (state, action) {
 			return newState;
 
 		case ADD_LIST_TO_CART + '/succeeded':
-			return getCloned( {status: 'succeeded', errorCode: false } );
+			return setLoadingCount( getCloned( { errorCode: false } ), -1 );
 
 		case SET_LIST + '/succeeded':
+			var errorClear = { error: false, errorCode: false };
 			if ( state.list === false ) {
-				break;
+				errorClear = {};
 			}
-			return getCloned( {status: 'succeeded', error: false, errorCode: false } );
+			return setLoadingCount( getCloned( errorClear ), -1 );
 		case SET_LIST_OF_LIST + '/succeeded':
 		case SET_LIST_ITEMS + '/succeeded':
 		case UPDATE_LIST_ITEM + '/succeeded':
@@ -206,17 +219,17 @@ export function reducer (state, action) {
 		case MOVE_LIST_ITEM_PREV + '/succeeded':
 		case UPDATE_LIST + '/succeeded':
 		case CREATE_LIST + '/succeeded':
-			return getCloned( {status: 'succeeded', error: false, errorCode: false } );
+			return setLoadingCount( getCloned( { error: false, errorCode: false } ), -1 );
 
 		case CREATE_LIST + '/failed':
-			newState = getCloned( {status: 'failed'} );
+			newState = setLoadingCount( getCloned(), -1 , 'failed' );
 			if ( action.error && action.error.message ) {
 				newState.error = action.error.message;
 			}
 			return newState;
 
 		case ADD_LIST_ITEM + '/failed':
-			newState            = getCloned();
+			newState            = setLoadingCount( getCloned(), -1 );
 			newState.addingPost = false;
 			newState.title      = newState.list ? newState.list.title : initialState.title;
 
@@ -246,7 +259,7 @@ export function reducer (state, action) {
 		case UPDATE_LIST + '/failed':
 		case SET_LIST + '/failed':
 		case ADD_LIST_TO_CART + '/failed':
-			return setFailed( action );
+			return setLoadingCount( setFailed( action ), -1 );
 	}
 	if ( newState !== false ) {
 		return newState;
