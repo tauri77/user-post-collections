@@ -4,6 +4,7 @@
 }
 h2.mg-upc-loop-list-title {
   margin: 0.25em 0 0.15em;
+  flex: 100% 0 0;
 }
 .mg-upc-archive-list .mg-upc-loop-list-title a {
   color: inherit;
@@ -52,6 +53,13 @@ h2.mg-upc-loop-list-title {
   padding: 1.5% 1% 1.5% 3%;
   box-sizing: border-box;
   flex: 1 1;
+
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0 0.7em;
 }
 
 .mg-upc-loop-author-list,
@@ -60,9 +68,7 @@ h2.mg-upc-loop-list-title {
   line-height: 2em;
   vertical-align: middle;
   text-decoration: none;
-}
-.mg-upc-loop-list-meta {
-  margin-left: 1em;
+  margin-right: 0.3em;
 }
 .mg-upc-loop-list-meta > span {
   vertical-align: middle;
@@ -86,6 +92,7 @@ h2.mg-upc-loop-list-title {
 }
 .mg-upc-loop-list-description {
   margin-top: 20px;
+  flex: 100% 0 0;
 }
 
 @media (max-width: 768px) {
