@@ -900,6 +900,19 @@ class MG_UPC_Query {
 	}
 
 	/**
+	 * After looping through a nested query, this function
+	 * restores the $mg_upc_list global to the current list in this query.
+	 *
+	 * @global MG_UPC_List $mg_upc_list Global mg_upc_list object.
+	 */
+	public function reset_listdata() {
+		if ( ! empty( $this->list ) ) {
+			$GLOBALS['mg_upc_list'] = $this->list;
+			$this->setup_listdata( $this->list );
+		}
+	}
+
+	/**
 	 * Set up global list data.
 	 *
 	 * @param MG_UPC_List|array|object|int $collection MG_UPC_List instance or List ID/object.

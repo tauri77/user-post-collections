@@ -667,8 +667,8 @@ class MG_UPC_List_Page extends MG_UPC_Module {
 			}
 			return ob_get_clean();
 		}
-		if ( empty( $mg_upc_query ) && ! empty( $mg_upc_the_query ) ) {
-			$mg_upc_query = $mg_upc_the_query;
+		if ( ! empty( $mg_upc_the_query ) ) {
+			mg_upc_reset_query();
 		}
 		if ( ! isset( $mg_upc_query ) ) {
 			self::$doing_shortcodes = false;

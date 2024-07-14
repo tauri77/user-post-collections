@@ -202,8 +202,8 @@ function mg_upc_locate_template( $template_name, $template_path = '', $default_p
  */
 function mg_upc_class( $class = '', $list = null ) {
 	$list_class = array( $class );
-	$list       = MG_UPC_List::get_instance( $list );
-	if ( false !== $list && 'vote' === $list['type'] ) {
+	$list       = mg_upc_get_list( $list );
+	if ( null !== $list && 'vote' === $list['type'] ) {
 		$list_class[] = 'mg-upc-vote';
 	}
 	echo 'class="' . esc_attr( implode( ' ', $list_class ) ) . '"';

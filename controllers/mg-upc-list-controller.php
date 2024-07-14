@@ -431,8 +431,14 @@ class MG_UPC_List_Controller extends MG_UPC_Module {
 			remove_filter( 'protected_title_format', array( $this, 'protected_title_format' ) );
 
 			$excerpt = apply_filters( 'get_the_excerpt', $post->post_excerpt, $post );
-			/** This filter is documented in wp-includes/post-template.php */
-			$excerpt         = apply_filters( 'the_excerpt', $excerpt );
+
+			// Infinite loop protection
+			global $wp_current_filter;
+			$counts = array_count_values( $wp_current_filter );
+			if ( isset( $counts['the_excerpt'] ) && $counts['the_excerpt'] < 2 ) {
+				/** This filter is documented in wp-includes/post-template.php */
+				$excerpt = apply_filters( 'the_excerpt', $excerpt );
+			}
 			$data['excerpt'] = post_password_required( $post ) ? '' : $excerpt;
 
 			$data['featured_media'] = '' . get_post_thumbnail_id( $post->ID ); //to string for max int on other platforms
