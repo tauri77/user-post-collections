@@ -1,10 +1,11 @@
 
-@import "list-on-page";
-@import "archive-on-page";
 @import "basic-dialog";
 
 $icomoon-font-path: "icomoon/fonts" !default;
 @import "icomoon/style";
+
+@import "list-on-page";
+@import "archive-on-page";
 
 .mg-upc-icon + span {
   margin-left: 0.6em;

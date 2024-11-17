@@ -44,7 +44,7 @@ $mg_classes = isset($mg_classes) ? $mg_classes : $default_class;
 		<?php
 		while ( $mg_upc_query->have_lists() ) {
 			$mg_upc_query->the_list();
-			?><div class="mg-upc-archive-list"><?php
+			?><div <?php mg_upc_class( 'mg-upc-archive-list', $mg_upc_list ); ?>><?php
 			/**
 			 * Hook: mg_upc_loop_single_list_content.
 			 *

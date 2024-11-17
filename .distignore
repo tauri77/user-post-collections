@@ -15,5 +15,11 @@
 /readme.md
 /docs
 
+/.php-cs-fixer.cache
+/generate_zip.sh
+/.php-cs-fixer.cache
+/docker-compose.yml
+/package.xml
+
 .distignore
 .gitignore

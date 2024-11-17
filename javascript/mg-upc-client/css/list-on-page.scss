@@ -354,7 +354,7 @@
   background-color: #c7c7c7;
 
   position: relative;
-  overflow: hidden;
+  overflow: hidden !important;
   z-index: 1; /* Necessary for overflow: hidden to work correctly in Safari */
   vertical-align: middle;
 
@@ -401,4 +401,8 @@
 
 .mg-upc-add-list-to-cart{
   margin: 1em 1em 1em 0;
+}
+
+.mg-upc-add-list-to-cart+a.added_to_cart.wc-forward {
+  margin: 1em;
 }

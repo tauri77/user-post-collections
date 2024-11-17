@@ -203,8 +203,13 @@ function mg_upc_locate_template( $template_name, $template_path = '', $default_p
 function mg_upc_class( $class = '', $list = null ) {
 	$list_class = array( $class );
 	$list       = mg_upc_get_list( $list );
-	if ( null !== $list && 'vote' === $list['type'] ) {
-		$list_class[] = 'mg-upc-vote';
+
+	if (
+		null !== $list &&
+		isset( $list['type'] ) &&
+		in_array( $list['type'], array_keys( MG_UPC_Helper::get_instance()->get_list_types() ), true )
+	) {
+		$list_class[] = 'mg-upc-' . $list['type'];
 	}
 	echo 'class="' . esc_attr( implode( ' ', $list_class ) ) . '"';
 }
