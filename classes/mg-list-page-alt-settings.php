@@ -226,14 +226,17 @@ class MG_UPC_List_Page_Settings extends MG_UPC_Module {
 			'type'    => 'text',
 		);
 
+		// phpcs:disable WordPress.WP.I18n.UnorderedPlaceholdersText
 		$archive_options[] = array(
 			'name'    => 'mg_upc_archive_document_title',
 			'label'   => __( 'Lists Archive document title', 'user-post-collections' ),
 			// translators: not change %upctitle%, %sitename%
 			'desc'    => __( 'You can use %upctitle% and %sitename%.', 'user-post-collections' ),
+			// translators: not change %upctitle%, %sitename%
 			'default' => __( '%upctitle% | %sitename%', 'user-post-collections' ),
 			'type'    => 'text',
 		);
+		// phpcs:enable WordPress.WP.I18n.UnorderedPlaceholdersText
 
 		$archive_options[] = array(
 			'name'    => 'mg_upc_archive_item_per_page',

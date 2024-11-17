@@ -1,21 +1,22 @@
 === User Post Collections ===
-Contributors: Mauricio Galetto
+Contributors: @tauri77
 Donate link: https://www.paypal.com/donate/?hosted_button_id=XNASRT5UB7KBN
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl.txt
 Tags: User lists, Post Collections, Woocommerce Wishlist
-Tested up to: 6.5.4
-Stable tag: 0.8.32
+Tested up to: 6.7
+Stable tag: 0.9.1
 Requires PHP: 7.0
 Requires at least: 4.9.6
+
+Create & share lists with post types like posts, pages, products, etc. Build classic lists (Favorites, Bookmarks) and polls and cart lists and more.
+
+== Description ==
 
 This plugin allows users to create lists of different types (simple, numbered, cart and poll) and share them.
 The items of these lists are the posts of the types to configure (Ex: post, page, product, other CPT, etc).
 Create classic lists like Favorites, Bookmarks, Wish List. Or poll lists like "Which one should I buy?", or shopping cart lists of every month, etc.
 It is flexible and extensible.
-
-== Description ==
-
 The plugin adds custom endpoints to the wordpress REST API and includes a client that will display operations on user lists in a modal.
 
 ### Default lists types
@@ -105,6 +106,9 @@ Yes, all list types can be disabled from the plugin settings.
 Yes, you can read the api documentation by visiting [https://tauri77.github.io/user-post-collections/api.html](https://tauri77.github.io/user-post-collections/api.html)
 
 == Changelog ==
+
+= 0.9.1 =
+* Fixes in translations
 
 = 0.9.0 =
 * Added archive option

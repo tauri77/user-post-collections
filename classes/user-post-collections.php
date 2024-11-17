@@ -15,7 +15,7 @@ if ( ! class_exists( 'User_Post_Collections' ) ) {
 		 */
 		public $model;
 
-		const VERSION = '0.8.32';
+		const VERSION = '0.9.1';
 
 		/**
 		 * Constructor

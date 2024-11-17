@@ -14,7 +14,7 @@
 	do_action( 'mg_upc_before_empty_items' );
 	?>
 	<h2 class="mg-upc-empty-items-text">
-		<?php echo esc_html__( 'There are no items to show', 'user-post-collection' ); ?>
+		<?php echo esc_html__( 'There are no items to show', 'user-post-collections' ); ?>
 	</h2>
 	<?php
 	/**

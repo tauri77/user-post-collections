@@ -320,10 +320,10 @@ class MG_List_Model {
 
 					if ( ! is_array( $args[ $prop ] ) ) {
 						throw new MG_UPC_Invalid_Field_Exception(
-							'Invalid field ' . $prop . '.',
+							esc_html( 'Invalid field ' . $prop . '.' ),
 							0,
 							null,
-							$prop
+							esc_html( $prop )
 						);
 					}
 
@@ -341,10 +341,10 @@ class MG_List_Model {
 									! in_array( (int) $value, $filter['valid'], true )
 								) {
 									throw new MG_UPC_Invalid_Field_Exception(
-										'Invalid field ' . $prop . '.',
+										esc_html( 'Invalid field ' . $prop . '.' ),
 										0,
 										null,
-										$prop
+										esc_html( $prop )
 									);
 								}
 								$where_values[] = '%d';
@@ -352,10 +352,10 @@ class MG_List_Model {
 							} elseif ( 'string' === $filter['type'] ) {
 								if ( ! empty( $filter['valid'] ) && ! in_array( $value, $filter['valid'], true ) ) {
 									throw new MG_UPC_Invalid_Field_Exception(
-										'Invalid field ' . $prop . '.',
+										esc_html( 'Invalid field ' . $prop . '.' ),
 										0,
 										null,
-										$prop
+										esc_html( $prop )
 									);
 								}
 								$where_values[] = '%s';
@@ -364,10 +364,10 @@ class MG_List_Model {
 								$datetime = strtotime( $value );
 								if ( false === $datetime ) {
 									throw new MG_UPC_Invalid_Field_Exception(
-										'Invalid field ' . $prop . '.',
+										esc_html( 'Invalid field ' . $prop . '.' ),
 										0,
 										null,
-										$prop
+										esc_html( $prop )
 									);
 								}
 								$where_values[] = '%s';
@@ -413,10 +413,10 @@ class MG_List_Model {
 						$datetime = strtotime( $single_value );
 						if ( false === $datetime ) {
 							throw new MG_UPC_Invalid_Field_Exception(
-								'Invalid field ' . $prop . '.',
+								esc_html( 'Invalid field ' . $prop . '.' ),
 								0,
 								null,
-								$prop
+								esc_html( $prop )
 							);
 						}
 						$prepare[] = gmdate( 'Y-m-d H:i:s', $datetime );

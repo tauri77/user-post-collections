@@ -21,7 +21,8 @@ class MG_UPC_List_Types_Register extends MG_UPC_Module {
 				/* translators: %s: Number of published posts. */
 				'label_count' => _n_noop(
 					'Published <span class="count">(%s)</span>',
-					'Published <span class="count">(%s)</span>'
+					'Published <span class="count">(%s)</span>',
+					'user-post-collections'
 				),
 			)
 		);
@@ -34,7 +35,8 @@ class MG_UPC_List_Types_Register extends MG_UPC_Module {
 				/* translators: %s: Number of private posts. */
 				'label_count' => _n_noop(
 					'Private <span class="count">(%s)</span>',
-					'Private <span class="count">(%s)</span>'
+					'Private <span class="count">(%s)</span>',
+					'user-post-collections'
 				),
 			)
 		);

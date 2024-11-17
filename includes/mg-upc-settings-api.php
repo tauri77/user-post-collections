@@ -878,7 +878,7 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 		public function callback_file( $args ) {
 			$value = $args['value'] ?? $this->get_option( $args['id'], $args['section'], $args['std'] );
 			$size  = isset( $args['size'] ) && is_scalar( $args['size'] ) ? $args['size'] : 'regular';
-			$label = $args['options']['button_label'] ?? __( 'Choose File' );
+			$label = $args['options']['button_label'] ?? __( 'Choose File', 'user-post-collections' );
 
 			printf(
 				'<input type="text" class="%1$s-text wpsa-url" id="%3$s" name="%3$s" value="%2$s"',
@@ -1089,7 +1089,7 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 						$wp_option . 'ERR',
 						sprintf(
 						// translators: %s is array config label
-							__( 'Error on %s: The setting cannot be empty.' ),
+							__( 'Error on %s: The setting cannot be empty.', 'user-post-collections' ),
 							$option_array_config['label']
 						)
 					);
@@ -1177,7 +1177,7 @@ if ( ! class_exists( 'MG_UPC_Settings_API' ) ) :
 								$wp_option . 'ERR',
 								sprintf(
 								// translators: %1$s is array config label, %2$s is field of an item
-									__( 'Error on %1$s: The %2$s property must be unique.' ),
+									__( 'Error on %1$s: The %2$s property must be unique.', 'user-post-collections' ),
 									$option_array_config['label'],
 									$field['label']
 								)

@@ -710,7 +710,7 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 				'%s has been added to your cart.',
 				'%s have been added to your cart.',
 				$count,
-				'woocommerce'
+				'user-post-collections'
 			),
 			wc_format_list_of_items( $titles )
 		);

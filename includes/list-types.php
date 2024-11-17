@@ -155,8 +155,8 @@ function mg_upc_register_list_status( $list_status, $args = array() ) {
 	}
 
 	if ( false === $args->label_count ) {
-		// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralSingle,WordPress.WP.I18n.NonSingularStringLiteralPlural
-		$args->label_count = _n_noop( $args->label, $args->label );
+		// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralSingle,WordPress.WP.I18n.NonSingularStringLiteralSingular,WordPress.WP.I18n.NonSingularStringLiteralPlural
+		$args->label_count = _n_noop( $args->label, $args->label, 'user-post-collections' );
 	}
 
 	$mg_upc_list_statuses[ $list_status ] = $args;

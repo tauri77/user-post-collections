@@ -21,7 +21,8 @@ if ( ! $mg_upc_list ) {
 do_action( 'mg_upc_before_single_list' );
 
 if ( post_password_required() ) {
-	echo get_the_password_form(); // phpcs:ignore XSS ok.
+	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	echo get_the_password_form();
 	return;
 }
 ?>

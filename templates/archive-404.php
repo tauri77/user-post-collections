@@ -8,7 +8,7 @@
 do_action( 'mg_upc_before_shortcode_404' );
 ?>
 <h2>
-	<?php echo esc_html__( 'Not found.', 'user-post-collection' ); ?>
+	<?php echo esc_html__( 'Not found.', 'user-post-collections' ); ?>
 </h2>
 <?php
 /**

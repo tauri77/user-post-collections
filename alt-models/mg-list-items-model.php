@@ -494,10 +494,12 @@ class MG_List_Items_Model {
 
 			if ( ! $mg_upc->model->support( $list, 'max_items_rotate' ) ) {
 				throw new Exception(
-					sprintf(
-					// translators: digit is the max number of items
-						__( 'Sorry, you can not have more than %d items.', 'user-post-collections' ),
-						$limit
+					esc_html(
+						sprintf(
+							// translators: digit is the max number of items
+							__( 'Sorry, you can not have more than %d items.', 'user-post-collections' ),
+							$limit
+						)
 					)
 				);
 			}

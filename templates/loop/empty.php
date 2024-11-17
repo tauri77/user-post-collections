@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	do_action( 'mg_upc_before_loop_empty' );
 	?>
 	<h2>
-		<?php echo esc_html__( 'There are no collections to show.', 'user-post-collection' ); ?>
+		<?php echo esc_html__( 'There are no collections to show.', 'user-post-collections' ); ?>
 	</h2>
 	<?php
 	do_action( 'mg_upc_after_loop_empty' );
