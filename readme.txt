@@ -4,8 +4,8 @@ Donate link: https://www.paypal.com/donate/?hosted_button_id=XNASRT5UB7KBN
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl.txt
 Tags: User lists, Post Collections, Woocommerce Wishlist
-Tested up to: 6.7
-Stable tag: 0.9.1
+Tested up to: 6.9
+Stable tag: 0.9.2
 Requires PHP: 7.0
 Requires at least: 4.9.6
 
@@ -106,6 +106,10 @@ Yes, all list types can be disabled from the plugin settings.
 Yes, you can read the api documentation by visiting [https://tauri77.github.io/user-post-collections/api.html](https://tauri77.github.io/user-post-collections/api.html)
 
 == Changelog ==
+
+= 0.9.2 =
+* Added "My Lists" to Woo account menu
+* Tested on WP 6.9
 
 = 0.9.1 =
 * Fixes in translations
