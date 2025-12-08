@@ -5,7 +5,10 @@ class MG_UPC_Texts {
 	public static $texts = array();
 	public static $mods  = array();
 
+	private static $initialized = false;
+
 	public static function init() {
+		self::$initialized = true;
 		self::$texts['mg_upc_list'] = array(
 			'Vote'          => array(
 				'default' => __( 'Vote', 'user-post-collections' ),
@@ -127,6 +130,9 @@ class MG_UPC_Texts {
 	}
 
 	public static function add_string( $context, $text, $value ) {
+		if (! self::$initialized ) {
+			self::init();
+		}
 		if ( ! isset( self::$texts[ $context ] ) ) {
 			self::$texts[ $context ] = array();
 		}
@@ -134,6 +140,9 @@ class MG_UPC_Texts {
 	}
 
 	public static function get_default( $text, $context = 'mg_upc_list' ) {
+		if (! self::$initialized ) {
+			self::init();
+		}
 		if ( isset( self::$texts[ $context ] ) && isset( self::$texts[ $context ][ $text ] ) ) {
 			return self::$texts[ $context ][ $text ]['default'];
 		}
@@ -141,6 +150,9 @@ class MG_UPC_Texts {
 	}
 
 	public static function get( $text, $context = 'mg_upc_list' ) {
+		if (! self::$initialized ) {
+			self::init();
+		}
 		if ( isset( self::$texts[ $context ] ) && isset( self::$texts[ $context ][ $text ] ) ) {
 			if (
 				isset( self::$texts[ $context ][ $text ]['option'] ) &&
@@ -155,6 +167,9 @@ class MG_UPC_Texts {
 	}
 
 	public static function get_context_array( $context ) {
+		if (! self::$initialized ) {
+			self::init();
+		}
 		$ret = array();
 		if ( isset( self::$texts[ $context ] ) ) {
 			foreach ( self::$texts[ $context ] as $text => $config ) {

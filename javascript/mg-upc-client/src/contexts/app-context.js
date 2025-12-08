@@ -88,7 +88,7 @@ export const initialState = {
 	message: null,
 	errorCode: null,
 	editing: false,
-	title: translate( 'My Lists' ),
+	title: null,
 	actualAction: 'init', //MY, MY_ADD, LIST, EDIT, CREATE
 	page: 1,
 	totalPages: 1,

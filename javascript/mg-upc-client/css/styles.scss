@@ -102,7 +102,8 @@ $icomoon-font-path: "icomoon/fonts" !default;
 }
 
 
-.mg-upc-dg-content ul {
+.mg-upc-dg-content ul,
+.mg-upc-app-container ul {
   padding: 0;
   margin: 1em 0.3em;
 }
@@ -208,8 +209,16 @@ ul.mg-upc-dg-list::before {
   clear: both;
 }
 
+.mg-upc-app-title {
+  margin-left: 0.5rem;
+  word-break: break-word;
+}
+.mg-upc-dg-list-desc {
+  margin-left: 0.5rem;
+}
 .mg-upc-dg-title {
   margin-top: 0;
+  margin-left: 0.5rem;
   word-break: break-word;
   & > a {
     vertical-align: middle;
@@ -233,7 +242,18 @@ ul.mg-upc-dg-list::before {
     flex-direction: column;
   }
 }
-
+#upc-my-lists-widget {
+  .mg-upc-dg-top-action {
+    @media (min-width: 1024px) {
+      &:first-child {
+        margin-top: 0;
+        button {
+          margin-top: 0;
+        }
+      }
+    }
+  }
+}
 .mg-upc-dg-total-votes {
   text-align: right;
   display: block;

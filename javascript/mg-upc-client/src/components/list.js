@@ -46,6 +46,7 @@ function List( props ) {
 							{
 								group: 'shared',
 								onAdd: ( evt ) => {
+									evt.item.parentNode.removeChild(evt.item);
 									dispatch( moveItemNextPage( evt.oldIndex ) );
 								}
 							}
@@ -57,6 +58,7 @@ function List( props ) {
 							{
 								group: 'shared',
 								onAdd: ( evt ) => {
+									evt.item.parentNode.removeChild(evt.item);
 									dispatch( moveItemPrevPage( evt.oldIndex ) );
 								}
 							}
@@ -78,7 +80,7 @@ function List( props ) {
 				s2 && s2.destroy();
 			};
 		},
-		[ state.list, state.listPage, state.listTotalPages ]
+		[ state.list, state.listPage, state.listTotalPages, state.status ]
 	);
 
 	useEffect(
@@ -208,6 +210,7 @@ function List( props ) {
 			<ListItems
 				list={state.list}
 				items={state.list?.items || []}
+				status={state.status}
 				onMove={handleMoveItem}
 				onRemove={handleRemoveItem}
 				onSaveItemDescription={handleItemUpdateDescription}

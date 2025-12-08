@@ -8,6 +8,38 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 		add_action( 'init', array( $this, 'pre_init' ), 5 );
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+
+		add_filter( 'woocommerce_account_menu_items', array( $this, 'account_menu' ) );
+		add_filter( 'woocommerce_get_query_vars', array( $this, 'woo_get_query_vars' ) );
+		add_action( 'woocommerce_account_my-lists_endpoint', array( $this, 'my_lists_content' ) );
+		add_filter( 'woocommerce_endpoint_my-lists_title', array( $this, 'my_account_section_title' ) );
+	}
+
+	function my_account_section_title() {
+		return mg_upc_get_text( "My lists", "user-post-collections" );
+	}
+
+	function woo_get_query_vars ( $query_vars ) {
+		$query_vars['my-lists'] = 'my-lists';
+
+		return $query_vars;
+	}
+
+	public function account_menu( $items ) {
+		$show_my_lists = get_option( 'mg_upc_show_my_lists_menu', 'on' );
+		if ( 'on' === $show_my_lists ) {
+			$items = array_merge(
+						array_slice( $items, 0,3 , true ),
+						array( 'my-lists' => mg_upc_get_text( "My lists", "user-post-collections" ) ),
+						array_slice( $items, 3, NULL, true )
+			);
+		}
+
+		return $items;
+	}
+
+	public function my_lists_content() {
+		mg_upc_get_template( 'mg-upc-wc/my-lists.php' );
 	}
 
 	public function register_routes() {
@@ -260,6 +292,14 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 		);
 
 		$settings_fields['mg_upc_product'][] = array(
+			'name'    => 'mg_upc_show_my_lists_menu',
+			'label'   => __( 'Show "My lists" in account menu', 'user-post-collections' ),
+			'desc'    => __( 'Display "My lists" option in WooCommerce account menu', 'user-post-collections' ),
+			'default' => 'on',
+			'type'    => 'checkbox',
+		);
+
+		$settings_fields['mg_upc_product'][] = array(
 			'name'    => 'mg_upc_modal_show_price',
 			'label'   => __( 'Price on collection modal', 'user-post-collections' ),
 			'desc'    => __( 'Show prices on collection modal', 'user-post-collections' ),
@@ -331,6 +371,14 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 			'type'    => 'text',
 		);
 
+		$settings_fields['mg_upc_texts'][] = array(
+			'name' => 'woo_my_lists',
+			'label' => __( 'My lists', 'user-post-collections' ),
+			'desc' => 'Menu and title for my lists in my account page (woocommerce).',
+			'default' => '',
+			'type' => 'text',
+		);
+
 		return $settings_fields;
 	}
 
@@ -385,6 +433,15 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 			array(
 				'default' => __( 'Add all to cart', 'user-post-collections' ),
 				'option'  => 'cart_all',
+			)
+		);
+
+		MG_UPC_Texts::add_string(
+			'woo_my_account',
+			'My lists',
+			array(
+				'default' => __( 'My lists', 'user-post-collections' ),
+				'option'  => 'woo_my_lists',
 			)
 		);
 	}
@@ -995,5 +1052,13 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 
 	public function register_hook_callbacks() { }
 
-	public function upgrade( $db_version = 0 ) { }
+	public function upgrade( $db_version = 0 ) {
+		if ( version_compare( $db_version, '0.9.2', '<' ) ) {
+			update_option( 'mg_upc_flush_rewrite', '1' );
+			// Disable "My lists" menu for existing installations upgrading to 9.2
+			if ( ! empty( $db_version ) ) {
+				update_option( 'mg_upc_show_my_lists_menu', 'off' );
+			}
+		}
+	}
 }

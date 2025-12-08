@@ -23,9 +23,6 @@ if ( ! class_exists( 'User_Post_Collections' ) ) {
 		protected function __construct() {
 			$this->register_hook_callbacks();
 
-			// initialize strings
-			MG_UPC_Texts::init();
-
 			$this->model = MG_List_Model::get_instance();
 
 			$this->modules = array(
