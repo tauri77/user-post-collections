@@ -68,6 +68,43 @@ class MG_UPC_Woocommerce extends MG_UPC_Module {
 	}
 
 	/**
+	 * Get schema for the cart endpoint response.
+	 *
+	 * @return array
+	 *
+	 * @noinspection PhpUnused (Rest API callback)
+	 */
+	public function get_list_schema() {
+		return array(
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => 'cart',
+			'type'       => 'object',
+			'properties' => array(
+				'fragments' => array(
+					'description' => esc_html__( 'Cart fragments for AJAX updates.', 'user-post-collections' ),
+					'type'        => 'object',
+					'readonly'    => true,
+				),
+				'cart_hash' => array(
+					'description' => esc_html__( 'Cart hash.', 'user-post-collections' ),
+					'type'        => 'string',
+					'readonly'    => true,
+				),
+				'msg'       => array(
+					'description' => esc_html__( 'Success messages.', 'user-post-collections' ),
+					'type'        => 'string',
+					'readonly'    => true,
+				),
+				'err'       => array(
+					'description' => esc_html__( 'Error messages.', 'user-post-collections' ),
+					'type'        => 'string',
+					'readonly'    => true,
+				),
+			),
+		);
+	}
+
+	/**
 	 * Check user permission for add a list to the cart
 	 *
 	 * @param $request
